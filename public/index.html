@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AsiaTechnoStroy</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<section class="hero">
+
+  <div class="hero-content">
+
+    <h1>AsiaTechnoStroy</h1>
+
+    <h2>Обслуживание инженерных систем зданий</h2>
+
+    <p>
+      VRV • Вентиляция • Электроснабжение • Водоснабжение
+    </p>
+
+    <div class="hero-buttons">
+      <a href="#form" class="btn">Оставить заявку</a>
+      <a href="tel:+998XXXXXXXXX" class="btn-outline">Позвонить</a>
+    </div>
+
+  </div>
+
+</section>
+
+<section class="container">
+  <h2>Обслуживание инженерных систем зданий</h2>
+  <p>VRV • Вентиляция • Электроснабжение • Водоснабжение</p>
+</section>
+
+<section class="container calculator">
+  <h2>Калькулятор стоимости</h2>
+
+  <input type="number" id="area" placeholder="Площадь (м²)">
+  
+  <select id="calcType">
+    <option value="office">БЦ</option>
+    <option value="mall">ТРЦ</option>
+    <option value="industrial">Склад</option>
+  </select>
+
+  <button onclick="calculate()">Рассчитать</button>
+  <h3 id="result"></h3>
+</section>
+
+<section class="container">
+  <h2>Оставить заявку</h2>
+
+  <form id="form">
+
+    <input type="text" id="name" placeholder="Ваше имя" required>
+
+    <input type="tel" id="phone" placeholder="+998 __ ___ __ __" required>
+
+    <select id="type" required>
+      <option value="">Тип объекта</option>
+      <option value="БЦ">Бизнес-центр</option>
+      <option value="ТРЦ">ТРЦ</option>
+      <option value="Склад">Склад</option>
+    </select>
+
+    <textarea id="message" placeholder="Комментарий"></textarea>
+
+    <div class="g-recaptcha" data-sitekey="6LdrW60sAAAAAFDXav47z-nKN6e5uNyDxfccd4l5"></div>
+
+    <button type="submit">Отправить заявку</button>
+
+  </form>
+
+</section>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script src="script.js"></script>
+
+</body>
+</html>

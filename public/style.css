@@ -1,0 +1,128 @@
+body {
+  margin: 0;
+  font-family: Arial;
+  background: radial-gradient(circle at 20% 30%, #1F6FEB33, transparent 40%),
+              radial-gradient(circle at 80% 70%, #388BFD22, transparent 40%),
+              #0B0F14;
+  color: #E6EDF3;
+}
+
+.header {
+  text-align: center;
+  padding: 20px;
+}
+
+.container {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 30px;
+  margin-top: 30px;
+  backdrop-filter: blur(10px);
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: none;
+  background: #161B22;
+  color: white;
+}
+
+button {
+  background: linear-gradient(135deg, #1F6FEB, #388BFD);
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px #1F6FEB55;
+}
+
+h1 {
+  font-size: 32px;
+  text-align: center;
+}
+
+h2 {
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #8B949E;
+}
+
+.hero {
+  text-align: center;
+  padding: 80px 0;
+  background: radial-gradient(circle, #1F6FEB22, transparent 60%);
+}
+
+.hero h1 {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.hero {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  background:
+    radial-gradient(circle at 30% 30%, #1F6FEB33, transparent 40%),
+    radial-gradient(circle at 70% 70%, #388BFD22, transparent 40%),
+    #0B0F14;
+}
+
+.hero-content {
+  max-width: 700px;
+}
+
+.hero h1 {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.hero h2 {
+  font-size: 28px;
+  margin-bottom: 15px;
+}
+
+.hero p {
+  color: #8B949E;
+  margin-bottom: 25px;
+}
+
+.hero-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.btn {
+  background: linear-gradient(135deg, #1F6FEB, #388BFD);
+  padding: 14px 28px;
+  border-radius: 10px;
+  color: white;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px #1F6FEB55;
+}
+
+.btn-outline {
+  border: 1px solid #1F6FEB;
+  padding: 14px 28px;
+  border-radius: 10px;
+  color: white;
+  text-decoration: none;
+}

@@ -1,128 +1,169 @@
+/* БАЗА */
 body {
   margin: 0;
-  font-family: Arial;
-  background: radial-gradient(circle at 20% 30%, #1F6FEB33, transparent 40%),
-              radial-gradient(circle at 80% 70%, #388BFD22, transparent 40%),
-              #0B0F14;
-  color: #E6EDF3;
+  font-family: Arial, sans-serif;
+  background: #020617;
+  color: #ffffff;
 }
+
+/* КОНТЕЙНЕР */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ================= HEADER ================= */
 
 .header {
-  text-align: center;
-  padding: 20px;
+  background: linear-gradient(180deg, #020617, #0f172a);
 }
 
-.container {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 12px;
-  padding: 30px;
-  margin-top: 30px;
-  backdrop-filter: blur(10px);
+/* НАВИГАЦИЯ */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
 }
 
-input, select, textarea {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  border: none;
-  background: #161B22;
-  color: white;
+.logo {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
-button {
-  background: linear-gradient(135deg, #1F6FEB, #388BFD);
-  border-radius: 10px;
-  transition: 0.3s;
-}
-
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 20px #1F6FEB55;
-}
-
-h1 {
-  font-size: 32px;
-  text-align: center;
-}
-
-h2 {
-  font-size: 26px;
-  margin-bottom: 10px;
-}
-
-p {
-  color: #8B949E;
-}
-
-.hero {
-  text-align: center;
-  padding: 80px 0;
-  background: radial-gradient(circle, #1F6FEB22, transparent 60%);
-}
-
-.hero h1 {
-  font-size: 40px;
-  margin-bottom: 10px;
-}
-
-.hero {
-  height: 100vh;
+.nav-right {
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-
-  background:
-    radial-gradient(circle at 30% 30%, #1F6FEB33, transparent 40%),
-    radial-gradient(circle at 70% 70%, #388BFD22, transparent 40%),
-    #0B0F14;
+  gap: 20px;
 }
 
-.hero-content {
-  max-width: 700px;
-}
-
-.hero h1 {
-  font-size: 42px;
-  margin-bottom: 10px;
-}
-
-.hero h2 {
-  font-size: 28px;
-  margin-bottom: 15px;
-}
-
-.hero p {
-  color: #8B949E;
-  margin-bottom: 25px;
-}
-
-.hero-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
+.phone {
+  color: #cbd5f5;
+  text-decoration: none;
+  font-size: 14px;
 }
 
 .btn {
-  background: linear-gradient(135deg, #1F6FEB, #388BFD);
-  padding: 14px 28px;
-  border-radius: 10px;
-  color: white;
+  border: 1px solid #38bdf8;
+  color: #38bdf8;
+  padding: 8px 16px;
+  border-radius: 6px;
   text-decoration: none;
   transition: 0.3s;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 20px #1F6FEB55;
+  background: #38bdf8;
+  color: #000;
 }
 
-.btn-outline {
-  border: 1px solid #1F6FEB;
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 100px 20px 60px;
+}
+
+.hero h1 {
+  font-size: 44px;
+  margin-bottom: 15px;
+}
+
+.subtitle {
+  max-width: 800px;
+  margin: 0 auto;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+/* КНОПКА */
+.hero-buttons {
+  margin-top: 30px;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+  color: #000;
   padding: 14px 28px;
-  border-radius: 10px;
-  color: white;
+  border-radius: 8px;
   text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+}
+
+/* ================= СЕКЦИИ ================= */
+
+.section {
+  padding: 80px 20px;
+}
+
+h2 {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.section-subtitle {
+  text-align: center;
+  color: #94a3b8;
+  margin-bottom: 50px;
+}
+
+/* ================= КАРТОЧКИ ================= */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+}
+
+.card {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  padding: 25px;
+  border-radius: 14px;
+  transition: 0.3s;
+  position: relative;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: #38bdf8;
+  border-radius: 4px 0 0 4px;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.card h3 {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.card p {
+  font-size: 14px;
+  color: #cbd5f5;
+  line-height: 1.5;
+}
+
+/* ================= FOOTER ================= */
+
+footer {
+  text-align: center;
+  padding: 30px;
+  background: #020617;
+  color: #64748b;
+  font-size: 14px;
 }

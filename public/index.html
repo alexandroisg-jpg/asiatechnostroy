@@ -1,111 +1,181 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AsiaTechnoStroy</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AsiaTechnoStroy</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #020617;
+      color: #fff;
+    }
+
+    header {
+      text-align: center;
+      padding: 100px 20px;
+      background: linear-gradient(180deg, #020617, #0f172a);
+    }
+
+    header h1 {
+      font-size: 38px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      max-width: 900px;
+      margin: 10px auto;
+      line-height: 1.6;
+      color: #94a3b8;
+    }
+
+    .section {
+      padding: 100px 20px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 50px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+    }
+
+    .card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      padding: 30px;
+      border-radius: 16px;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: #38bdf8;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(56, 189, 248, 0.5);
+    }
+
+    .card h3 {
+      margin-bottom: 12px;
+      font-size: 20px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: #cbd5f5;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      background: #020617;
+      color: #64748b;
+      font-size: 14px;
+    }
+  </style>
 </head>
 
 <body>
 
-<section class="hero">
+<header>
+  <h1>Сервисное обслуживание инженерных систем</h1>
+  <p class="subtitle">
+    Системы кондиционирования воздуха • Котельное оборудование • Системы электроснабжения • Системы водоснабжения и канализации
+  </p>
+</header>
 
-  <div class="hero-content">
-
-    <h1>AsiaTechnoStroy</h1>
-
-    <h2>Обслуживание инженерных систем зданий</h2>
-
-    <p class="subtitle">
-  Системы кондиционирования воздуха • Котельное оборудование • Системы электроснабжения • Системы водоснабжения и канализации
-</p>
-
-    <div class="hero-buttons">
-      <a href="#form" class="btn">Оставить заявку</a>
-      <a href="tel:+998XXXXXXXXX" class="btn-outline">Позвонить</a>
-    </div>
-
-  </div>
-
-</section>
-
-  <section class="services">
+<section class="section">
   <div class="container">
-    <h2>Наши услуги</h2>
+    <h2>Сервисное обслуживание</h2>
+    <p class="section-subtitle">
+      Обеспечиваем стабильную и бесперебойную работу всех инженерных систем объекта
+    </p>
 
-    <div class="services-grid">
-      <div class="service-card">
-        <h3>Системы кондиционирования</h3>
-        <p>Проектирование, монтаж и обслуживание систем кондиционирования воздуха любой сложности, включая VRV/VRF системы.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Кондиционирование</h3>
+        <p>Регулярное техническое обслуживание, диагностика и оперативное устранение неисправностей систем кондиционирования.</p>
       </div>
 
-      <div class="service-card">
+      <div class="card">
         <h3>Котельное оборудование</h3>
-        <p>Монтаж, пусконаладка и сервисное обслуживание котельных установок и тепловых пунктов.</p>
+        <p>Контроль, обслуживание и поддержание безопасной работы котлов и тепловых узлов.</p>
       </div>
 
-      <div class="service-card">
+      <div class="card">
         <h3>Электроснабжение</h3>
-        <p>Проектирование и монтаж систем электроснабжения, распределительных щитов и кабельных линий.</p>
+        <p>Проверка, обслуживание и обеспечение бесперебойной работы электрических систем.</p>
       </div>
 
-      <div class="service-card">
+      <div class="card">
         <h3>Водоснабжение и канализация</h3>
-        <p>Монтаж и обслуживание внутренних и наружных инженерных сетей водоснабжения и канализации.</p>
+        <p>Обслуживание сетей, устранение неисправностей и предотвращение аварий.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="container">
-  <h2>Обслуживание инженерных систем зданий</h2>
-  <p>VRV • Вентиляция • Электроснабжение • Водоснабжение</p>
+<section class="section">
+  <div class="container">
+    <h2>Почему выбирают нас</h2>
+
+    <div class="grid">
+      <div class="card">
+        <h3>24/7 реагирование</h3>
+        <p>Оперативный выезд и устранение аварийных ситуаций в любое время.</p>
+      </div>
+
+      <div class="card">
+        <h3>Практический опыт</h3>
+        <p>Опыт обслуживания коммерческих и жилых объектов различного уровня.</p>
+      </div>
+
+      <div class="card">
+        <h3>Снижение затрат</h3>
+        <p>Профилактика снижает риск крупных поломок и расходов.</p>
+      </div>
+
+      <div class="card">
+        <h3>Комплексное обслуживание</h3>
+        <p>Все инженерные системы — в рамках одного договора.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section class="container calculator">
-  <h2>Калькулятор стоимости</h2>
-
-  <input type="number" id="area" placeholder="Площадь (м²)">
-  
-  <select id="calcType">
-    <option value="office">БЦ</option>
-    <option value="mall">ТРЦ</option>
-    <option value="industrial">Склад</option>
-  </select>
-
-  <button onclick="calculate()">Рассчитать</button>
-  <h3 id="result"></h3>
-</section>
-
-<section class="container">
-  <h2>Оставить заявку</h2>
-
-  <form id="form">
-
-    <input type="text" id="name" placeholder="Ваше имя" required>
-
-    <input type="tel" id="phone" placeholder="+998 __ ___ __ __" required>
-
-    <select id="type" required>
-      <option value="">Тип объекта</option>
-      <option value="БЦ">Бизнес-центр</option>
-      <option value="ТРЦ">ТРЦ</option>
-      <option value="Склад">Склад</option>
-    </select>
-
-    <textarea id="message" placeholder="Комментарий"></textarea>
-
-    <div class="g-recaptcha" data-sitekey="6LdrW60sAAAAAFDXav47z-nKN6e5uNyDxfccd4l5"></div>
-
-    <button type="submit">Отправить заявку</button>
-
-  </form>
-
-</section>
-
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-<script src="script.js"></script>
+<footer>
+  © 2026 AsiaTechnoStroy
+</footer>
 
 </body>
 </html>

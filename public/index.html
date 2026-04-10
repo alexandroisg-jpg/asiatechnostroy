@@ -13,13 +13,170 @@
       color: #fff;
     }
 
-    <header class="header">
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(180deg, #020617, #0f172a);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .phone {
+      color: #cbd5f5;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .btn {
+      border: 1px solid #38bdf8;
+      color: #38bdf8;
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #38bdf8;
+      color: #000;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 100px 20px 60px;
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      margin-bottom: 15px;
+    }
+
+    .subtitle {
+      max-width: 800px;
+      margin: 0 auto;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .hero-buttons {
+      margin-top: 30px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+      color: #000;
+      padding: 14px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+    }
+
+    /* SECTIONS */
+    .section {
+      padding: 80px 20px;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 50px;
+    }
+
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+    }
+
+    /* CARD */
+    .card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      padding: 25px;
+      border-radius: 14px;
+      transition: 0.3s;
+      position: relative;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: #38bdf8;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(56, 189, 248, 0.5);
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      color: #cbd5f5;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #64748b;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="header">
   <div class="nav">
     <div class="logo">AsiaTechnoStroy</div>
 
     <div class="nav-right">
-      <a href="tel:+998901234567" class="phone">+998 90 123 45 67</a>
-      <a href="https://t.me/yourusername" target="_blank" class="btn">Оставить заявку</a>
+      <a href="tel:+998907888805" class="phone">+998 90 788 88 05</a>
+      <a href="#" class="btn">Оставить заявку</a>
     </div>
   </div>
 
@@ -31,9 +188,7 @@
     </p>
 
     <div class="hero-buttons">
-      <a href="https://t.me/yourusername" target="_blank" class="btn-primary">
-        Получить консультацию
-      </a>
+      <a href="#" class="btn-primary">Получить консультацию</a>
     </div>
   </div>
 </header>
@@ -42,28 +197,28 @@
   <div class="container">
     <h2>Сервисное обслуживание</h2>
     <p class="section-subtitle">
-      Обеспечиваем стабильную и бесперебойную работу всех инженерных систем объекта
+      Обеспечиваем бесперебойную работу инженерных систем и предотвращаем аварии
     </p>
 
     <div class="grid">
       <div class="card">
         <h3>Кондиционирование</h3>
-        <p>Регулярное техническое обслуживание, диагностика и оперативное устранение неисправностей систем кондиционирования.</p>
+        <p>Диагностика, обслуживание и ремонт систем кондиционирования воздуха.</p>
       </div>
 
       <div class="card">
         <h3>Котельное оборудование</h3>
-        <p>Контроль, обслуживание и поддержание безопасной работы котлов и тепловых узлов.</p>
+        <p>Обслуживание котлов и тепловых узлов с контролем безопасности.</p>
       </div>
 
       <div class="card">
         <h3>Электроснабжение</h3>
-        <p>Проверка, обслуживание и обеспечение бесперебойной работы электрических систем.</p>
+        <p>Поддержание стабильной работы электрических систем и оборудования.</p>
       </div>
 
       <div class="card">
         <h3>Водоснабжение и канализация</h3>
-        <p>Обслуживание сетей, устранение неисправностей и предотвращение аварий.</p>
+        <p>Обслуживание сетей, устранение протечек и аварийных ситуаций.</p>
       </div>
     </div>
   </div>
@@ -76,22 +231,22 @@
     <div class="grid">
       <div class="card">
         <h3>24/7 реагирование</h3>
-        <p>Оперативный выезд и устранение аварийных ситуаций в любое время.</p>
+        <p>Быстрый выезд и устранение аварий.</p>
       </div>
 
       <div class="card">
-        <h3>Практический опыт</h3>
-        <p>Опыт обслуживания коммерческих и жилых объектов различного уровня.</p>
+        <h3>Опыт</h3>
+        <p>Работаем с коммерческими и жилыми объектами.</p>
       </div>
 
       <div class="card">
         <h3>Снижение затрат</h3>
-        <p>Профилактика снижает риск крупных поломок и расходов.</p>
+        <p>Профилактика вместо дорогого ремонта.</p>
       </div>
 
       <div class="card">
-        <h3>Комплексное обслуживание</h3>
-        <p>Все инженерные системы — в рамках одного договора.</p>
+        <h3>Комплексный подход</h3>
+        <p>Все системы в одном договоре.</p>
       </div>
     </div>
   </div>

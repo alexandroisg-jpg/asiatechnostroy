@@ -1,50 +1,70 @@
-function calculate() {
-  let area = document.getElementById("area").value;
-  let type = document.getElementById("calcType").value;
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // 1. Анимация появления блоков
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => { 
+            if (entry.isIntersecting) entry.target.classList.add('visible'); 
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  let price = 0;
+    // 2. Функция универсального расчета
+    function updateCalc(inputId, checkClass, displayId, pricePerMeter = 0) {
+        const inputEl = document.getElementById(inputId);
+        const area = inputEl ? (parseFloat(inputEl.value) || 0) : 0;
+        let base = 0;
+        document.querySelectorAll(checkClass).forEach(c => { 
+            if(c.checked) base += parseFloat(c.dataset.price); 
+        });
+        
+        const total = base + (area * pricePerMeter);
+        const displayEl = document.getElementById(displayId);
+        if (displayEl) {
+            displayEl.innerText = total > 0 ? Math.round(total).toLocaleString('ru-RU') + ' сум' : '0 сум';
+        }
+    }
 
-  if(type === "office") price = area * 15000;
-  if(type === "mall") price = area * 25000;
-  if(type === "industrial") price = area * 20000;
+    // 3. Слушатели для калькуляторов
+    const areaServ = document.getElementById('area-service');
+    if (areaServ) {
+        const servChecks = document.querySelectorAll('.service-sys');
+        areaServ.addEventListener('input', () => updateCalc('area-service', '.service-sys', 'total-service', 150));
+        servChecks.forEach(c => c.addEventListener('change', () => updateCalc('area-service', '.service-sys', 'total-service', 150)));
+    }
 
-  document.getElementById("result").innerText = "≈ " + price + " сум / мес";
-  return price;
-}
+    const auditChecks = document.querySelectorAll('.audit-sys');
+    auditChecks.forEach(c => c.addEventListener('change', () => updateCalc(null, '.audit-sys', 'total-audit', 0)));
 
-document.getElementById("form").addEventListener("submit", function(e){
-  e.preventDefault();
+    // 4. Логика видео и постера (ИСПРАВЛЕНО: удалены дубликаты переменных)
+    const heroVideo = document.getElementById('heroVideo');
+    const heroPoster = document.querySelector('.hero-poster');
 
-  let name = document.getElementById("name").value.trim();
-  let phone = document.getElementById("phone").value.trim();
-  let type = document.getElementById("type").value;
-  let message = document.getElementById("message").value.trim();
-  let captcha = grecaptcha.getResponse();
+    if (heroVideo && heroPoster) {
+        const hidePoster = () => {
+            heroPoster.classList.add('fade-out');
+            heroVideo.play().catch(err => console.log("Автозапуск заблокирован:", err));
+        };
 
-  if(!name || !phone || !type){
-    alert("Заполните все поля");
-    return;
+        if (heroVideo.readyState >= 3) {
+            hidePoster();
+        } else {
+            heroVideo.addEventListener('canplaythrough', hidePoster, { once: true });
+        }
+
+        setTimeout(() => {
+            if (!heroPoster.classList.contains('fade-out')) hidePoster();
+        }, 3000);
+    }
+});
+
+// 5. Логика скролла шапки
+window.addEventListener('scroll', function() {
+  const header = document.querySelector('header');
+  if (header) {
+      if (window.scrollY > 50) {
+        header.classList.add('shrunk');
+      } else {
+        header.classList.remove('shrunk');
+      }
   }
-
-  if(!captcha){
-    alert("Подтвердите, что вы не робот");
-    return;
-  }
-
-  fetch("/send", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      name,
-      phone,
-      type,
-      message,
-      price: calculate(),
-      captcha
-    })
-  }).then(()=> {
-    alert("Заявка отправлена");
-    document.getElementById("form").reset();
-    grecaptcha.reset();
-  });
 });

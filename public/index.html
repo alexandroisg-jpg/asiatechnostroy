@@ -1,275 +1,192 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AsiaTechnoStroy</title>
-
-  <!-- ПОДКЛЮЧАЕМ CSS -->
-
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsiaTechnoStroy | Engineering Excellence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Syncopate:wght@400;700&family=Manrope:wght@200;300;400&family=Oswald:wght@200;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <header class="header">
-  <div class="nav">
-    <div class="logo">AsiaTechnoStroy</div>
+    <div class="header__nav-full">
+        <a href="/" class="logo-block">
+            <div class="logo-main">AsiaTechnoStroy</div>
+            <div class="logo-badge">
+                <span class="badge-text-primary">engineering</span>
+                <div class="logo-separator"></div>
+                <span class="badge-text-secondary">group</span>
+            </div>
+        </a>
 
-<div class="nav-right">
-  <a href="tel:+998907888805" class="phone">+998 90 788 88 05</a>
-  <a href="#contact" class="btn btn-secondary">Оставить заявку</a>
-</div>
-
-
-  </div>
-
-  <div class="hero">
-    <h1>Сервисное обслуживание инженерных систем</h1>
-
-
-<p class="subtitle">
-  Кондиционирование • Котельное оборудование • Электроснабжение • Водоснабжение и канализация
-</p>
-
-<div class="hero-buttons">
-  <a href="#calc" class="btn btn-primary">Рассчитать стоимость</a>
-  <a href="#contact" class="btn btn-secondary">Аудит объекта</a>
-</div>
-
-
-  </div>
+        <nav class="nav">
+            <ul class="nav__list">
+                <li><a href="#about" class="nav__link">О нас</a></li>
+                <li><a href="#calculators" class="nav__link">Калькулятор</a></li>
+                <li><a href="#contact" class="nav__link">Контакты</a></li>
+            </ul>
+        </nav>
+    </div>
 </header>
 
-<!-- ОБСЛУЖИВАНИЕ -->
+<main>
+    <section class="hero">
+        <div class="hero-poster" style="background-image: url('assets/img/video_poster.jpg');"></div>
+        
+        <video id="heroVideo" autoplay loop muted playsinline class="back-video">
+            <source src="assets/video/bg_video.webm" type="video/webm">
+            <source src="assets/video/bg_video.mp4" type="video/mp4">
+        </video>
 
-<section class="section">
-  <div class="container">
-    <h2>Сервисное обслуживание</h2>
+        <div class="hero-section">
+            <div class="badge">
+                <span>EST. 2012</span>
+                <div class="badge-separator"></div>
+                <span>Tashkent</span>
+            </div>
 
+            <h1>
+                <span>Безупречная инженерия</span><br>
+                вашего бизнеса
+            </h1>
+            
+            <p style="color: #E2E8F0; max-width: 700px; margin: 0 auto; font-size: 1.2rem; opacity: 0.8;">
+                Профессиональное обслуживание котельных, систем кондиционирования и электросетей.
+            </p>
+        </div>
+    </section> <section id="services" class="section">
+        </section>
 
-<p class="section-subtitle">
-  Комплексное обслуживание инженерных систем на абонентской основе.<br>
-  Берём на себя полный контроль состояния оборудования, выполняем регламентное ТО,<br>
-  предупреждаем неисправности и обеспечиваем стабильную работу.
-</p>
+        <section id="about" class="about">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-text">
+                <h2 class="section-title">Инженерия <span>высшего класса</span></h2>
+                <p class="about-description">
+                    С 2012 года мы обеспечиваем бесперебойную работу сложнейших инженерных систем. 
+                    Мы не просто ремонтируем — мы берем на себя полное физическое обслуживание 
+                    вашей инфраструктуры, чтобы вы могли сосредоточиться на бизнесе.
+                </p>
+                <ul class="about-stats">
+                    <li><strong>14+</strong> лет опыта</li>
+                    <li><strong>100+</strong> объектов</li>
+                    <li><strong>24/7</strong> мониторинг</li>
+                </ul>
+            </div>
+            <div class="about-features">
+                <div class="feature-card">
+                    <div class="feature-icon">🏢</div>
+                    <h3>Административные здания</h3>
+                    <p>Бизнес-центры и офисные комплексы класса А и B.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎭</div>
+                    <h3>Концертные залы и ТРЦ</h3>
+                    <p>Обслуживание систем в местах с высокой проходимостью.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏦</div>
+                    <h3>Банковские здания</h3>
+                    <p>Особое внимание к системам безопасности и жизнеобеспечения.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</main>
 
-<div class="grid">
-
-  <div class="card">
-    <h3>Системы кондиционирования</h3>
-    <p>Стабильная работа без простоев и контроль состояния оборудования.</p>
-  </div>
-
-  <div class="card">
-    <h3>Котельное оборудование</h3>
-    <p>Безопасная эксплуатация и минимизация рисков аварий.</p>
-  </div>
-
-  <div class="card">
-    <h3>Электроснабжение</h3>
-    <p>Контроль нагрузок и защита от аварийных отключений.</p>
-  </div>
-
-  <div class="card">
-    <h3>Водоснабжение и канализация</h3>
-    <p>Предотвращение протечек и стабильная работа систем.</p>
-  </div>
-
-  <div class="card">
-    <h3>Вентиляция</h3>
-    <p>Эффективный воздухообмен и стабильные параметры системы.</p>
-  </div>
-
-</div>
-
-
-  </div>
+    <section id="services" class="section">
+    <div class="container">
+        <h2 class="section-title reveal">Инженерные компетенции</h2>
+        <div class="bento-grid">
+            <div class="bento-item bento-item--large reveal">
+                <div class="card-num">01</div>
+                <h3>Системы холодоснабжения</h3>
+                <p>Техническое обслуживание чиллеров, фанкойлов, VRF-систем и прецизионных кондиционеров. Мониторинг параметров давления и дозаправка хладагентом.</p>
+            </div>
+            <div class="bento-item reveal">
+                <div class="card-num">02</div>
+                <h3>Вентиляция</h3>
+                <p>Регламентный сервис приточно-вытяжных установок, замена фильтрующих элементов и калибровка датчиков воздуха.</p>
+            </div>
+            <div class="bento-item reveal">
+                <div class="card-num">03</div>
+                <h3>Тепловые пункты</h3>
+                <p>Комплексное сопровождение котельных и ИТП, проверка систем безопасности и наладка теплообменного оборудования.</p>
+            </div>
+            <div class="bento-item reveal">
+                <div class="card-num">04</div>
+                <h3>Электроснабжение</h3>
+                <p>Эксплуатация систем ЭОМ, проверка ГРЩ, ВРУ и проведение ежегодных тепловизионных обследований соединений.</p>
+            </div>
+            <div class="bento-item reveal">
+                <div class="card-num">05</div>
+                <h3>Водоснабжение</h3>
+                <p>Сервис насосных станций повышения давления (НС), систем водоподготовки и поддержание стабильного давления в сети.</p>
+            </div>
+            <div class="bento-item reveal">
+                <div class="card-num">06</div>
+                <h3>Канализация</h3>
+                <p>Профилактическая промывка сетей водоотведения, обслуживание дренажных насосов и локальных очистных сооружений.</p>
+            </div>
+        </div>
+    </div>
 </section>
 
-<!-- АБОНЕНТКА -->
+    <section id="calculators" class="section" style="background: #05070a;">
+    <div class="container">
+        <div class="calc-wrapper">
+            
+            <div class="audit-card reveal">
+                <div class="audit-info">
+                    <h2>Абонентский сервис</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 20px;">Расчет ежемесячного технического сопровождения.</p>
+                    <input type="number" id="area-service" placeholder="Площадь объекта (м²)" class="input-premium">
+                    <div class="check-list">
+                        <label class="c-check"><input type="checkbox" class="service-sys" data-price="150000"><span>Системы ОВиК</span></label>
+                        <label class="c-check"><input type="checkbox" class="service-sys" data-price="120000"><span>Электроснабжение</span></label>
+                        <label class="c-check"><input type="checkbox" class="service-sys" data-price="100000"><span>Водопровод и канализация</span></label>
+                    </div>
+                </div>
+                <div class="audit-total">
+                    <span class="calc-label">В месяц:</span>
+                    <div id="total-service" class="res-price">0 сум</div>
+                    <button class="btn-premium" style="background: var(--primary); border: none; width: 100%;">Запросить договор</button>
+                </div>
+            </div>
 
-<section class="section">
-  <div class="container">
+            <div class="audit-card reveal" style="margin-top: 40px; border-color: rgba(255,255,255,0.05);">
+                <div class="audit-info">
+                    <h2>Экспресс-аудит</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 20px;">Поверхностная оценка систем перед постановкой на баланс.</p>
+                    <div class="check-list">
+                        <label class="c-check"><input type="checkbox" class="audit-sys" data-price="200000"><span>Визуальный осмотр ОВиК</span></label>
+                        <label class="c-check"><input type="checkbox" class="audit-sys" data-price="150000"><span>Тепловизионная съемка щитовых</span></label>
+                        <label class="c-check"><input type="checkbox" class="audit-sys" data-price="100000"><span>Проверка сетей ВК</span></label>
+                    </div>
+                </div>
+                <div class="audit-total">
+                    <span class="calc-label">Разовая оценка:</span>
+                    <div id="total-audit" class="res-price">0 сум</div>
+                    <button class="btn-premium" style="border-color: var(--text-muted); width: 100%;">Вызвать инженера</button>
+                </div>
+            </div>
 
-
-<div class="service-block">
-
-  <div class="service-content">
-    <h2>Абонентское техническое обслуживание</h2>
-
-    <p class="subtitle">
-      Работаем по договору с фиксированной оплатой и полной ответственностью
-    </p>
-
-    <ul class="features">
-      <li>Плановое регламентное обслуживание</li>
-      <li>Оперативное устранение неисправностей</li>
-      <li>Снижение аварийных простоев</li>
-      <li>Персональный инженер</li>
-    </ul>
-
-    <div class="actions">
-      <a href="#contact" class="btn btn-primary">Заключить договор</a>
-      <a href="#contact" class="btn btn-secondary">Получить КП</a>
+        </div>
     </div>
-  </div>
-
-  <div class="service-visual">
-    <div class="visual-card">
-      <div class="stat">
-        <span>24/7</span>
-        <p>Поддержка</p>
-      </div>
-      <div class="stat">
-        <span>-30%</span>
-        <p>Снижение затрат</p>
-      </div>
-      <div class="stat">
-        <span>1 договор</span>
-        <p>Все системы</p>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-
-  </div>
 </section>
+</main>
 
-<!-- ТАРИФЫ -->
-
-<section class="section">
-  <div class="container">
-
-
-<div class="pricing">
-  <h2>Тарифы обслуживания</h2>
-
-  <div class="pricing-grid">
-
-    <div class="price-card">
-      <h3>Базовый</h3>
-      <p class="price">от 3 000 000 сум / мес</p>
-
-      <ul class="features">
-        <li>Плановое обслуживание</li>
-        <li>1 выезд в месяц</li>
-        <li>Консультации</li>
-      </ul>
-
-      <a href="#contact" class="btn btn-secondary">Выбрать</a>
+<footer class="footer">
+    <div class="container">
+        <p>© 2021 — 2026 AsiaTechnoStroy Engineering Group</p>
+        <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 10px;">Ташкент, 2й проезд Заки Валиди, дом 9</p>
     </div>
-
-    <div class="price-card featured">
-      <h3>Стандарт</h3>
-      <p class="price">от 6 000 000 сум / мес</p>
-
-      <ul class="features">
-        <li>Все системы</li>
-        <li>Неограниченные выезды</li>
-        <li>Приоритетное обслуживание</li>
-      </ul>
-
-      <a href="#contact" class="btn btn-primary">Рекомендуем</a>
-    </div>
-
-    <div class="price-card">
-      <h3>Премиум</h3>
-      <p class="price">индивидуально</p>
-
-      <ul class="features">
-        <li>Персональный инженер</li>
-        <li>24/7 поддержка</li>
-        <li>SLA контроль</li>
-      </ul>
-
-      <a href="#contact" class="btn btn-secondary">Запросить</a>
-    </div>
-
-  </div>
-</div>
-
-
-  </div>
-</section>
-
-<!-- КАЛЬКУЛЯТОР -->
-
-<section class="section" id="calc">
-  <div class="container">
-
-
-<h2>Рассчитать стоимость</h2>
-
-<div class="service-block">
-  <div class="service-content">
-
-    <p class="subtitle">
-      Введите площадь объекта и получите ориентировочную стоимость обслуживания
-    </p>
-
-    <input type="number" id="area" placeholder="Площадь (м²)" style="padding:12px;border-radius:8px;border:none;width:100%;margin-bottom:10px;">
-    <button onclick="calcPrice()" class="btn btn-primary">Рассчитать</button>
-
-    <p id="result" style="margin-top:15px;color:#38bdf8;"></p>
-
-  </div>
-</div>
-
-
-  </div>
-</section>
-
-<!-- ПОЧЕМУ МЫ -->
-
-<section class="section">
-  <div class="container">
-
-
-<h2>Почему выбирают нас</h2>
-
-<div class="grid">
-
-  <div class="card">
-    <h3>24/7 реагирование</h3>
-    <p>Быстрый выезд и устранение аварий.</p>
-  </div>
-
-  <div class="card">
-    <h3>Опыт</h3>
-    <p>Работаем с коммерческими и жилыми объектами.</p>
-  </div>
-
-  <div class="card">
-    <h3>Снижение затрат</h3>
-    <p>Профилактика дешевле ремонта.</p>
-  </div>
-
-  <div class="card">
-    <h3>Комплексный подход</h3>
-    <p>Все системы в одном договоре.</p>
-  </div>
-
-</div>
-
-  </div>
-</section>
-
-<footer>
-  © 2021 AsiaTechnoStroy
 </footer>
 
-<script>
-function calcPrice() {
-  let area = document.getElementById('area').value;
-  let price = area * 15000;
-  document.getElementById('result').innerText =
-    "Ориентировочно: " + price.toLocaleString() + " сум / мес";
-}
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>

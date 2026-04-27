@@ -390,9 +390,13 @@ h1 span {
 }
 
 /* Адаптив для мобилок */
-@media (max-width: 992px) {
+@media (max-width: 768px) {
     .about-grid {
         grid-template-columns: 1fr;
+    }
+    .hero-section p {
+        font-size: 1.1rem !important; /* Немного уменьшаем на смартфонах */
+        padding: 0 10px;
     }
 }
 /* СЕТКА БЕНТО (BENTO GRID) */

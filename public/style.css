@@ -748,6 +748,11 @@ box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
 }
 
 .calc-settings { padding: 40px; }
+/* Убираем возможную блокировку от родительских контейнеров */
+.calc-settings, .calc-result-panel {
+    position: relative;
+    z-index: 10;
+}
 
 .calc-result-panel {
     background: rgba(0, 242, 255, 0.02);
@@ -756,6 +761,8 @@ box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    position: relative;
+    z-index: 10; /* Поднимаем выше всех эффектов свечения */
 }
 
 /* Карточки типа объекта */
@@ -801,6 +808,10 @@ box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
     width: 100%;
     margin: 20px 0;
     accent-color: #00f2ff;
+    position: relative;
+    z-index: 20 !important; /* Выше всех свечений и рамок */
+    pointer-events: auto !important; /* Гарантируем кликабельность */
+    
 }
 
 /* Системы */
@@ -816,6 +827,8 @@ box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
     flex: 1 1 0; /* Равная ширина для всех систем в строке */
     min-width: 0;
     cursor: pointer;
+    position: relative;
+    z-index: 11;
 }
 
 .system-item input { display: none; }
@@ -879,6 +892,9 @@ box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
     width: 24px;
     height: 24px;
     color: var(--text-muted);
+    position: relative;
+    z-index: 21;
+    pointer-events: auto;
 }
 
 .type-card.active i, 
@@ -900,9 +916,35 @@ box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
     display: inline-block;
 }
 
+/* Разблокировка кликов для выбора объекта */
+.type-grid .type-card {
+    position: relative !important;
+    z-index: 100 !important;   /* Поднимаем выше всех свечений */
+    pointer-events: auto !important; /* Принудительно разрешаем клики */
+    cursor: pointer;
+}
+
+/* Разблокировка ползунка площади */
+#area-range {
+    position: relative !important;
+    z-index: 101 !important;
+    pointer-events: auto !important;
+    cursor: grab;
+}
+
+/* Чтобы при наведении на карточки (БЦ, Банк) они подсвечивались */
+.type-card:hover {
+    border-color: #00f2ff !important;
+    background: rgba(0, 242, 255, 0.1) !important;
+}
+
 .btn-premium:hover {
     background: var(--primary);
     box-shadow: 0 0 25px var(--primary-glow);
+}
+
+#calculators {
+    margin-bottom: 80px; /* Оптимальное расстояние для десктопа (1440px) */
 }
 
 /* АНИМАЦИИ */

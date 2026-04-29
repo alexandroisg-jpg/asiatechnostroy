@@ -1,171 +1,191 @@
 /**
- * ASIATECHNOSTROY - Advanced Engineering Logic
- * Version: 3.0 (Smart State Management)
+ * ASIATECHNOSTROY - Advanced Engineering Logic v4.0
+ * Модульная архитектура с эффектом инерционной анимации
  */
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Вспомогательная функция для плавного форматирования валюты
+    const formatCurrency = (val) => Math.round(val).toLocaleString('ru-RU');
+
     /* ==========================================================================
-       1. ГЛОБАЛЬНЫЕ ВИЗУАЛЬНЫЕ ЭФФЕКТЫ
+       1. МОДУЛЬ ИНТЕРФЕЙСА (UI & Visuals)
        ========================================================================== */
     const initVisuals = () => {
-        // Инициализация Lucide
-        if (window.lucide) lucide.createIcons();
+        // Инициализация Lucide с защитой
+        try { if (window.lucide) lucide.createIcons(); } catch (e) {}
 
-        // Анимация Reveal (плавное появление блоков)
-        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
-        const revealObserver = new IntersectionObserver((entries) => {
+        // Умный Reveal (появление блоков)
+        const revealOptions = { threshold: 0.15, rootMargin: "0px 0px -50px 0px" };
+        const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
-                    revealObserver.unobserve(entry.target); // Оптимизация: анимируем 1 раз
+                    observer.unobserve(entry.target);
                 }
             });
-        }, observerOptions);
+        }, revealOptions);
 
-        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     };
 
-
     /* ==========================================================================
-       2. МОДУЛЬ УМНОГО КАЛЬКУЛЯТОРА
+       2. ДВИЖОК КАЛЬКУЛЯТОРА (The Engine)
        ========================================================================== */
     const initCalculator = () => {
-        const UI = {
+        const DOM = {
             range: document.getElementById('area-range'),
-            areaLabel: document.getElementById('area-val'),
-            totalPrice: document.getElementById('total-price'),
-            typeCards: document.querySelectorAll('.type-card'),
+            total: document.getElementById('total-price'),
+            label: document.getElementById('area-val'),
+            types: document.querySelectorAll('.type-card'),
             systems: document.querySelectorAll('.system-item input'),
-            tabBtns: document.querySelectorAll('.tab-btn'),
-            calcContainer: document.querySelector('.calc-container')
+            tabs: document.querySelectorAll('.tab-btn')
         };
 
-        if (!UI.range || !UI.totalPrice) return;
+        if (!DOM.range || !DOM.total) return;
 
-        // Состояние калькулятора (единый источник истины)
-        const state = {
-            area: parseInt(UI.range.value),
+        // Внутреннее состояние (State)
+        let state = {
+            area: parseInt(DOM.range.value),
             multiplier: 1.0,
             mode: 'service',
-            lastTotal: 0
+            currentDisplayValue: 0
         };
 
-        // Плавная анимация чисел (Easing function)
-        const animateNumber = (target, start, end, duration = 600) => {
-            let startTimestamp = null;
+        // Анимация числа "набеганием" (Easing)
+        const animatePrice = (newVal) => {
+            const duration = 600; 
+            const start = state.currentDisplayValue;
+            const end = newVal;
+            let startTime = null;
+
             const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                // Использование easeOutExpo для "дорогого" эффекта замедления в конце
-                const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-                const current = Math.floor(easeProgress * (end - start) + start);
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / duration, 1);
                 
-                target.innerText = current.toLocaleString('ru-RU');
-                if (progress < 1) window.requestAnimationFrame(step);
+                // Функция плавности (Out-Expo)
+                const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+                const current = Math.floor(ease * (end - start) + start);
+                
+                DOM.total.innerText = current.toLocaleString('ru-RU');
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    state.currentDisplayValue = end;
+                }
             };
             window.requestAnimationFrame(step);
         };
 
-        const updateCalculation = () => {
+        const runLogic = () => {
             let systemsRate = 0;
-            UI.systems.forEach(input => {
-                if (input.checked) systemsRate += parseFloat(input.dataset.price || 0);
+            
+            // Считаем активные системы
+            DOM.systems.forEach(s => {
+                if (s.checked) systemsRate += parseFloat(s.dataset.price || 0);
             });
 
-            // Расчет: (Площадь * Сумма тарифов) * Коэффициент объекта
-            let newTotal = (state.area * systemsRate) * state.multiplier;
+            // Базовая формула
+            let result = (state.area * systemsRate) * state.multiplier;
 
-            // Коэффициент для режима "Технический аудит" (30% от чека)
-            if (state.mode === 'audit') newTotal *= 0.35;
+            // Логика режима (Аудит обычно дешевле обслуживания в 3 раза)
+            if (state.mode === 'audit') result *= 0.35;
 
-            // Запуск анимации от старого значения к новому
-            animateNumber(UI.totalPrice, state.lastTotal, newTotal);
-            state.lastTotal = newTotal;
+            animatePrice(result);
         };
 
-        // --- ОБРАБОТЧИКИ СОБЫТИЙ ---
+        // --- Event Listeners ---
 
-        // Слайдер площади
-        UI.range.addEventListener('input', (e) => {
+        // 1. Слайдер с "эффектом тяжести"
+        DOM.range.addEventListener('input', (e) => {
             state.area = parseInt(e.target.value);
-            UI.areaLabel.innerText = `${state.area} м²`;
-            updateCalculation();
+            DOM.label.innerText = `${state.area} м²`;
+            
+            // Визуальный фидбек для больших площадей
+            DOM.label.style.color = state.area > 7000 ? '#00f2ff' : '';
+            DOM.label.style.fontWeight = state.area > 7000 ? '800' : '400';
+            
+            runLogic();
         });
 
-        // Типы объектов (Delegation-like)
-        UI.typeCards.forEach(card => {
-            card.addEventListener('click', () => {
-                UI.typeCards.forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-                state.multiplier = parseFloat(card.dataset.multiplier || 1);
-                updateCalculation();
+        // 2. Карточки объектов (с вибро-откликом, если доступно)
+        DOM.types.forEach(card => {
+            card.addEventListener('click', function() {
+                if (window.navigator.vibrate) window.navigator.vibrate(5);
+                
+                DOM.types.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                
+                state.multiplier = parseFloat(this.dataset.multiplier) || 1.0;
+                runLogic();
             });
         });
 
-        // Системы (чекбоксы)
-        UI.systems.forEach(input => {
-            input.addEventListener('change', updateCalculation);
-        });
+        // 3. Чекбоксы систем
+        DOM.systems.forEach(s => s.addEventListener('change', runLogic));
 
-        // Вкладки (Сервис / Аудит)
-        UI.tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                UI.tabBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                state.mode = btn.dataset.tab;
-                updateCalculation();
+        // 4. Переключатель табов
+        DOM.tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                DOM.tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                state.mode = this.dataset.tab;
+                runLogic();
             });
         });
 
-        // Начальный расчет
-        updateCalculation();
+        // Первый запуск
+        runLogic();
     };
 
-
     /* ==========================================================================
-       3. МОДУЛЬ ГЕРОЙ-ВИДЕО (Оптимизация загрузки)
-       ========================================================================== */
-    const initHeroSection = () => {
-        const video = document.getElementById('heroVideo');
-        const poster = document.querySelector('.hero-poster');
-        
-        if (!video || !poster) return;
-
-        const playVideo = () => {
-            video.play()
-                .then(() => poster.classList.add('fade-out'))
-                .catch(() => console.log("Video auto-play blocked by browser."));
-        };
-
-        // Запуск если видео загружено или через страховку в 3 секунды
-        video.readyState >= 3 ? playVideo() : video.addEventListener('canplaythrough', playVideo, { once: true });
-        setTimeout(playVideo, 3000);
-    };
-
-
-    /* ==========================================================================
-       4. МОДУЛЬ ШАПКИ (Scroll Performance)
+       3. МОДУЛЬ СКРОЛЛА И ШАПКИ
        ========================================================================== */
     const initHeader = () => {
         const header = document.querySelector('header');
         if (!header) return;
 
-        let ticking = false;
+        let lastScroll = 0;
         window.addEventListener('scroll', () => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    window.scrollY > 60 ? header.classList.add('shrunk') : header.classList.remove('shrunk');
-                    ticking = false;
-                });
-                ticking = true;
+            const currentScroll = window.scrollY;
+            
+            if (currentScroll > 60) {
+                header.classList.add('shrunk');
+            } else {
+                header.classList.remove('shrunk');
             }
-        });
+            lastScroll = currentScroll;
+        }, { passive: true });
     };
 
-    // Запуск всех систем
+    /* ==========================================================================
+       4. МОДУЛЬ ВИДЕО (Smart Play)
+       ========================================================================== */
+    const initHeroVideo = () => {
+        const video = document.getElementById('heroVideo');
+        const poster = document.querySelector('.hero-poster');
+        
+        if (!video || !poster) return;
+
+        const startVideo = () => {
+            poster.classList.add('fade-out');
+            video.play().catch(() => {
+                console.log("Видео ждет взаимодействия");
+            });
+        };
+
+        if (video.readyState >= 3) {
+            startVideo();
+        } else {
+            video.addEventListener('canplaythrough', startVideo, { once: true });
+        }
+    };
+
+    // Запуск всех систем по блокам
     initVisuals();
-    initCalculator();
-    initHeroSection();
     initHeader();
+    initCalculator();
+    initHeroVideo();
 });

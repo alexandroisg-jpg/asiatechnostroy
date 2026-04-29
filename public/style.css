@@ -316,17 +316,23 @@ h1 span {
 
 .about-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 40px;
     align-items: center;
 }
 
 .section-title {
-    font-size: 3rem;
-    font-weight: 900;
-    margin-bottom: 30px;
-    text-transform: uppercase;
+    text-align: center;
+    font-size: 2.5rem; /* Размер можно подправить под себя */
+    color: #fff;
+    margin-bottom: 50px; /* Отступ до самой сетки бенто */
+    margin-top: 100px;
+    font-weight: 800;
+    position: relative;
+    letter-spacing: 1px;
+    line-height: 1.1;
 }
+
 
 .section-title span {
     background: linear-gradient(135deg, #00f2fe 20%, #7117ea 100%);
@@ -360,86 +366,304 @@ h1 span {
     color: #00f2fe;
 }
 
-/* КАРТОЧКИ УСЛУГ */
-.about-features {
-    display: grid;
-    gap: 20px;
-}
-
-.feature-card {
-    background: var(--surface);
-    padding: 30px;
-    border-radius: 15px;
-    border: 1px solid var(--border);
-    transition: transform 0.3s ease, border-color 0.3s ease;
-}
-
-.feature-card:hover {
-    transform: translateX(10px);
-    border-color: #00f2fe;
-}
-
-.feature-card h3 {
-    margin: 10px 0;
-    font-size: 1.4rem;
-}
-
-.feature-card p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-}
-
-/* Адаптив для мобилок */
-@media (max-width: 768px) {
-    .about-grid {
-        grid-template-columns: 1fr;
-    }
-    .hero-section p {
-        font-size: 1.1rem !important; /* Немного уменьшаем на смартфонах */
-        padding: 0 10px;
-    }
-}
-/* СЕТКА БЕНТО (BENTO GRID) */
-.section { padding: 100px 0; }
-.section-title { text-align: center; font-size: 2.5rem; font-weight: 800; margin-bottom: 60px; }
-
-.bento-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: 240px;
-    gap: 24px;
-}
-
-.bento-item {
-    background: linear-gradient(145deg, #0d1117 0%, #010409 100%);
-    border: 1px solid var(--border);
+/* --- ОБЩАЯ БАЗА ДЛЯ ВСЕХ КАРТОЧЕК --- */
+.bento-base {
+    background: #0d1117;
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 28px;
-    padding: 40px;
     position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 1;
 }
 
+.bento-base h3 { color: #fff; font-size: 1.3rem; margin: 10px 0; z-index: 2; }
+.bento-base p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; z-index: 2; }
+
+/* Общий луч при наведении */
+.bento-base::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: conic-gradient(from 0deg at 50% 50%, transparent 0%, #00f2ff 25%, transparent 50%);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: destination-out;
+    padding: 2px;
+    border-radius: 28px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 3;
+}
+.bento-base:hover::before { opacity: 1; }
+
+/* Бегущая полоска-индикатор */
+.indicator-line {
+    width: 95%;
+    height: 2px;
+    background: rgba(0, 242, 254, 0.2);
+    margin: 10px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.bento-base:hover .indicator-line::after {
+    content: '';
+    position: absolute;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, #00f2ff, transparent);
+    animation: scanLine 1.5s infinite;
+}
+
+@keyframes scanLine {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Универсальные настройки иконок */
+.feature-icon svg {
+    width: 40px !important;
+    height: 40px !important;
+    color: #00f2ff;
+    display: block;
+    filter: drop-shadow(0 0 5px rgba(0, 242, 255, 0.4));
+}
+
+/* --- [КАРТОЧКИ ЗДАНИЙ: КОМПАКТНОСТЬ И СДВИГ] --- */
+.segment-card {
+    padding: 15px 10px; /* Минимум отступов */
+    min-height: 180px;
+    cursor: pointer;
+}
+
+.segment-card .indicator-line {
+    width: 95%;
+    height: 2px;
+    background: rgba(0, 242, 254, 0.1);
+    margin: 15px 0;
+    position: relative;
+    overflow: hidden;
+    transition: width 0.5s ease;
+}
+
+.segment-card:hover .indicator-line::after {
+    content: '';
+    position: absolute; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, #00f2ff, transparent);
+    animation: scanLine 1.5s infinite;
+}
+
+.about-features {
+    display: grid;
+    gap: 20px; /* ЭТОТ ПАРАМЕТР меняет расстояние между карточками */
+}
+
+.segment-card { padding: 20px; min-height: 180px; cursor: pointer; }
+
+.segment-card:hover { transform: translateX(15px) !important; }
+
+.segment-card h3 {
+    font-size: 1.5rem;
+    margin-top: 10px;
+    color: #fff;
+}
+
+.segment-card p {
+    font-size: 1.1rem;
+    color: #8b949e;
+    line-height: 1.4;
+}
+
+/* --- [КАРТОЧКИ УСЛУГ: ВЫСОТА И ОБЪЕМ] --- */
+.bento-item {
+    padding: 30px; /* Много места внутри */
+
+    height: auto;
+    overflow: visible;  /* Текст гарантированно виден */
+    cursor: pointer;
+}
+
+/* Всплытие вверх для всех карточек услуг */
+.bento-base.bento-item:hover {
+    transform: translateY(-15px) !important; 
+    border-color: #00f2ff;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 
+                0 0 20px rgba(0, 242, 255, 0.1);
+}
+
+/* Особенности большой карточки (Кондиционирование) */
 .bento-item--large {
-    grid-column: span 2;
-    grid-row: span 2;
+    grid-column: span 2; /* Занимает две колонки */
+}
+
+/* --- [ТЕКСТ В КАРТОЧКАХ УСЛУГ] --- */
+.bento-item h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 20px;
+    color: #fff;
+}
+
+.bento-item p {
+    font-size: 1rem;
+    line-height: 1.6; /* Увеличенный интервал для сложных описаний */
+    color: #94a3b8;   /* Чуть светлее, чем в верхних карточках */
+    margin-top: 15px;
 }
 
 .bento-item:hover {
-    border-color: rgba(37, 99, 235, 0.5);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    transform: translateY(-5px);
+    transform: translateY(-10px) !important; /* Услуги всплывают ВВЕРХ */
+    border-color: #00f2ff;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
-.card-num {
+.bento-item h3 {
+    font-size: 1.4rem;
+    margin-top: 15px;
+}
+
+.bento-item p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* --- [СПЕЦИФИКА КАРТОЧЕК УСЛУГ] --- */
+/* 2. У УСЛУГ (Низ): Расходящаяся из центра черточка */
+.bento-item .indicator-line {
+    width: 10px; /* В покое она скрыта (ширина 0) */
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00f2ff, transparent);
+    margin: 15px 0;
+    position: relative;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px rgba(0, 242, 255, 0.6);
+}
+
+.bento-item:hover .indicator-line {
+    width: 90%; /* Длина черточки при раскрытии */
+}
+
+@keyframes scanLine { 0% { left: -100%; } 100% { left: 100%; } }
+
+
+/* Сетка для блока услуг */
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 колонки */
+    grid-auto-rows: 250px;  /* Фиксированная высота строки */
+    gap: 25px;
+    max-width: 1200px;
+    margin: 50px auto;
+}
+
+/* Высокая интро-карточка (занимает 2 строки в высоту) */
+/* ИНТРО-КАРТОЧКА (БОЛЬШАЯ) */
+.bento-item--intro {
+    grid-row: span 2;
+    padding: 40px !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+
+.intro-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Настройка анимации линии для ИНТРО */
+.bento-item--intro .indicator-line {
+    width: 10px;               /* В покое она скрыта (ширина 0) */
+    height: 2px;
+    /* Градиент: прозрачный -> яркий неон -> прозрачный */
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        #00f2ff 50%, 
+        transparent 100%
+    );
+    margin: 15px auto;      /* Центрируем блок линии */
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.8), 
+                0 0 5px rgba(0, 242, 255, 0.4);
+    display: block;         /* Чтобы margin: auto работал */
+}
+
+/* При наведении — разъезжается из центра */
+.bento-item--intro:hover .indicator-line {
+    width: 90%;           /* Для большой карточки можно сделать чуть длиннее */
+}
+
+.intro-content h3 {
+    color: #00f2ff !important;
+    font-size: 1.8rem !important;
+    margin-bottom: 20px;
+}
+
+/* --- [ОФОРМЛЕНИЕ НОМЕРОВ] --- */
+.bento-number {
     position: absolute;
-    top: 30px;
-    right: 40px;
-    font-size: 4rem;
-    font-weight: 900;
-    color: rgba(255, 255, 255, 0.03);
+    top: 20px;
+    right: 25px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.03); /* Почти прозрачный в покое */
+    transition: all 0.4s ease;
+    z-index: 0;
+    line-height: 1;
+}
+
+.bento-base:hover .bento-number {
+    color: rgba(0, 242, 255, 0.08); /* Светится при наведении */
+    transform: scale(1.1);
+}
+
+/* --- [СТИЛИ КАРТОЧЕК УСЛУГ] --- */
+.bento-item {
+    padding: 10px;
+    justify-content: center; /* Контент прижат к низу, номер к верху */
+}
+
+.bento-item:hover {
+    transform: translateY(-10px) !important;
+}
+
+.bento-item h3 {
+    position: relative;
+    z-index: 2;
+    font-size: 1.5rem;
+    margin: 1px 0 1px 0;
+}
+
+.bento-item p {
+    position: relative;
+    z-index: 2;
+    font-size: 1.2rem;
+    color: #8b949e;
+    line-height: 1.5;
+    margin-top: 0;
+}
+
+/* Настройка иконок Lucide */
+.feature-icon i, .feature-icon svg {
+    width: 40px !important; height: 40px !important;
+    color: #00f2ff; display: block; margin-bottom: 10px;
+}
+
+/* Адаптив для большой карточки */
+@media (max-width: 992px) {
+    .bento-item--large {
+        grid-column: span 1; /* На планшетах и телефонах возвращаем в обычный размер */
+        flex-direction: column !important;
+    }
 }
 
 /* КАЛЬКУЛЯТОР */

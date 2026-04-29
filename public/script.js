@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
+    lucide.createIcons();
     // 1. Анимация появления блоков
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => { 

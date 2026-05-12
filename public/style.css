@@ -1,1125 +1,1909 @@
+/* =========================
+   1. ROOT / RESET
+========================= */
+
 :root {
+    /* COLORS */
     --bg: #010409;
     --surface: #0d1117;
-    --primary: #2563eb;
-    --primary-glow: rgba(37, 99, 235, 0.4);
+    --surface-2: #161b22;
+
+    --primary: #00f2ff;
+    --primary-soft: rgba(0, 242, 255, 0.12);
+    --primary-border: rgba(0, 242, 255, 0.24);
+
     --text-main: #f0f6fc;
     --text-muted: #8b949e;
+
     --border: rgba(255, 255, 255, 0.08);
+
+    /* SHADOWS */
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6);
+
+    --glow-primary: 0 0 20px rgba(0, 242, 255, 0.18);
+
+    /* RADIUS */
+    --radius-sm: 12px;
+    --radius-md: 18px;
+    --radius-lg: 28px;
+
+    /* TRANSITIONS */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.35s ease;
+    --transition-smooth: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* CONTAINER */
+    --container-width: 1440px;
+
+    /* HEADER */
+    --header-height: 160px;
+    --header-height-scroll: 88px;
 }
 
-* {
+/* RESET */
+
+*,
+*::before,
+*::after {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+}
+
+html {
     scroll-behavior: smooth;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: #000; /* Чистый черный для глубины */
+    margin: 0;
+    padding-top: var(--header-height);
+
+    background: var(--bg);
     color: var(--text-main);
+
+    font-family: 'Inter', sans-serif;
     line-height: 1.6;
+
     overflow-x: hidden;
+
     -webkit-font-smoothing: antialiased;
-    padding-top: 160px; /* Соответствует высоте хедера */
+    text-rendering: optimizeLegibility;
 }
 
-/* ШАПКА */
-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 160px;
-    background-color: #000;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    padding: 0; /* Паддинги теперь внутри контейнера nav-full */
+img,
+video,
+svg {
+    display: block;
+    max-width: 100%;
 }
 
-header.shrunk {
-    height: 85px;
-    width: 94%;
-    left: 3%;
-    top: 15px;
-    background-color: rgba(13, 17, 23, 0.95);
-    opacity: 0.8;
-    backdrop-filter: blur(10px); /* Эффект стекла */
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+button,
+input,
+textarea,
+select {
+    font: inherit;
 }
 
-.header__nav-full {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 60px;
-    width: 100%;
-    transition: padding 0.5s ease;
-    margin: 0 auto;
+button {
+    border: none;
+    background: none;
+    cursor: pointer;
 }
 
-header.shrunk .header__nav-full {
-    padding: 0 40px;
-}
-
-/* ЛОГОТИП */
-.logo-block {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+a {
+    color: inherit;
     text-decoration: none;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: left center;
+}
+
+ul,
+ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+input,
+textarea,
+button,
+select {
+    outline: none;
+}
+
+/* =========================
+   2. LAYOUT
+========================= */
+
+.container {
+    width: 100%;
+    max-width: var(--container-width);
+
+    margin-inline: auto;
+    padding-inline: 40px;
+}
+
+.section {
+    position: relative;
+    z-index: 1;
+
+    padding-block: 110px;
+}
+
+.section-title {
+    margin: 0 0 60px;
+
+    text-align: center;
+
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -1px;
+
+    color: #ffffff;
+}
+
+.section-title span {
+    background: linear-gradient(
+        135deg,
+        #00f2ff 0%,
+        #3b82f6 100%
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* =========================
+   3. TYPOGRAPHY
+========================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    line-height: 1.1;
+}
+
+p {
+    margin: 0;
+}
+
+.hero-description,
+.about-description,
+.bento-base p,
+.result-note,
+.form-disclaimer {
+    color: var(--text-muted);
+}
+
+.indent-text {
+    text-indent: 40px;
+    text-align: justify;
+}
+
+/* =========================
+   4. COMMON UI
+========================= */
+
+.bento-base {
+    position: relative;
+
+    overflow: hidden;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+
+    transition:
+        transform var(--transition-smooth),
+        border-color var(--transition-normal),
+        background var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+.bento-base > * {
+    position: relative;
+    z-index: 1;
+}
+
+.bento-base::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 242, 255, 0.7),
+        rgba(59, 130, 246, 0.35)
+    );
+
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+
+    opacity: 0;
+
+    transition: opacity var(--transition-normal);
+}
+
+.bento-base:hover::before {
+    opacity: 1;
+}
+
+.bento-base:hover {
+    border-color: rgba(0, 242, 255, 0.18);
+    box-shadow:
+        var(--shadow-lg),
+        var(--glow-primary);
+}
+
+/* =========================
+   5. BUTTONS
+========================= */
+
+.btn-premium,
+.btn-submit-premium {
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: var(--primary);
+    color: #000000;
+
+    font-weight: 700;
+    letter-spacing: 1px;
+
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-normal),
+        background var(--transition-normal);
+
+    box-shadow:
+        0 0 18px rgba(0, 242, 255, 0.25);
+}
+
+.btn-premium:hover,
+.btn-submit-premium:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 0 35px rgba(0, 242, 255, 0.45);
+}
+
+.btn-premium:active,
+.btn-submit-premium:active {
+    transform: translateY(0);
+}
+
+.btn-order {
+    min-width: 340px;
+    padding: 18px 30px;
+
+    font-size: 1.15rem;
+    text-transform: uppercase;
+}
+
+.btn-submit-premium {
+    width: 100%;
+    padding: 18px;
+
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+/* =========================
+   6. UTILITIES
+========================= */
+
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+
+    transition:
+        opacity 0.8s ease,
+        transform 0.8s ease;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* =========================
+   INDICATOR LINE
+========================= */
+
+.indicator-line {
+    position: relative;
+
+    height: 2px;
+
+    margin: 18px 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--primary),
+            transparent
+        );
+
+    box-shadow:
+        0 0 10px rgba(0,242,255,.4);
+}
+
+/* =========================
+   TOP CARDS (BUILDINGS)
+========================= */
+
+.segment-card .indicator-line {
+    width: 12px;
+
+    transition:
+        width .6s cubic-bezier(0.4,0,0.2,1);
+}
+
+.segment-card:hover .indicator-line {
+    width: 92%;
+}
+
+/* =========================
+   SERVICE CARDS
+========================= */
+
+.bento-item .indicator-line {
+    width: 92%;
+
+    transform: scaleX(.12);
+    transform-origin: center;
+
+    transition:
+        transform .6s cubic-bezier(0.4,0,0.2,1);
+}
+
+.bento-item:hover .indicator-line {
+    transform: scaleX(1);
+}
+
+/* =========================
+   INTRO CARD
+========================= */
+
+.bento-item--intro .indicator-line {
+    width: 92%;
+    transform: scaleX(.12);
+    transform-origin: center;
+    transition:
+        transform .6s cubic-bezier(0.4,0,0.2,1);
+}
+
+.bento-item--intro:hover .indicator-line {
+    transform: scaleX(1);
+}
+
+.feature-icon {
+    position: relative;
+    z-index: 2;
+}
+
+.feature-icon svg,
+.feature-icon i {
+    width: 40px;
+    height: 40px;
+    color: var(--primary);
+    filter:
+        drop-shadow(0 0 8px rgba(0, 242, 255, 0.25));
+}
+/* =========================
+   7. HEADER
+========================= */
+
+.header {
+    position: fixed;
+
+    top: 14px;
+    left: 50%;
+
+    width: calc(100% - 40px);
+    height: 110px;
+
+    display: flex;
+    align-items: center;
+
+    transform: translateX(-50%) scale(1);
+
+    z-index: 100;
+
+    border-radius: 30px;
+
+    background: rgba(1, 4, 9, 0.14);
+
+    border: 1px solid rgba(255,255,255,.03);
+
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+
+    transition:
+        transform .55s cubic-bezier(0.22, 1, 0.36, 1),
+        background .45s ease,
+        backdrop-filter .45s ease,
+        border-color .45s ease,
+        box-shadow .45s ease;
+
     will-change: transform;
 }
 
-header.shrunk .logo-block {
-    transform: scale(0.65); /* Идеальное уменьшение без потери четкости */
+.header.shrunk {
+    transform:
+        translateX(-50%)
+        scale(.965);
+
+    background: rgba(13, 17, 23, 0.1);
+
+    border: 1px solid rgba(255,255,255,.05);
+
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+
+    box-shadow:
+        0 10px 40px rgba(0,0,0,.18);
+}
+
+.header__nav-full {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px clamp(24px, 4vw, 60px);
+    }
+
+
+
+/* =========================
+   LOGO
+========================= */
+
+.logo-block {
+    display: flex;
+    flex-direction: column;
+    transform-origin: left center;
+    transition:
+        transform var(--transition-smooth),
+        opacity var(--transition-normal);
 }
 
 .logo-main {
     font-size: 3rem;
     font-weight: 900;
-    line-height: 1;
+    line-height: 0.95;
+    letter-spacing: -2px;
     text-transform: uppercase;
-    letter-spacing: -1.5px;
-    margin-bottom: 4px;
-    background: linear-gradient(180deg, #ffffff 0%, #ffffff 45%, #8a8a8a 50%, #cecece 55%, #ffffff 100%);
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #f1f5f9 45%,
+            #8b949e 55%,
+            #ffffff 100%
+        );
+
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    filter:
+        drop-shadow(0 2px 6px rgba(0,0,0,.4));
 }
 
 .logo-badge {
     display: flex;
     align-items: center;
-    margin-top: -2px;
+
+    margin-top: 6px;
 }
 
-.badge-text-primary, .badge-text-secondary {
+.badge-text-primary,
+.badge-text-secondary {
     font-family: 'Syncopate', sans-serif;
-    font-size: 1.3rem;
+    font-size: 1rem;
     font-weight: 700;
-    letter-spacing: 10px;
-    background: linear-gradient(135deg, #00f2fe 20%, #7117ea 100%);
+    letter-spacing: 7px;
+    text-transform: uppercase;
+    background:
+        linear-gradient(
+            135deg,
+            #00f2ff,
+            #3b82f6
+        );
+
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5));
-    text-transform: uppercase;
 }
 
 .logo-separator {
     width: 2px;
-    height: 35px;
-    background: #00f2fe;
-    margin: 0 15px;
-    box-shadow: 0 0 12px #00f2fe;
+    height: 26px;
+    margin-inline: 14px;
+    background: var(--primary);
+    box-shadow:
+        0 0 10px rgba(0, 242, 255, 0.7);
 }
 
-/* НАВИГАЦИЯ */
+/* =========================
+   NAVIGATION
+========================= */
+
 .nav__list {
     display: flex;
-    list-style: none;
-    gap: 40px;
+    align-items: center;
+    gap: 42px;
 }
 
 .nav__link {
-    font-size: 1.1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #ffffff;
-    text-decoration: none;
     position: relative;
-    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #ffffff;
+    transition:
+        color var(--transition-fast),
+        opacity var(--transition-fast);
 }
-
-header.shrunk .nav__link {
-    font-size: 0.95rem; /* Немного уменьшаем шрифт ссылок при скролле */
-}
-
-.nav__link:hover { color: #00f2fe; }
 
 .nav__link::after {
-    content: '';
+    content: "";
     position: absolute;
-    bottom: -5px;
     left: 0;
+    bottom: -8px;
     width: 0;
     height: 1px;
-    background: #00f2fe;
-    transition: width 0.3s ease;
+    background: var(--primary);
+    transition: width var(--transition-normal);
 }
 
-.nav__link:hover::after { width: 100%; }
+.nav__link:hover {
+    color: var(--primary);
+}
 
-/* ОБНОВЛЕННЫЙ КОНТЕЙНЕР ГЕРОЯ */
+.nav__link:hover::after {
+    width: 100%;
+}
+
+/* =========================
+   8. HERO
+========================= */
+
 .hero {
     position: relative;
-    width: 100%;
-    min-height: 100vh; 
-    overflow: hidden; 
+    min-height: 100vh;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    text-align: center;
-    box-sizing: border-box;
-    background: #010409;
+    justify-content: center;
+    overflow: hidden;
+    background: #000000;
+}
+
+/* =========================
+   HERO MEDIA
+========================= */
+
+.hero-poster,
+.back-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .hero-poster {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    z-index: 1;
     background-size: cover;
     background-position: center;
-    z-index: 1; /* Между видео и затемнением */
-    transition: opacity 1.2s ease-in-out;
+    transition:
+        opacity 1s ease,
+        visibility 1s ease;
 }
 
-/* 2. ВИДЕО (Z-INDEX: 0 - САМЫЙ НИЗ) */
+.hero-poster.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
 .back-video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    z-index: 0; /* Оставляем в самом низу */
+    z-index: 0;
     object-fit: cover;
 }
 
-/* Когда видео загрузится, мы добавим этот класс через JS */
-.hero-poster.fade-out {
-    opacity: 0;
+/* =========================
+   HERO OVERLAY
+========================= */
+
+.hero::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    z-index: 2;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(0,0,0,.12) 0%,
+            rgba(0,0,0,.38) 45%,
+            rgba(0,0,0,.72) 100%
+        ),
+
+        linear-gradient(
+            180deg,
+            rgba(1,4,9,.58) 0%,
+            rgba(1,4,9,.18) 28%,
+            rgba(1,4,9,.36) 58%,
+            rgba(1,4,9,.82) 100%
+        );
 }
 
-/* ФОНОВОЕ ВИДЕО */
-.back-video {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    min-width: 100%;
-    min-height: 100%;
-    z-index: 0; /* На самом заднем плане */
-    object-fit: cover; /* Чтобы видео не растягивалось */
-}
-/* ЗАТЕМНЕНИЕ (чтобы текст читался идеально) */
 .hero::after {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(1, 4, 9, 0.75); /* Затемнение 75% */
-    z-index: 5; /* Должно перекрывать и постер, и видео */
-    pointer-events: none; /* Чтобы не мешало кликам */
-}
-
-/* КОНТЕНТ (Бадж, Заголовок, Описание) */
-.hero-section {
-    position: relative; 
-    z-index: 10; /* Ставим очень высокое значение для гарантии */
-    width: 100%;
-    max-width: 1200px;
-    padding: 0 20px;
-    pointer-events: auto; /* Разрешаем взаимодействие с кнопками */
-    margin-top: -200px; /* Чем больше число, тем выше поднимется текст */
-}
-/* Класс для скрытия фото */
-.hero-poster.fade-out {
-    opacity: 0;
-    visibility: hidden; /* Дополнительная страховка */
+    left: 50%;
+    top: 50%;
+    width: 900px;
+    height: 900px;
+    transform:
+        translate(-50%, -50%);
+    z-index: 1;
+    background:
+        radial-gradient(
+            circle,
+            rgba(0,242,255,.08) 0%,
+            rgba(0,242,255,.04) 22%,
+            transparent 72%
+        );
+    filter: blur(80px);
     pointer-events: none;
+    animation:
+    heroAtmosphere 12s ease-in-out infinite;
+}
+@keyframes heroAtmosphere {
+
+    0% {
+        transform:
+            translate(-50%, -50%)
+            scale(1);
+
+        opacity: .7;
+    }
+
+    50% {
+        transform:
+            translate(-50%, -52%)
+            scale(1.08);
+
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%)
+            scale(1);
+
+        opacity: .7;
+    }
+}
+/* =========================
+   HERO CONTENT
+========================= */
+
+.hero-section {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    max-width: 1280px;
+    padding-inline: 40px;
+    text-align: center;
+    transform:
+    translateY(-12px);
 }
 
-/* ВАШИ СТИЛИ ДЛЯ БАДЖА И ЗАГОЛОВКА (оставляем без изменений) */
 .badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 2px 28px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 100px;
-    font-family: 'Inter', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 400;
-    letter-spacing: 6px;
+    padding: 12px 28px;
+    margin-bottom: 34px;
+    border-radius: 999px;
+    background:
+        rgba(255,255,255,.02);
+    border:
+        1px solid rgba(255,255,255,.08);
+
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    font-size: .95rem;
+    font-weight: 600;
+    letter-spacing: 4px;
     text-transform: uppercase;
     color: #ffffff;
-    opacity: 0.85;
-    margin-bottom: 35px;
 }
 
 .badge-separator {
-    display: flex;
-    align-items: center;
-    margin: 0 25px;
+    position: relative;
+    width: 2px;
+    height: 30px;
+    margin-inline: 18px;
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            var(--primary),
+            transparent
+        );
+    box-shadow:
+        0 0 12px rgba(0,242,255,.5);
 }
 
-.badge-separator::before {
-    content: "";
-    width: 3px;
-    height: 65px;
-    background: linear-gradient(to bottom, rgba(0, 210, 255, 0) 0%, #00d2ff 20%, #9ec1f2 80%, rgba(58, 123, 213, 0) 100%);
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.6), 0 0 15px rgba(0, 242, 254, 0.4), 0 0 20px rgba(59, 130, 246, 0.3);
-    border-radius: 2px;
-}
-
-h1 {
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
+.hero h1 {
+    margin-bottom: 26px;
+    font-size: clamp(3rem, 6vw, 5.8rem);
     font-weight: 900;
-    line-height: 1.05;
-    margin-bottom: 24px;
-    color: #fff;
+    line-height: .96;
+    letter-spacing: -3px;
+    color: #ffffff;
+    text-shadow:
+    0 8px 30px rgba(0,0,0,.45);
+    filter:
+    drop-shadow(0 10px 35px rgba(0,0,0,.28));
 }
 
-h1 span {
-    background: linear-gradient(180deg, #ffffff 0%, #3b82f6 100%);
+.hero h1 span {
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #00f2ff 100%
+        );
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-/* ОТКЛЮЧЕНИЕ ВИДЕО НА МОБИЛКАХ (для скорости) */
-@media (max-width: 768px) {
-    .back-video {
-        display: none;
-    }
-    .hero::after {
-        background: radial-gradient(circle at 50% -20%, #1e293b 0%, #010409 65%);
-    }
-}
-.about {
-    padding: 100px 0;
-    background-color: var(--bg);
-    color: var(--text-main);
+.hero-description {
+    max-width: 760px;
+    margin-inline: auto;
+    font-size: 1.3rem;
+    line-height: 1.9;
+    color: rgba(240,246,252,.82);
 }
 
-.container {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 0 40px;
+/* HERO BUTTON */
+
+.btn-wrapper {
+    margin-top: 42px;
+}
+
+.hero-description strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+/* =========================
+   9. ABOUT
+========================= */
+
+.about {
+    position: relative;
+    z-index: 2;
+    padding-block: 120px;
+    background:
+        linear-gradient(
+            180deg,
+            #010409 0%,
+            #060b12 100%
+        );
 }
 
 .about-grid {
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 80px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.85fr);
+    gap: 70px;
     align-items: stretch;
 }
 
-.section-title {
-    text-align: center;
-    font-size: 2.5rem; /* Размер можно подправить под себя */
-    color: #fff;
-    margin-bottom: 50px; /* Отступ до самой сетки бенто */
-    margin-top: 100px;
-    font-weight: 800;
-    position: relative;
-    letter-spacing: 1px;
-    line-height: 1.1;
-}
-
-
-.section-title span {
-    background: linear-gradient(135deg, #00f2fe 20%, #7117ea 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.about-description {
-    font-size: 1.15rem;
-    color: var(--text-muted);
-    margin-bottom: 20px;
-    line-height: 1.85;
-}
+/* =========================
+   ABOUT TEXT
+========================= */
 
 .about-text {
     display: flex;
     flex-direction: column;
-    /* Распределяет элементы (заголовок, текст, статы) равномерно по всей доступной высоте */
-    justify-content: space-between; 
+    justify-content: space-between;
 }
 
-/* Красная строка для абзацев */
-.indent-text {
-    text-indent: 40px;  /* Создает классический отступ первой строки */
-    text-align: left; /* Выравнивает края текста для строгого вида */
-}
-
-
-/* Настройка заголовка, чтобы он не «прилипал» */
 .about-text .section-title {
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 40px;
+    margin-bottom: 42px;
+    text-align: left;
 }
+
+.about-description {
+    font-size: 1.06rem;
+    line-height: 1.95;
+    color: #9aa7b5;
+}
+
+.about-description + .about-description {
+    margin-top: 26px;
+}
+
+.about-description strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* =========================
+   ABOUT STATS
+========================= */
 
 .about-stats {
-    margin-top: auto;
-    padding-top: 30px;
-    display: flex;
-    gap: 30px;
-    list-style: none;
-    justify-content: space-between;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    margin-top: 48px;
+    padding-top: 34px;
+    border-top:
+        1px solid rgba(255,255,255,.06);
 }
 
 .about-stats li {
-    font-size: 0.9rem;
     color: var(--text-muted);
-    text-transform: uppercase;
+    font-size: .78rem;
+    font-weight: 600;
+    line-height: 1.6;
     letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 .about-stats strong {
     display: block;
-    font-size: 2rem;
-    color: #00f2fe;
+    margin-bottom: 10px;
+    font-size: 2.4rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--primary);
+    text-shadow:
+        0 0 15px rgba(0,242,255,.15);
 }
 
-/* --- ОБЩАЯ БАЗА ДЛЯ ВСЕХ КАРТОЧЕК --- */
-.bento-base {
-    background: #0d1117;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 28px;
+/* =========================
+   ABOUT FEATURES
+========================= */
+
+.about-features {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* =========================
+   SEGMENT CARD
+========================= */
+
+.segment-card {
     position: relative;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 220px;
+    padding: 34px;
+    cursor: pointer;
+    isolation: isolate;
+    align-items: center;
+    text-align: center;
+}
+
+.segment-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(0,242,255,.08),
+            transparent 55%
+        );
+
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    z-index: -1;
+}
+
+.segment-card:hover::after {
+    opacity: 1;
+}
+
+.segment-card:hover {
+    transform: translateX(12px);
+}
+
+.segment-card .feature-icon {
+    margin-bottom: 18px;
+}
+
+.segment-card h3 {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 0;
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #ffffff;
+}
+
+.segment-card p {
+    position: relative;
+    z-index: 2;
+    max-width: 92%;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: #9aa7b5;
+    max-width: 90%;
+}
+
+/* =========================
+   10. SERVICES / BENTO
+========================= */
+
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: 260px;
+    gap: 26px;
+}
+
+/* =========================
+   INTRO CARD
+========================= */
+
+.bento-item--intro {
+    grid-row: span 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 54px;
+    text-align: center;
+}
+
+.intro-content {
+    max-width: 460px;
+}
+
+.intro-content h3 {
+    margin-bottom: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.intro-content p {
+    font-size: 1rem;
+    line-height: 1.9;
+    color: #9aa7b5;
+}
+
+.bento-item--intro .indicator-line {
+    margin-inline: auto;
+    
+}
+
+/* =========================
+   BENTO ITEM
+========================= */
+
+.bento-item {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 1;
-}
-
-.bento-base h3 { color: #fff; font-size: 1.3rem; margin: 10px 0; z-index: 2; }
-.bento-base p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; z-index: 2; }
-
-/* Общий луч при наведении */
-.bento-base::before {
-    content: '';
-    position: absolute; 
-    inset: 0;
-    /* Заменяем conic-gradient на сплошной цвет или мягкий линейный градиент */
-    background: #00f2ff; 
-    /* Можно использовать градиент для более интересного эффекта:
-    background: linear-gradient(135deg, #00f2ff, #7117ea); */
-    
-    /* Маска остается прежней — она делает фон прозрачным, оставляя только рамку в 2px */
-    padding: 2px; 
-    border-radius: 28px;
-    -webkit-mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    z-index: 3;
-}
-.bento-base:hover::before { opacity: 1; 
-box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
-}
-
-/* Бегущая полоска-индикатор */
-.indicator-line {
-    width: 95%;
-    height: 2px;
-    background: rgba(0, 242, 254, 0.2);
-    margin: 10px 0;
-    position: relative;
-    overflow: hidden;
-}
-
-.bento-base:hover .indicator-line::after {
-    content: '';
-    position: absolute;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, #00f2ff, transparent);
-    animation: scanLine 1.5s infinite;
-}
-
-@keyframes scanLine {
-    0% { left: -100%; }
-    100% { left: 100%; }
-}
-
-/* Универсальные настройки иконок */
-.feature-icon svg {
-    width: 40px !important;
-    height: 40px !important;
-    color: #00f2ff;
-    display: block;
-    filter: drop-shadow(0 0 5px rgba(0, 242, 255, 0.4));
-}
-
-/* --- [КАРТОЧКИ ЗДАНИЙ: КОМПАКТНОСТЬ И СДВИГ] --- */
-.segment-card {
-    padding: 15px 10px; /* Минимум отступов */
-    min-height: 180px;
+    padding: 34px;
     cursor: pointer;
-}
-
-.segment-card .indicator-line {
-    width: 95%;
-    height: 2px;
-    background: rgba(0, 242, 254, 0.1);
-    margin: 15px 0;
-    position: relative;
+    isolation: isolate;
     overflow: hidden;
-    transition: width 0.5s ease;
-}
-
-.segment-card:hover .indicator-line::after {
-    content: '';
-    position: absolute; left: -100%; width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, #00f2ff, transparent);
-    animation: scanLine 1.5s infinite;
-}
-
-.about-features {
-    display: grid;
-    gap: 20px; /* ЭТОТ ПАРАМЕТР меняет расстояние между карточками */
-}
-
-.segment-card { padding: 20px; min-height: 180px; cursor: pointer; }
-
-.segment-card:hover { transform: translateX(15px) !important; }
-
-.segment-card h3 {
-    font-size: 1.5rem;
-    margin-top: 10px;
-    color: #fff;
-}
-
-.segment-card p {
-    font-size: 1.1rem;
-    color: #8b949e;
-    line-height: 1.4;
-}
-
-/* --- [КАРТОЧКИ УСЛУГ: ВЫСОТА И ОБЪЕМ] --- */
-.bento-item {
-    padding: 30px; /* Много места внутри */
-    height: auto;
-    overflow: visible;  /* Текст гарантированно виден */
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; /* Текст и иконка будут стремиться к нижней части карточки */
-}
-
-/* Всплытие вверх для всех карточек услуг */
-.bento-base.bento-item:hover {
-    transform: translateY(-15px) !important; 
-    border-color: #00f2ff;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 
-                0 0 20px rgba(0, 242, 255, 0.1);
-}
-
-/* Особенности большой карточки (Кондиционирование) */
-.bento-item--large {
-    grid-column: span 2; /* Занимает две колонки */
-}
-
-/* --- [ТЕКСТ В КАРТОЧКАХ УСЛУГ] --- */
-.bento-item h3 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-top: 20px;
-    color: #fff;
-}
-
-.bento-item p {
-    font-size: 1rem;
-    line-height: 1.6; /* Увеличенный интервал для сложных описаний */
-    color: #94a3b8;   /* Чуть светлее, чем в верхних карточках */
-    margin-top: 15px;
 }
 
 .bento-item:hover {
-    transform: translateY(-10px) !important; /* Услуги всплывают ВВЕРХ */
-    border-color: #00f2ff;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    transform: translateY(-10px);
 }
 
-.bento-item h3 {
-    font-size: 1.4rem;
-    margin-top: 15px;
+.bento-item::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(0,242,255,.08),
+            transparent 58%
+        );
+
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    z-index: -1;
 }
 
-.bento-item p {
-    font-size: 0.95rem;
-    line-height: 1.6;
+.bento-item:hover::after {
+    opacity: 1;
 }
 
-/* --- [СПЕЦИФИКА КАРТОЧЕК УСЛУГ] --- */
-/* 2. У УСЛУГ (Низ): Расходящаяся из центра черточка */
-.bento-item .indicator-line {
-    width: 10px; /* В покое она скрыта (ширина 0) */
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #00f2ff, transparent);
-    margin: 15px 0;
-    position: relative;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 12px rgba(0, 242, 255, 0.6);
-}
+/* =========================
+   BENTO NUMBER
+========================= */
 
-.bento-item:hover .indicator-line {
-    width: 90%; /* Длина черточки при раскрытии */
-}
-
-@keyframes scanLine { 0% { left: -100%; } 100% { left: 100%; } }
-
-
-/* Сетка для блока услуг */
-.bento-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 колонки */
-    grid-auto-rows: 250px;  /* Фиксированная высота строки */
-    gap: 25px;
-    max-width: 1440px;
-    margin: 50px auto;
-}
-
-/* Высокая интро-карточка (занимает 2 строки в высоту) */
-/* ИНТРО-КАРТОЧКА (БОЛЬШАЯ) */
-.bento-item--intro {
-    grid-row: span 2;
-    padding: 50px !important;
-    justify-content: center !important;
-    align-items: center !important;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-
-.intro-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-}
-
-/* Настройка анимации линии для ИНТРО */
-.bento-item--intro .indicator-line {
-    width: 10px;               /* В покое она скрыта (ширина 0) */
-    height: 2px;
-    /* Градиент: прозрачный -> яркий неон -> прозрачный */
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        #00f2ff 50%, 
-        transparent 100%
-    );
-    margin: 15px auto;      /* Центрируем блок линии */
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 15px rgba(0, 242, 255, 0.8), 
-                0 0 5px rgba(0, 242, 255, 0.4);
-    display: block;         /* Чтобы margin: auto работал */
-}
-
-/* При наведении — разъезжается из центра */
-.bento-item--intro:hover .indicator-line {
-    width: 90%;           /* Для большой карточки можно сделать чуть длиннее */
-}
-
-.intro-content h3 {
-    color: #00f2ff !important;
-    font-size: 1.8rem !important;
-    margin-bottom: 20px;
-}
-
-/* --- [ОФОРМЛЕНИЕ НОМЕРОВ] --- */
 .bento-number {
     position: absolute;
-    top: 20px;
-    right: 25px;
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.03); /* Почти прозрачный в покое */
-    transition: all 0.4s ease;
-    z-index: 0;
+    top: 24px;
+    right: 24px;
+    font-size: 2rem;
+    font-weight: 700;
     line-height: 1;
+
+    color: rgba(255,255,255,.03);
+
+    transition:
+        color var(--transition-normal),
+        transform var(--transition-normal);
 }
 
-.bento-base:hover .bento-number {
-    color: rgba(0, 242, 255, 0.08); /* Светится при наведении */
-    transform: scale(1.1);
+.bento-item:hover .bento-number {
+    color: rgba(0,242,255,.08);
+    transform: scale(1.04);
 }
 
-/* --- [СТИЛИ КАРТОЧЕК УСЛУГ] --- */
-.bento-item {
-    padding: 10px;
-    justify-content: center; /* Контент прижат к низу, номер к верху */
-}
+/* =========================
+   BENTO CONTENT
+========================= */
 
-.bento-item:hover {
-    transform: translateY(-10px) !important;
+.bento-item .feature-icon {
+    margin-bottom: 18px;
 }
 
 .bento-item h3 {
     position: relative;
     z-index: 2;
-    font-size: 1.5rem;
-    margin: 1px 0 1px 0;
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.25;
+
+    color: #ffffff;
 }
 
 .bento-item p {
     position: relative;
     z-index: 2;
-    font-size: 1.2rem;
-    color: #8b949e;
-    line-height: 1.5;
-    margin-top: 0;
+    max-width: 90%;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: #9aa7b5;
 }
+/* =========================
+   11. CALCULATOR
+========================= */
 
-/* Настройка иконок Lucide */
-.feature-icon i, .feature-icon svg {
-    width: 40px !important; height: 40px !important;
-    color: #00f2ff; display: block; margin-bottom: 10px;
-}
-
-/* Адаптив для большой карточки */
-@media (max-width: 992px) {
-    .bento-item--large {
-        grid-column: span 1; /* На планшетах и телефонах возвращаем в обычный размер */
-        flex-direction: column !important;
-    }
-}
-
-/* --- CALCULATOR PREMIUM STYLE --- */
-/* --- ОСНОВНОЙ КОНТЕЙНЕР --- */
 .calc-container {
-    padding: 0;
-    display: block;
-    max-width: 1440px;
-    margin: 0 auto;
+    position: relative;
     overflow: hidden;
+    padding: 0;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 28px;
+    border-radius: 32px;
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.45);
 }
 
-/* --- ТАБЫ (ВЕРХНЯЯ ПАНЕЛЬ) --- */
+/* =========================
+   CALCULATOR TABS
+========================= */
+
 .calc-tabs {
-    display: flex;
-    background: rgba(255, 255, 255, 0.03);
-    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border-bottom:
+        1px solid rgba(255,255,255,.06);
+
+    background:
+        rgba(255,255,255,.02);
 }
 
 .tab-btn {
-    flex: 1;
-    padding: 22px;
-    background: transparent;
-    border: none;
+    position: relative;
+    height: 76px;
     color: var(--text-muted);
-    font-weight: 600;
-    text-transform: uppercase;
+    font-size: .9rem;
+    font-weight: 700;
     letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    text-transform: uppercase;
+    transition:
+        background var(--transition-normal),
+        color var(--transition-normal);
+}
+
+.tab-btn::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    transform: translateX(-50%);
+    background: var(--primary);
+    transition: width var(--transition-normal);
+}
+
+.tab-btn:hover {
+    color: #ffffff;
 }
 
 .tab-btn.active {
-    color: #00f2ff;
-    background: rgba(0, 242, 255, 0.05);
-    box-shadow: inset 0 -2px 0 #00f2ff;
+    color: var(--primary);
+
+    background:
+        rgba(0,242,255,.03);
 }
 
-/* --- КОНТЕНТНАЯ ОБЛАСТЬ (ПОСЛЕДОВАТЕЛЬНАЯ СТРУКТУРА) --- */
+.tab-btn.active::after {
+    width: 100%;
+}
+
+/* =========================
+   CALCULATOR CONTENT
+========================= */
+
 .calc-content-full {
-    padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Равномерный отступ между рядами */
+    gap: 40px;
+    padding: 46px;
 }
 
 .setting-group {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 18px;
 }
 
 .setting-label {
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 0;
     color: var(--text-muted);
+    font-size: .82rem;
     font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
-/* --- РЯД 1: ТИПЫ ЗДАНИЙ (7 В РЯД) --- */
+/* =========================
+   TYPE GRID
+========================= */
+
 .type-grid-full {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 12px;
+    gap: 14px;
 }
 
+/* =========================
+   TYPE CARD
+========================= */
+
 .type-card {
-    height: 90px;
+    position: relative;
+    height: 110px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    background: rgba(1, 4, 9, 0.4);
-    border: 1px solid var(--border);
-    border-radius: 16px;
+    padding: 12px;
+    background:
+        rgba(255,255,255,.02);
+    border:
+        1px solid rgba(255,255,255,.05);
+    border-radius: 20px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+        transform var(--transition-normal),
+        border-color var(--transition-normal),
+        background var(--transition-normal),
+        box-shadow var(--transition-normal);
+    overflow: hidden;
+}
+
+.type-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(0,242,255,.08),
+            transparent 70%
+        );
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.type-card:hover::before,
+.type-card.active::before {
+    opacity: 1;
+}
+
+.type-card:hover {
+    transform: translateY(-5px);
+    border-color:
+        rgba(0,242,255,.18);
+    background:
+        rgba(0,242,255,.04);
+}
+
+.type-card.active {
+    transform: translateY(-5px);
+    border-color:
+        rgba(0,242,255,.32);
+    background:
+        rgba(0,242,255,.08);
+    box-shadow:
+        0 0 25px rgba(0,242,255,.12);
+}
+
+.type-card i,
+.type-card svg {
     position: relative;
-    z-index: 100 !important;
-    pointer-events: auto !important;
+    z-index: 2;
+    width: 30px;
+    height: 30px;
+    color: var(--text-muted);
+    transition:
+        color var(--transition-normal),
+        transform var(--transition-normal);
 }
 
 .type-card span {
-    font-size: 0.7rem; /* Уменьшено для вместимости 7 элементов */
+    position: relative;
+    z-index: 2;
+    color: var(--text-muted);
+    font-size: .76rem;
     font-weight: 600;
+    line-height: 1.3;
     text-align: center;
-    padding: 0 5px;
-    color: var(--text-muted);
-    line-height: 1.2;
+    transition:
+        color var(--transition-normal);
 }
 
-.type-card i, .type-card svg {
-    width: 28px;
-    height: 28px;
-    color: var(--text-muted);
-    transition: color 0.3s ease;
+.type-card:hover i,
+.type-card:hover svg,
+.type-card.active i,
+.type-card.active svg,
+.type-card:hover span,
+.type-card.active span {
+    color: var(--primary);
 }
 
-/* --- РЯД 2: ПОЛЗУНОК ПЛОЩАДИ (ВО ВСЮ ШИРЬ) --- */
+/* =========================
+   AREA SECTION
+========================= */
+
 .label-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 5px;
+    justify-content: space-between;
+    gap: 20px;
 }
 
-#area-val {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: #00f2ff;
+.area-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
+
+.area-input-wrapper span {
+    color: var(--text-muted);
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+#area-input {
+    width: 140px;
+    height: 48px;
+    padding-inline: 14px;
+    background:
+        rgba(255,255,255,.03);
+    border:
+        1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    color: var(--primary);
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: right;
+    transition:
+        border-color var(--transition-normal),
+        background var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+#area-input:focus {
+    border-color:
+        rgba(0,242,255,.3);
+    box-shadow:
+        0 0 18px rgba(0,242,255,.12);
+}
+
+#area-input::-webkit-outer-spin-button,
+#area-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#area-input {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* =========================
+   RANGE SLIDER
+========================= */
 
 .slider-premium-full {
     width: 100%;
     height: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    outline: none;
-    accent-color: #00f2ff;
+    border-radius: 999px;
+    appearance: none;
+    background:
+        rgba(255,255,255,.08);
     cursor: pointer;
-    position: relative;
-    z-index: 5 !important;
-    pointer-events: auto !important;
 }
 
-/* --- РЯД 3: ИНЖЕНЕРНЫЕ СИСТЕМЫ (7 В РЯД) --- */
+.slider-premium-full::-webkit-slider-thumb {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 3px solid #ffffff;
+    box-shadow:
+        0 0 20px rgba(0,242,255,.35);
+    transition:
+        transform var(--transition-fast);
+}
+
+.slider-premium-full::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+/* =========================
+   SYSTEMS GRID
+========================= */
+
 .systems-grid-full {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 12px;
+    gap: 14px;
 }
+
+/* =========================
+   SYSTEM ITEM
+========================= */
 
 .system-item {
     cursor: pointer;
-    position: relative;
-    z-index: 100;
 }
 
-.system-item input { display: none; }
+.system-item input {
+    display: none;
+}
 
 .system-box {
-    height: 90px;
+    position: relative;
+    height: 110px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    background: rgba(1, 4, 9, 0.4);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    transition: all 0.3s ease;
+    padding: 12px;
+    overflow: hidden;
+    background:
+        rgba(255,255,255,.02);
+    border:
+        1px solid rgba(255,255,255,.05);
+    border-radius: 20px;
+    transition:
+        transform var(--transition-normal),
+        border-color var(--transition-normal),
+        background var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+.system-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(0,242,255,.08),
+            transparent 70%
+        );
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.system-item:hover .system-box::before,
+.system-item input:checked + .system-box::before {
+    opacity: 1;
+}
+
+.system-item:hover .system-box {
+    transform: translateY(-5px);
+    border-color:
+        rgba(0,242,255,.18);
+    background:
+        rgba(0,242,255,.04);
+}
+
+.system-item input:checked + .system-box {
+    transform: translateY(-5px);
+    border-color:
+        rgba(0,242,255,.3);
+    background:
+        rgba(0,242,255,.08);
+    box-shadow:
+        0 0 25px rgba(0,242,255,.12);
+}
+
+.system-box i,
+.system-box svg {
+    position: relative;
+    z-index: 2;
+    width: 30px;
+    height: 30px;
+    color: var(--text-muted);
+    transition:
+        color var(--transition-normal);
 }
 
 .system-box span {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-align: center;
-    color: var(--text-muted);
-}
-
-.system-box i, .system-box svg {
-    width: 28px;
-    height: 28px;
-    color: var(--text-muted);
-}
-
-/* --- СОСТОЯНИЯ ВЫБОРА (ОБЩИЕ) --- */
-.type-card:hover, .system-box:hover {
-    border-color: rgba(0, 242, 255, 0.5);
-    background: rgba(0, 242, 255, 0.03);
-}
-
-.type-card.active, 
-.system-item input:checked + .system-box {
-    border-color: #00f2ff;
-    background: rgba(0, 242, 255, 0.1);
-    box-shadow: 0 0 25px rgba(0, 242, 255, 0.15);
-}
-
-.type-card.active i, .type-card.active span,
-.system-item input:checked + .system-box i,
-.system-item input:checked + .system-box span {
-    color: #00f2ff;
-}
-
-/* --- НИЖНЯЯ ПАНЕЛЬ С ДВУМЯ КОЛОНКАМИ --- */
-.calc-result-full {
-    margin-top: 10px;
-    padding-top: 25px;
-    border-top: 1px solid var(--border);
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Ровно две колонки */
-    align-items: center;
-    gap: 0; /* Убираем лишний зазор, центрируем внутри колонок */
     position: relative;
-    z-index: 10;
+    z-index: 2;
+    color: var(--text-muted);
+    font-size: .76rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    transition:
+        color var(--transition-normal);
 }
 
-/* ЛЕВАЯ КОЛОНКА (ЦЕНА) */
+.system-item:hover .system-box i,
+.system-item:hover .system-box svg,
+.system-item input:checked + .system-box i,
+.system-item input:checked + .system-box svg,
+.system-item:hover .system-box span,
+.system-item input:checked + .system-box span {
+    color: var(--primary);
+}
+
+/* =========================
+   RESULT BLOCK
+========================= */
+
+.calc-result-full {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 40px;
+    margin-top: 10px;
+    padding-top: 34px;
+    border-top:
+        1px solid rgba(255,255,255,.06);
+}
+
 .result-info-center {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Центрируем цену внутри её половины */
-    text-align: center;
+    gap: 10px;
+}
+
+.result-label {
+    color: var(--text-muted);
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 .result-price {
-    font-size: 2.8rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    font-size: 3.2rem;
     font-weight: 900;
-    color: #00f2ff;
-    margin: 5px 0;
-    line-height: 1;
-    text-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+    line-height: .9;
+    color: var(--primary);
+    text-shadow:
+        0 0 20px rgba(0,242,255,.18);
 }
 
-/* ПРАВАЯ КОЛОНКА (КНОПКА) */
-.btn-wrapper {
-    display: flex;
-    justify-content: center; /* Центрируем кнопку внутри её половины */
-    align-items: center;
-    width: 100%;
-}
-
-.btn-order {
-    width: auto;
-    min-width: 340px; /* Фиксированная ширина для солидности */
-    padding: 18px 30px;
-    border-radius: 14px;
-    font-size: 1.4rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-/* УТОЧНЕНИЕ ДЛЯ ТЕКСТА ПОД ЦЕНОЙ */
-.result-note {
-    font-size: 0.7rem;
-    max-width: 380px;
-    margin: 5px auto 0;
-    line-height: 1.3;
-}
-
-.btn-premium {
-    background: #00f2ff; /* Основной цвет */
-    color: #000; /* Черный текст для максимальной читаемости */
-    border: none;
-    box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); /* Мягкое свечение */
-    transition: all 0.3s ease;
-}
-
-.btn-premium:hover {
-    background: #00f2ff; /* Белый при наведении */
-    box-shadow: 0 0 30px rgba(0, 242, 255, 0.8), 
-                0 0 10px rgba(0, 242, 255, 0.4); /* Усиливаем неоновое свечение */
-    color: #000;         /* Текст остается черным для контраста */
-                transform: translateY(-2px); /* Легкий подъем */
-    position: relative;
-    z-index: 20; /* Самый высокий приоритет внутри секции */
-    cursor: pointer !important; /* Гарантируем отображение курсора */
-}
-
-#calculators {
-    position: relative;
-    z-index: 1; /* Обычный слой для контента */
-}
-
-/* Основной контейнер модалки */
-.modal {
-    display: none; /* Скрыто по умолчанию */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85); /* Затемнение фона */
-    backdrop-filter: blur(10px); /* Размытие заднего плана */
-    z-index: 10000 !important; /* Выше всего на свете */
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-/* Когда добавлен класс active — показываем */
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    background: #0d1117;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
-    padding: 45px;
-    max-width: 500px;
-    width: 100%;
-    position: relative;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-}
-
-.modal-header h3 {
-    color: #fff;
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 5px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.modal-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 28px;
-    cursor: pointer;
-    opacity: 0.5;
-}
-
-.modal-close:hover { opacity: 1; }
-
-.input-group {
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-.input-group label {
-    display: block;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-    letter-spacing: 1px;
-}
-
-.input-group input {
-    width: 100%;
-    background: #161b22 !important; /* Темный фон для контраста */
-    border: 1px solid #30363d !important;
-    padding: 16px;
-    border-radius: 8px;
-    color: #fff !important;
+.result-price small {
+    margin-bottom: 6px;
     font-size: 1rem;
-    transition: all 0.3s ease;
-    pointer-events: auto !important; /* ГАРАНТИЯ КЛИКА */
-    position: relative;
-    z-index: 10001;
-}
-
-.input-group input:focus {
-    border-color: #00f2ff !important;
-    background: #1c2128 !important;
-    outline: none;
-}
-
-/* СТРОГАЯ КНОПКА */
-.btn-submit-premium {
-    width: 100%;
-    padding: 18px;
-    background: #00f2ff;
-    color: #000;
-    border: none;
-    border-radius: 8px;
     font-weight: 700;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: all 0.3s ease;
+    color: #ffffff;
 }
 
-.btn-submit-premium:hover {
-    background: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 242, 255, 0.3);
+.result-note {
+    max-width: 520px;
+    font-size: .78rem;
+    line-height: 1.6;
 }
 
-.form-disclaimer {
-    font-size: 0.75rem;
-    color: #8b949e;
-    margin-top: 15px;
-    text-align: center;
-    line-height: 1.4;
-}
+/* =========================
+   PRICE ANIMATION
+========================= */
 
-/* АДАПТИВНОСТЬ */
-@media (max-width: 992px) {
-    .calc-result-full {
-        grid-template-columns: 1fr; /* На планшетах в один ряд */
-        gap: 30px;
+@keyframes priceUpdate {
+    0% {
+        transform: scale(1);
+        opacity: .8;
+    }
+
+    50% {
+        transform: scale(1.04);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
     }
 }
 
-/* АНИМАЦИИ */
-.reveal { opacity: 0; transform: translateY(30px); transition: 1s ease-out; }
-.reveal.visible { opacity: 1; transform: translateY(0); }
+.result-price.updating {
+    animation: priceUpdate .45s ease;
+}
+/* =========================
+   12. MODAL
+========================= */
 
-@media (max-width: 992px) {
-    .bento-grid, .audit-card { grid-template-columns: 1fr; grid-auto-rows: auto; }
-    .bento-item--large { grid-column: span 1; grid-row: span 1; }
-    .audit-total { border-left: none; border-top: 1px solid var(--border); }
+.modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    background:
+        rgba(0,0,0,.82);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity var(--transition-normal),
+        visibility var(--transition-normal);
+    z-index: 1000;
 }
 
-.footer {
-    padding-top: 60px;    /* Внутренний отступ сверху */
-    padding-bottom: 100px; /* Внутренний отступ снизу */
-    border-top: 10px solid var(--border); /* Можно добавить тонкую линию для разделения */
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* =========================
+   MODAL CONTENT
+========================= */
+
+.modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    padding: 46px;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(13,17,23,.98) 0%,
+            rgba(9,12,18,.98) 100%
+        );
+    border:
+        1px solid rgba(255,255,255,.08);
+    border-radius: 32px;
+    box-shadow:
+        0 30px 80px rgba(0,0,0,.6);
+    transform: translateY(24px) scale(.98);
+    transition:
+        transform var(--transition-smooth);
+}
+
+.modal.active .modal-content {
+    transform: translateY(0) scale(1);
+}
+
+/* =========================
+   MODAL CLOSE
+========================= */
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: rgba(255,255,255,.55);
+    font-size: 1.6rem;
+    line-height: 1;
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.modal-close:hover {
+    background:
+        rgba(255,255,255,.05);
+    color: #ffffff;
+    transform: rotate(90deg);
+}
+
+/* =========================
+   MODAL HEADER
+========================= */
+
+.modal-header {
+    margin-bottom: 34px;
+}
+
+.modal-header h3 {
+    margin-bottom: 10px;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.05;
+    color: #ffffff;
+}
+
+.modal-header p {
+    color: var(--text-muted);
+    font-size: .95rem;
+    line-height: 1.6;
+}
+
+#display-area {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* =========================
+   FORM
+========================= */
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+/* =========================
+   INPUT GROUP
+========================= */
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-group label {
+    color: var(--text-muted);
+    font-size: .76rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+/* =========================
+   INPUTS
+========================= */
+
+.input-group input {
+    width: 100%;
+    height: 60px;
+    padding-inline: 18px;
+    background:
+        rgba(255,255,255,.03);
+    border:
+        1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 500;
+    transition:
+        border-color var(--transition-normal),
+        background var(--transition-normal),
+        box-shadow var(--transition-normal),
+        transform var(--transition-fast);
+}
+
+.input-group input::placeholder {
+    color:
+        rgba(255,255,255,.32);
+}
+
+.input-group input:hover {
+    border-color:
+        rgba(255,255,255,.14);
+}
+
+.input-group input:focus {
+    background:
+        rgba(255,255,255,.04);
+    border-color:
+        rgba(0,242,255,.3);
+    box-shadow:
+        0 0 20px rgba(0,242,255,.12);
+    transform: translateY(-1px);
+}
+
+/* =========================
+   SUBMIT BUTTON
+========================= */
+
+.btn-submit-premium {
+    margin-top: 8px;
+}
+
+/* =========================
+   DISCLAIMER
+========================= */
+
+.form-disclaimer {
     text-align: center;
+    font-size: .76rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+}
+
+/* =========================
+   13. FOOTER
+========================= */
+
+.footer {
+    position: relative;
+    padding-top: 80px;
+    padding-bottom: 90px;
+    border-top:
+        1px solid rgba(255,255,255,.06);
+    background:
+        linear-gradient(
+            180deg,
+            #060b12 0%,
+            #010409 100%
+        );
+    text-align: center;
+}
+
+.footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 240px;
+    height: 1px;
+    transform: translateX(-50%);
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(0,242,255,.7),
+            transparent
+        );
+}
+
+.footer p {
+    color: var(--text-muted);
+    font-size: .9rem;
+    font-weight: 500;
+    letter-spacing: .5px;
+}
+
+/* =========================
+   14. GLOBAL EFFECTS
+========================= */
+
+::selection {
+    background:
+        rgba(0,242,255,.25);
+    color: #ffffff;
+}
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background:
+        #05080d;
+}
+
+::-webkit-scrollbar-thumb {
+    background:
+        rgba(255,255,255,.12);
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background:
+        rgba(0,242,255,.28);
+}
+
+/* =========================
+   15. PERFORMANCE
+========================= */
+
+.bento-base,
+.type-card,
+.system-box,
+.btn-premium,
+.btn-submit-premium,
+.modal-content,
+.segment-card,
+.bento-item {
+    will-change:
+        transform;
+}
+
+/* =========================
+   16. FIXES
+========================= */
+
+body.modal-open {
+    overflow: hidden;
+}
+
+.hero,
+.about,
+.section,
+.footer,
+.calc-container,
+.modal-content {
+    isolation: isolate;
+}
+
+button,
+a,
+input,
+label {
+    -webkit-tap-highlight-color: transparent;
 }

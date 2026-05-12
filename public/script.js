@@ -1,21 +1,13 @@
 /**
  * ASIATECHNOSTROY - Professional Engineering Maintenance
- * Исправленный скрипт управления калькулятором и интерфейсом
+ * ЭТАП 1: Маски, Валидация и Исправленная структура
  */
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* ==========================================================================
-       1. ИНИЦИАЛИЗАЦИЯ И ВИЗУАЛ (Lucide & Reveal)
-       ========================================================================== */
+    /* 1. ВИЗУАЛЬНЫЕ ЭФФЕКТЫ */
     const initVisuals = () => {
-        try { 
-            if (window.lucide) lucide.createIcons(); 
-        } catch (e) {
-            console.error("Ошибка загрузки иконок:", e);
-        }
-
-        const revealOptions = { threshold: 0.15 };
+        if (window.lucide) lucide.createIcons();
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -23,95 +15,83 @@ document.addEventListener('DOMContentLoaded', () => {
                     observer.unobserve(entry.target);
                 }
             });
-        }, revealOptions);
-
+        }, { threshold: 0.15 });
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     };
 
-    /* ==========================================================================
-       2. ДВИЖОК КАЛЬКУЛЯТОРА
-       ========================================================================== */
+    /* 2. ГЛАВНЫЙ МОДУЛЬ КАЛЬКУЛЯТОРА */
     const initCalculator = () => {
         const DOM = {
+            input: document.getElementById('area-input'),
             range: document.getElementById('area-range'),
             total: document.getElementById('total-price'),
-            label: document.getElementById('area-val'),
             types: document.querySelectorAll('.type-card'),
             systems: document.querySelectorAll('.system-item input'),
             tabs: document.querySelectorAll('.tab-btn'),
-            // Элементы модального окна
             modal: document.getElementById('modalOrder'),
             openModalBtn: document.querySelector('.btn-order'),
             closeModalBtn: document.querySelector('.modal-close'),
             displayArea: document.getElementById('display-area'),
-            orderForm: document.getElementById('orderForm')
+            orderForm: document.getElementById('orderForm'),
+            phoneInput: document.getElementById('userPhone')
         };
 
         if (!DOM.range || !DOM.total) return;
 
         let state = {
-            area: parseInt(DOM.range.value),
+            area: parseInt(DOM.range.value) || 500,
             multiplier: 1.0,
             mode: 'service',
             currentDisplayValue: 0
         };
 
-        // Плавная анимация цифр
         const animatePrice = (newVal) => {
-            const duration = 600; 
+            DOM.total.parentElement.classList.remove('updating');
+            void DOM.total.offsetWidth; // Магия для перезапуска анимации
+            DOM.total.parentElement.classList.add('updating');
+            const duration = 600;
             const start = state.currentDisplayValue;
             const end = newVal;
-            let startTime = null;
-
-            const step = (timestamp) => {
-                if (!startTime) startTime = timestamp;
-                const progress = Math.min((timestamp - startTime) / duration, 1);
-                const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-                const current = Math.floor(ease * (end - start) + start);
-                
+            const startTime = performance.now();
+            const step = (now) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(start + (end - start) * (1 - Math.pow(2, -10 * progress)));
                 DOM.total.innerText = current.toLocaleString('ru-RU');
-                
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                } else {
-                    state.currentDisplayValue = end;
-                }
+                state.currentDisplayValue = current;
+                if (progress < 1) requestAnimationFrame(step);
             };
-            window.requestAnimationFrame(step);
+            requestAnimationFrame(step);
         };
 
         const runLogic = () => {
-            let systemsRate = 0;
-            
-            // Считаем выбранные системы через getAttribute для надежности
-            DOM.systems.forEach(s => {
-                if (s.checked) {
-                    systemsRate += parseFloat(s.getAttribute('data-price') || 0);
-                }
-            });
-
-            // Базовая формула: (Площадь * Ставка систем) * Коэффициент здания
-            let result = (state.area * systemsRate) * state.multiplier;
-
-            // Скидка для режима "Аудит"
-            if (state.mode === 'audit') result *= 0.35;
-            
-            // Если системы не выбраны — бюджет 0
-            if (systemsRate === 0) result = 0;
-
-            animatePrice(result);
+            let total = 0;
+            if (state.mode === 'service') {
+                let systemsSum = 0;
+                DOM.systems.forEach(s => {
+                    if (s.checked) systemsSum += parseFloat(s.getAttribute('data-price') || 0);
+                });
+                total = state.area * systemsSum * state.multiplier;
+            } else {
+                total = state.area * 5000 * state.multiplier;
+            }
+            animatePrice(Math.round(total));
         };
 
-        /* --- ОБРАБОТЧИКИ СОБЫТИЙ --- */
-
-        // Слайдер площади
-        DOM.range.addEventListener('input', (e) => {
-            state.area = parseInt(e.target.value);
-            DOM.label.innerText = `${state.area} м²`;
+        const updateArea = (val) => {
+            let numericVal = parseInt(val);
+            if (isNaN(numericVal) || numericVal < 500) numericVal = 500;
+            if (numericVal > 15000) numericVal = 15000;
+            state.area = numericVal;
+            if (DOM.input) DOM.input.value = numericVal;
+            DOM.range.value = numericVal;
             runLogic();
-        });
+        };
 
-        // Выбор типа объекта
+        /* ОБРАБОТЧИКИ ПЛОЩАДИ */
+        DOM.range.addEventListener('input', (e) => updateArea(e.target.value));
+        if (DOM.input) DOM.input.addEventListener('change', (e) => updateArea(e.target.value));
+
         DOM.types.forEach(card => {
             card.addEventListener('click', function() {
                 DOM.types.forEach(c => c.classList.remove('active'));
@@ -121,10 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Чекбоксы систем
         DOM.systems.forEach(s => s.addEventListener('change', runLogic));
 
-        // Переключение вкладок (Абонентское / Аудит)
         DOM.tabs.forEach(tab => {
             tab.addEventListener('click', function() {
                 DOM.tabs.forEach(t => t.classList.remove('active'));
@@ -134,108 +112,99 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        /* --- ЛОГИКА МОДАЛЬНОГО ОКНА --- */
-        if (DOM.openModalBtn && DOM.modal) {
-            DOM.openModalBtn.addEventListener('click', (e) => {
+        /* --- МАСКА ТЕЛЕФОНА (+998) --- */
+        if (DOM.phoneInput) {
+            DOM.phoneInput.addEventListener('input', (e) => {
+                let matrix = "+998 (__) ___-__-__";
+                let i = 0, def = matrix.replace(/\D/g, ""), val = e.target.value.replace(/\D/g, "");
+                if (def.length >= val.length) val = def;
+                e.target.value = matrix.replace(/./g, a => /[_\d]/.test(a) && i < val.length ? val.charAt(i++) : i >= val.length ? "" : a);
+            });
+            DOM.phoneInput.addEventListener('focus', () => {
+                if (DOM.phoneInput.value === "") DOM.phoneInput.value = "+998 ";
+            });
+        }
+
+        /* --- МОДАЛЬНОЕ ОКНО --- */
+if (DOM.openModalBtn && DOM.modal) {
+
+    DOM.openModalBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        if (DOM.displayArea) {
+            DOM.displayArea.innerText = state.area;
+        }
+
+        DOM.modal.classList.add('active');
+        document.body.classList.add('modal-open');
+    });
+
+    DOM.closeModalBtn.addEventListener('click', () => {
+        DOM.modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+    });
+
+}
+
+        /* --- ОТПРАВКА ФОРМЫ С ВАЛИДАЦИЕЙ --- */
+        if (DOM.orderForm) {
+            DOM.orderForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                if (DOM.displayArea) DOM.displayArea.innerText = DOM.range.value;
-                DOM.modal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            });
 
-            DOM.closeModalBtn.addEventListener('click', () => {
-                DOM.modal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            });
+                const name = document.getElementById('userName').value.trim();
+                const objName = document.getElementById('objName').value.trim();
+                const phone = DOM.phoneInput ? DOM.phoneInput.value.trim() : "";
 
-            window.addEventListener('click', (e) => {
-                if (e.target === DOM.modal) {
-                    DOM.modal.classList.remove('active');
-                    document.body.style.overflow = 'auto';
+                // Валидация
+                if (name.length < 2 || objName.length < 2 || phone.length < 19) {
+                    alert('Пожалуйста, заполните все поля корректно.\nТелефон должен быть в формате +998 (XX) XXX-XX-XX');
+                    return;
+                }
+
+                const formData = {
+                    name,
+                    object: objName,
+                    phone,
+                    area: state.area,
+                    total: DOM.total.innerText,
+                    systems: Array.from(DOM.systems)
+                        .filter(s => s.checked)
+                        .map(s => "• " + s.nextElementSibling.querySelector('span').innerText)
+                        .join('\n')
+                };
+
+                try {
+                    const response = await fetch('/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `KP_AsiaTechnoStroy.pdf`;
+                        a.click();
+                        alert('Ваше КП готово!');
+                    }
+                } catch (err) {
+                    console.error("Ошибка:", err);
                 }
             });
         }
 
-        // Отправка формы
-        if (DOM.orderForm) {
-    DOM.orderForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // Данные из формы
-        const name = document.getElementById('userName').value;
-        const object = document.getElementById('objName').value;
-        const phone = document.getElementById('userPhone').value;
-        
-        // Данные из калькулятора
-        const area = DOM.range.value;
-        const total = DOM.total.innerText;
-        const type = document.querySelector('.type-card.active span').innerText;
-        
-        // Собираем список выбранных систем
-        const systems = Array.from(DOM.systems)
-            .filter(s => s.checked)
-            .map(s => "✅ " + s.nextElementSibling.querySelector('span').innerText)
-            .join('\n');
-
-        // Текст сообщения для Telegram
-        const message = `
-🚀 **Новая заявка с сайта!**
-👤 **Имя:** ${name}
-🏢 **Объект:** ${object}
-📞 **Телефон:** ${phone}
-📍 **Тип здания:** ${type}
-📏 **Площадь:** ${area} м²
-🛠 **Системы:** 
-${systems}
-
-💰 **Предварительный бюджет:** ${total} сум/мес
-        `;
-
-        // Настройки бота (замените на свои данные)
-        const BOT_TOKEN = 'ВАШ_ТОКЕН_БОТА';
-        const CHAT_ID = 'ВАШ_ID_ЧАТА';
-
-        try {
-            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: CHAT_ID,
-                    text: message,
-                    parse_mode: 'Markdown'
-                })
-            });
-
-            if (response.ok) {
-                alert(`Спасибо, ${name}! Заявка отправлена. Мы скоро свяжемся с вами.`);
-                DOM.modal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-                DOM.orderForm.reset();
-            } else {
-                throw new Error('Ошибка при отправке');
-            }
-        } catch (error) {
-            alert('Произошла ошибка. Пожалуйста, свяжитесь с нами по телефону.');
-            console.error(error);
-        }
-    });
-}
-
-        // Запуск при загрузке
         runLogic();
     };
 
-    /* ==========================================================================
-       3. ШАПКА И ВИДЕО
-       ========================================================================== */
+    /* 3. ШАПКА И ВИДЕО */
     const initHeader = () => {
         const header = document.querySelector('header');
+        if (!header) return;
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 60) {
-                header.classList.add('shrunk');
-            } else {
-                header.classList.remove('shrunk');
-            }
+            if (window.scrollY > 60) header.classList.add('shrunk');
+            else header.classList.remove('shrunk');
         }, { passive: true });
     };
 
@@ -243,17 +212,14 @@ ${systems}
         const video = document.getElementById('heroVideo');
         const poster = document.querySelector('.hero-poster');
         if (!video || !poster) return;
-
         const playVideo = () => {
             poster.classList.add('fade-out');
             video.play().catch(() => {});
         };
-
         if (video.readyState >= 3) playVideo();
         else video.addEventListener('canplaythrough', playVideo, { once: true });
     };
 
-    // Запуск всех модулей
     initVisuals();
     initHeader();
     initCalculator();

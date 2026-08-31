@@ -5,11 +5,16 @@ node_modules/
 .env
 .env.*
 !.env.example
+.dev.vars*
+!.dev.vars.example
 
 # Generated client data and logs
 debug.html
 *.log
 npm-debug.log*
+.wrangler/
+coverage/
+*.pdf
 
 # OS metadata
 .DS_Store

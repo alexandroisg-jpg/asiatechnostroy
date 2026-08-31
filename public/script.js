@@ -1,227 +1,500 @@
-/**
- * ASIATECHNOSTROY - Professional Engineering Maintenance
- * ЭТАП 1: Маски, Валидация и Исправленная структура
- */
+import { calculateQuote, normalizeArea } from './pricing.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+const PHONE_PREFIX = '998';
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /* 1. ВИЗУАЛЬНЫЕ ЭФФЕКТЫ */
-    const initVisuals = () => {
-        if (window.lucide) lucide.createIcons();
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.15 });
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    };
-
-    /* 2. ГЛАВНЫЙ МОДУЛЬ КАЛЬКУЛЯТОРА */
-    const initCalculator = () => {
-        const DOM = {
-            input: document.getElementById('area-input'),
-            range: document.getElementById('area-range'),
-            total: document.getElementById('total-price'),
-            types: document.querySelectorAll('.type-card'),
-            systems: document.querySelectorAll('.system-item input'),
-            tabs: document.querySelectorAll('.tab-btn'),
-            modal: document.getElementById('modalOrder'),
-            openModalBtn: document.querySelector('.btn-order'),
-            closeModalBtn: document.querySelector('.modal-close'),
-            displayArea: document.getElementById('display-area'),
-            orderForm: document.getElementById('orderForm'),
-            phoneInput: document.getElementById('userPhone')
-        };
-
-        if (!DOM.range || !DOM.total) return;
-
-        let state = {
-            area: parseInt(DOM.range.value) || 500,
-            multiplier: 1.0,
-            mode: 'service',
-            currentDisplayValue: 0
-        };
-
-        const animatePrice = (newVal) => {
-            DOM.total.parentElement.classList.remove('updating');
-            void DOM.total.offsetWidth; // Магия для перезапуска анимации
-            DOM.total.parentElement.classList.add('updating');
-            const duration = 600;
-            const start = state.currentDisplayValue;
-            const end = newVal;
-            const startTime = performance.now();
-            const step = (now) => {
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const current = Math.floor(start + (end - start) * (1 - Math.pow(2, -10 * progress)));
-                DOM.total.innerText = current.toLocaleString('ru-RU');
-                state.currentDisplayValue = current;
-                if (progress < 1) requestAnimationFrame(step);
-            };
-            requestAnimationFrame(step);
-        };
-
-        const runLogic = () => {
-            let total = 0;
-            if (state.mode === 'service') {
-                let systemsSum = 0;
-                DOM.systems.forEach(s => {
-                    if (s.checked) systemsSum += parseFloat(s.getAttribute('data-price') || 0);
-                });
-                total = state.area * systemsSum * state.multiplier;
-            } else {
-                total = state.area * 5000 * state.multiplier;
-            }
-            animatePrice(Math.round(total));
-        };
-
-        const updateArea = (val) => {
-            let numericVal = parseInt(val);
-            if (isNaN(numericVal) || numericVal < 500) numericVal = 500;
-            if (numericVal > 15000) numericVal = 15000;
-            state.area = numericVal;
-            if (DOM.input) DOM.input.value = numericVal;
-            DOM.range.value = numericVal;
-            runLogic();
-        };
-
-        /* ОБРАБОТЧИКИ ПЛОЩАДИ */
-        DOM.range.addEventListener('input', (e) => updateArea(e.target.value));
-        if (DOM.input) DOM.input.addEventListener('change', (e) => updateArea(e.target.value));
-
-        DOM.types.forEach(card => {
-            card.addEventListener('click', function() {
-                DOM.types.forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-                state.multiplier = parseFloat(this.getAttribute('data-multiplier')) || 1.0;
-                runLogic();
-            });
-        });
-
-        DOM.systems.forEach(s => s.addEventListener('change', runLogic));
-
-        DOM.tabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                DOM.tabs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                state.mode = this.getAttribute('data-tab');
-                runLogic();
-            });
-        });
-
-        /* --- МАСКА ТЕЛЕФОНА (+998) --- */
-        if (DOM.phoneInput) {
-            DOM.phoneInput.addEventListener('input', (e) => {
-                let matrix = "+998 (__) ___-__-__";
-                let i = 0, def = matrix.replace(/\D/g, ""), val = e.target.value.replace(/\D/g, "");
-                if (def.length >= val.length) val = def;
-                e.target.value = matrix.replace(/./g, a => /[_\d]/.test(a) && i < val.length ? val.charAt(i++) : i >= val.length ? "" : a);
-            });
-            DOM.phoneInput.addEventListener('focus', () => {
-                if (DOM.phoneInput.value === "") DOM.phoneInput.value = "+998 ";
-            });
-        }
-
-        /* --- МОДАЛЬНОЕ ОКНО --- */
-if (DOM.openModalBtn && DOM.modal) {
-
-    DOM.openModalBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-
-        if (DOM.displayArea) {
-            DOM.displayArea.innerText = state.area;
-        }
-
-        DOM.modal.classList.add('active');
-        document.body.classList.add('modal-open');
-    });
-
-    DOM.closeModalBtn.addEventListener('click', () => {
-        DOM.modal.classList.remove('active');
-        document.body.classList.remove('modal-open');
-    });
-
+function formatMoney(value) {
+    return Number(value).toLocaleString('ru-RU');
 }
 
-        /* --- ОТПРАВКА ФОРМЫ С ВАЛИДАЦИЕЙ --- */
-        if (DOM.orderForm) {
-            DOM.orderForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
+function formatPhone(value) {
+    let digits = String(value ?? '').replace(/\D/g, '');
+    if (digits.startsWith(PHONE_PREFIX)) digits = digits.slice(PHONE_PREFIX.length);
+    digits = digits.slice(0, 9);
 
-                const name = document.getElementById('userName').value.trim();
-                const objName = document.getElementById('objName').value.trim();
-                const phone = DOM.phoneInput ? DOM.phoneInput.value.trim() : "";
+    let formatted = '+998';
+    if (digits.length > 0) formatted += ` (${digits.slice(0, 2)}`;
+    if (digits.length >= 2) formatted += ')';
+    if (digits.length > 2) formatted += ` ${digits.slice(2, 5)}`;
+    if (digits.length > 5) formatted += `-${digits.slice(5, 7)}`;
+    if (digits.length > 7) formatted += `-${digits.slice(7, 9)}`;
+    return formatted;
+}
 
-                // Валидация
-                if (name.length < 2 || objName.length < 2 || phone.length < 19) {
-                    alert('Пожалуйста, заполните все поля корректно.\nТелефон должен быть в формате +998 (XX) XXX-XX-XX');
-                    return;
-                }
+function normalizePhone(value) {
+    const digits = String(value ?? '').replace(/\D/g, '');
+    return digits.length === 12 && digits.startsWith(PHONE_PREFIX) ? `+${digits}` : null;
+}
 
-                const formData = {
-                    name,
-                    object: objName,
-                    phone,
-                    area: state.area,
-                    total: DOM.total.innerText,
-                    systems: Array.from(DOM.systems)
-                        .filter(s => s.checked)
-                        .map(s => "• " + s.nextElementSibling.querySelector('span').innerText)
-                        .join('\n')
-                };
+function setStatus(element, message, type = '') {
+    if (!element) return;
+    element.textContent = message;
+    element.dataset.type = type;
+}
 
-                try {
-                    const response = await fetch('/send', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(formData)
-                    });
+function drawWrappedText(context, text, x, y, maxWidth, lineHeight, maxLines = 20) {
+    const words = String(text ?? '').trim().split(/\s+/).filter(Boolean);
+    const lines = [];
+    let currentLine = '';
 
-                    if (response.ok) {
-                        const blob = await response.blob();
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `KP_AsiaTechnoStroy.pdf`;
-                        a.click();
-                        alert('Ваше КП готово!');
-                    }
-                } catch (err) {
-                    console.error("Ошибка:", err);
-                }
+    for (const word of words) {
+        const candidate = currentLine ? `${currentLine} ${word}` : word;
+        if (context.measureText(candidate).width <= maxWidth) {
+            currentLine = candidate;
+            continue;
+        }
+        if (currentLine) lines.push(currentLine);
+        currentLine = word;
+        if (lines.length >= maxLines - 1) break;
+    }
+
+    if (currentLine && lines.length < maxLines) lines.push(currentLine);
+    lines.forEach((line, index) => context.fillText(line, x, y + index * lineHeight));
+    return y + lines.length * lineHeight;
+}
+
+function canvasToJpeg(canvas) {
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+            if (!blob) {
+                reject(new Error('Не удалось подготовить изображение КП'));
+                return;
+            }
+            resolve(blob);
+        }, 'image/jpeg', 0.92);
+    });
+}
+
+function concatenateBytes(parts) {
+    const length = parts.reduce((sum, part) => sum + part.length, 0);
+    const result = new Uint8Array(length);
+    let offset = 0;
+    for (const part of parts) {
+        result.set(part, offset);
+        offset += part.length;
+    }
+    return result;
+}
+
+function createSingleImagePdf(jpegBytes, width, height) {
+    const encoder = new TextEncoder();
+    const text = (value) => encoder.encode(value);
+    const pageWidth = 595.28;
+    const pageHeight = 841.89;
+    const pageContent = text(`q\n${pageWidth} 0 0 ${pageHeight} 0 0 cm\n/Im0 Do\nQ\n`);
+    const objects = [
+        [text('<< /Type /Catalog /Pages 2 0 R >>')],
+        [text('<< /Type /Pages /Kids [3 0 R] /Count 1 >>')],
+        [text(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /ProcSet [/PDF /ImageC] /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`)],
+        [
+            text(`<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`),
+            jpegBytes,
+            text('\nendstream')
+        ],
+        [text(`<< /Length ${pageContent.length} >>\nstream\n`), pageContent, text('endstream')]
+    ];
+
+    const parts = [text('%PDF-1.4\n% AsiaTechnoStroy\n')];
+    const offsets = [0];
+    let byteLength = parts[0].length;
+
+    objects.forEach((bodyParts, index) => {
+        offsets.push(byteLength);
+        const objectParts = [text(`${index + 1} 0 obj\n`), ...bodyParts, text('\nendobj\n')];
+        parts.push(...objectParts);
+        byteLength += objectParts.reduce((sum, part) => sum + part.length, 0);
+    });
+
+    const xrefOffset = byteLength;
+    const xrefEntries = offsets.slice(1)
+        .map((offset) => `${String(offset).padStart(10, '0')} 00000 n \n`)
+        .join('');
+    parts.push(text(`xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${xrefEntries}trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`));
+    return concatenateBytes(parts);
+}
+
+async function buildQuotePdf(quote) {
+    if (document.fonts?.ready) await document.fonts.ready;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 1240;
+    canvas.height = 1754;
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Браузер не поддерживает создание КП');
+
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = '#07111f';
+    context.fillRect(0, 0, canvas.width, 260);
+    context.fillStyle = '#00cfe0';
+    context.fillRect(0, 254, canvas.width, 6);
+    context.textBaseline = 'top';
+    context.fillStyle = '#00e8f4';
+    context.font = '700 30px Inter, Arial, sans-serif';
+    context.fillText('ASIATECHNOSTROY', 90, 62);
+    context.fillStyle = '#ffffff';
+    context.font = '800 52px Inter, Arial, sans-serif';
+    context.fillText('КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ', 90, 116);
+    context.fillStyle = '#a9b7c9';
+    context.font = '500 24px Inter, Arial, sans-serif';
+    context.fillText(`№ ${quote.number}  •  ${quote.date}`, 90, 198);
+
+    const drawSectionTitle = (title, y) => {
+        context.fillStyle = '#0b1728';
+        context.font = '800 28px Inter, Arial, sans-serif';
+        context.fillText(title, 90, y);
+        context.fillStyle = '#00b8c7';
+        context.fillRect(90, y + 42, 90, 4);
+        return y + 76;
+    };
+
+    const drawLabelValue = (label, value, y) => {
+        context.fillStyle = '#657387';
+        context.font = '700 19px Inter, Arial, sans-serif';
+        context.fillText(label.toUpperCase(), 90, y);
+        context.fillStyle = '#101b2b';
+        context.font = '600 27px Inter, Arial, sans-serif';
+        return drawWrappedText(context, value, 90, y + 32, 1060, 36, 3) + 22;
+    };
+
+    let y = drawSectionTitle('Заказчик', 318);
+    y = drawLabelValue('Имя', quote.name, y);
+    y = drawLabelValue('Организация / объект', quote.object, y);
+    y = drawLabelValue('Телефон', quote.phone, y);
+    y = drawSectionTitle('Параметры расчёта', y + 14);
+    y = drawLabelValue('Формат работ', quote.modeLabel, y);
+    y = drawLabelValue('Тип объекта', quote.typeLabel, y);
+    y = drawLabelValue('Площадь', `${formatMoney(quote.area)} м²`, y);
+    const systemsText = quote.systemLabels?.length
+        ? quote.systemLabels.join(' • ')
+        : 'Комплексная оценка состояния инженерных систем';
+    y = drawLabelValue('Инженерные системы', systemsText, y);
+
+    const totalTop = Math.max(y + 36, 1320);
+    context.fillStyle = '#eef8fa';
+    context.fillRect(70, totalTop, 1100, 220);
+    context.strokeStyle = '#00b8c7';
+    context.lineWidth = 3;
+    context.strokeRect(70, totalTop, 1100, 220);
+    context.fillStyle = '#516174';
+    context.font = '700 22px Inter, Arial, sans-serif';
+    context.fillText('ПРЕДВАРИТЕЛЬНАЯ СТОИМОСТЬ', 110, totalTop + 42);
+    context.fillStyle = '#07111f';
+    context.font = '900 58px Inter, Arial, sans-serif';
+    context.fillText(formatMoney(quote.total), 110, totalTop + 88);
+    context.fillStyle = '#00a8b7';
+    context.font = '800 25px Inter, Arial, sans-serif';
+    context.fillText(quote.pricePeriod, 110, totalTop + 164);
+    context.fillStyle = '#667589';
+    context.font = '500 19px Inter, Arial, sans-serif';
+    drawWrappedText(
+        context,
+        'Расчёт носит предварительный характер. Точная стоимость фиксируется после первичного технического аудита объекта.',
+        90,
+        1600,
+        1060,
+        28,
+        4
+    );
+
+    const jpegBlob = await canvasToJpeg(canvas);
+    const jpegBytes = new Uint8Array(await jpegBlob.arrayBuffer());
+    return createSingleImagePdf(jpegBytes, canvas.width, canvas.height);
+}
+
+async function downloadQuotePdf(quote) {
+    const pdfBytes = await buildQuotePdf(quote);
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `KP_AsiaTechnoStroy_${quote.number}.pdf`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 2_000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.lucide) window.lucide.createIcons();
+
+    const revealElements = document.querySelectorAll('.reveal');
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+        revealElements.forEach((element) => element.classList.add('visible'));
+    } else {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
             });
+        }, { threshold: 0.12 });
+        revealElements.forEach((element) => observer.observe(element));
+    }
+
+    const header = document.querySelector('.header');
+    const updateHeader = () => header?.classList.toggle('shrunk', window.scrollY > 60);
+    updateHeader();
+    window.addEventListener('scroll', updateHeader, { passive: true });
+
+    const video = document.getElementById('heroVideo');
+    const poster = document.querySelector('.hero-poster');
+    if (video && poster) {
+        if (reduceMotion) {
+            video.pause();
+        } else {
+            const hidePoster = () => poster.classList.add('fade-out');
+            if (video.readyState >= 3) hidePoster();
+            video.addEventListener('canplay', hidePoster, { once: true });
+            video.play().catch(() => {});
+        }
+    }
+
+    const elements = {
+        areaInput: document.getElementById('area-input'),
+        areaRange: document.getElementById('area-range'),
+        total: document.getElementById('total-price'),
+        period: document.getElementById('price-period'),
+        typeButtons: [...document.querySelectorAll('.type-card')],
+        systems: [...document.querySelectorAll('.system-item input[data-system]')],
+        systemsGrid: document.querySelector('.systems-grid-full'),
+        tabs: [...document.querySelectorAll('.tab-btn')],
+        orderButton: document.querySelector('.btn-order'),
+        calcStatus: document.getElementById('calcStatus'),
+        modal: document.getElementById('modalOrder'),
+        closeModalButton: document.querySelector('.modal-close'),
+        displayArea: document.getElementById('display-area'),
+        form: document.getElementById('orderForm'),
+        phoneInput: document.getElementById('userPhone'),
+        formStatus: document.getElementById('formStatus')
+    };
+
+    if (!elements.areaRange || !elements.total) return;
+
+    const state = {
+        area: normalizeArea(elements.areaRange.value),
+        mode: 'service',
+        type: 'office',
+        quote: null,
+        displayedTotal: 0,
+        animationFrame: null,
+        formStartedAt: 0,
+        lastFocused: null
+    };
+
+    const selectedSystemIds = () => state.mode === 'audit'
+        ? []
+        : elements.systems.filter((input) => input.checked).map((input) => input.dataset.system);
+
+    const animatePrice = (target) => {
+        if (state.animationFrame) cancelAnimationFrame(state.animationFrame);
+        if (reduceMotion) {
+            state.displayedTotal = target;
+            elements.total.textContent = formatMoney(target);
+            return;
         }
 
-        runLogic();
-    };
-
-    /* 3. ШАПКА И ВИДЕО */
-    const initHeader = () => {
-        const header = document.querySelector('header');
-        if (!header) return;
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 60) header.classList.add('shrunk');
-            else header.classList.remove('shrunk');
-        }, { passive: true });
-    };
-
-    const initHeroVideo = () => {
-        const video = document.getElementById('heroVideo');
-        const poster = document.querySelector('.hero-poster');
-        if (!video || !poster) return;
-        const playVideo = () => {
-            poster.classList.add('fade-out');
-            video.play().catch(() => {});
+        const start = state.displayedTotal;
+        const difference = target - start;
+        const duration = 420;
+        let startedAt;
+        const step = (timestamp) => {
+            if (startedAt === undefined) startedAt = timestamp;
+            const progress = Math.min((timestamp - startedAt) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const value = progress === 1 ? target : Math.round(start + difference * eased);
+            state.displayedTotal = value;
+            elements.total.textContent = formatMoney(value);
+            if (progress < 1) {
+                state.animationFrame = requestAnimationFrame(step);
+            } else {
+                state.animationFrame = null;
+                elements.total.textContent = formatMoney(target);
+            }
         };
-        if (video.readyState >= 3) playVideo();
-        else video.addEventListener('canplaythrough', playVideo, { once: true });
+        state.animationFrame = requestAnimationFrame(step);
     };
 
-    initVisuals();
-    initHeader();
-    initCalculator();
-    initHeroVideo();
+    const updateQuote = () => {
+        try {
+            state.quote = calculateQuote({
+                area: state.area,
+                mode: state.mode,
+                type: state.type,
+                systemIds: selectedSystemIds()
+            });
+            elements.period.textContent = state.quote.pricePeriod;
+            setStatus(elements.calcStatus, '');
+            animatePrice(state.quote.total);
+        } catch (error) {
+            state.quote = null;
+            elements.period.textContent = state.mode === 'service' ? 'сум/мес' : 'сум, разово';
+            setStatus(elements.calcStatus, error.message, 'error');
+            animatePrice(0);
+        }
+    };
+
+    const setArea = (value) => {
+        state.area = normalizeArea(value);
+        elements.areaInput.value = state.area;
+        elements.areaRange.value = state.area;
+        updateQuote();
+    };
+
+    elements.areaRange.addEventListener('input', (event) => setArea(event.target.value));
+    elements.areaInput?.addEventListener('change', (event) => setArea(event.target.value));
+    elements.areaInput?.addEventListener('blur', (event) => setArea(event.target.value));
+
+    elements.typeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            state.type = button.dataset.type;
+            elements.typeButtons.forEach((item) => {
+                const selected = item === button;
+                item.classList.toggle('active', selected);
+                item.setAttribute('aria-pressed', String(selected));
+            });
+            updateQuote();
+        });
+    });
+
+    elements.systems.forEach((input) => input.addEventListener('change', updateQuote));
+    elements.tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+            state.mode = tab.dataset.tab;
+            elements.tabs.forEach((item) => {
+                const selected = item === tab;
+                item.classList.toggle('active', selected);
+                item.setAttribute('aria-pressed', String(selected));
+            });
+            const auditMode = state.mode === 'audit';
+            elements.systems.forEach((input) => { input.disabled = auditMode; });
+            elements.systemsGrid?.classList.toggle('is-disabled', auditMode);
+            updateQuote();
+        });
+    });
+
+    const closeModal = () => {
+        elements.modal?.classList.remove('active');
+        elements.modal?.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+        state.lastFocused?.focus();
+    };
+
+    const openModal = () => {
+        if (!state.quote) {
+            setStatus(elements.calcStatus, 'Выберите хотя бы одну инженерную систему.', 'error');
+            elements.systems[0]?.focus();
+            return;
+        }
+        state.lastFocused = document.activeElement;
+        state.formStartedAt = Date.now();
+        elements.displayArea.textContent = formatMoney(state.area);
+        setStatus(elements.formStatus, '');
+        elements.modal?.classList.add('active');
+        elements.modal?.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+        window.setTimeout(() => document.getElementById('userName')?.focus(), 100);
+    };
+
+    elements.orderButton?.addEventListener('click', openModal);
+    elements.closeModalButton?.addEventListener('click', closeModal);
+    elements.modal?.addEventListener('click', (event) => {
+        if (event.target === elements.modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (!elements.modal?.classList.contains('active')) return;
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            closeModal();
+            return;
+        }
+        if (event.key !== 'Tab') return;
+        const focusable = [...elements.modal.querySelectorAll('button:not([disabled]), input:not([disabled]):not([tabindex="-1"]), a[href]')];
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    });
+
+    elements.phoneInput?.addEventListener('input', (event) => {
+        event.target.value = formatPhone(event.target.value);
+    });
+    elements.phoneInput?.addEventListener('focus', (event) => {
+        if (!event.target.value) event.target.value = '+998 ';
+    });
+
+    elements.form?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const name = document.getElementById('userName')?.value.trim() ?? '';
+        const object = document.getElementById('objName')?.value.trim() ?? '';
+        const phone = normalizePhone(elements.phoneInput?.value);
+        const website = document.getElementById('companyWebsite')?.value ?? '';
+
+        if (name.length < 2 || name.length > 80 || object.length < 2 || object.length > 120 || !phone) {
+            setStatus(elements.formStatus, 'Проверьте имя, название объекта и телефон в формате +998 (XX) XXX-XX-XX.', 'error');
+            return;
+        }
+
+        updateQuote();
+        if (!state.quote) {
+            setStatus(elements.formStatus, 'Не удалось проверить параметры расчёта.', 'error');
+            return;
+        }
+
+        const submitButton = elements.form.querySelector('button[type="submit"]');
+        const submitLabel = submitButton.querySelector('span');
+        submitButton.disabled = true;
+        submitButton.setAttribute('aria-busy', 'true');
+        submitLabel.textContent = 'Подготавливаем КП…';
+        setStatus(elements.formStatus, 'Проверяем расчёт и готовим документ.', 'loading');
+
+        try {
+            const response = await fetch('/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name,
+                    object,
+                    phone,
+                    area: state.area,
+                    mode: state.mode,
+                    type: state.type,
+                    systemIds: selectedSystemIds(),
+                    website,
+                    formElapsedMs: Date.now() - state.formStartedAt
+                })
+            });
+
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || !data.ok || !data.quote) {
+                throw new Error(data.message || (response.status === 429
+                    ? 'Слишком много попыток. Подождите минуту и повторите.'
+                    : 'Не удалось подготовить КП. Позвоните нам по номеру +998 91 788-88-05.'));
+            }
+
+            await downloadQuotePdf(data.quote);
+            if (data.notificationSent) {
+                setStatus(elements.formStatus, 'Готово: заявка отправлена, а КП скачано.', 'success');
+            } else {
+                setStatus(elements.formStatus, 'КП скачано, но уведомление не доставлено. Позвоните: +998 91 788-88-05.', 'warning');
+            }
+            state.formStartedAt = Date.now();
+        } catch (error) {
+            setStatus(elements.formStatus, error.message || 'Не удалось отправить заявку.', 'error');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.removeAttribute('aria-busy');
+            submitLabel.textContent = submitButton.dataset.defaultLabel;
+        }
+    });
+
+    document.getElementById('copyright-year').textContent = String(new Date().getFullYear());
+    setArea(state.area);
 });

@@ -120,4 +120,28 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/contact/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/kontakty/"/>
   </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/politika-konfidentsialnosti/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/politika-konfidentsialnosti/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/maxfiylik-siyosati/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/politika-konfidentsialnosti/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/uz/maxfiylik-siyosati/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/politika-konfidentsialnosti/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/maxfiylik-siyosati/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/politika-konfidentsialnosti/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/en/privacy/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/politika-konfidentsialnosti/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/maxfiylik-siyosati/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/politika-konfidentsialnosti/"/>
+  </url>
 </urlset>

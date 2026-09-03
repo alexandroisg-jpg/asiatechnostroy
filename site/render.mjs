@@ -270,6 +270,7 @@ function footer(localeKey) {
             <a href="${route('service', localeKey)}">${escapeHtml(locale.nav.service)}</a>
             <a href="${route('audit', localeKey)}">${escapeHtml(locale.nav.audit)}</a>
             <a href="${route('contact', localeKey)}">${escapeHtml(locale.nav.contact)}</a>
+            <a href="${route('privacy', localeKey)}">${escapeHtml(locale.nav.privacy)}</a>
         </nav>
         <div class="footer-contact">
             <a href="tel:${SITE.phoneHref}">${SITE.phoneDisplay}</a>
@@ -284,7 +285,24 @@ function footer(localeKey) {
 
 function pageHeader(localeKey, pageType, page) {
     const locale = LOCALES[localeKey];
-    return `<section class="page-hero page-hero--${pageType}">
+    const heroClass = pageType === 'privacy' ? 'contact' : pageType;
+    let actions;
+    if (pageType === 'audit') {
+        actions = `<a class="btn-premium" href="#audit-calculator">${escapeHtml(locale.common.auditCta)} ${icon('arrow', 'button-icon')}</a>
+            <a class="hero-secondary" href="tel:${SITE.phoneHref}">${escapeHtml(locale.common.call)}: ${SITE.phoneDisplay}</a>`;
+    } else if (pageType === 'contact') {
+        actions = `<a class="btn-premium" href="tel:${SITE.phoneHref}">${escapeHtml(locale.common.call)}: ${SITE.phoneDisplay}</a>
+            <a class="hero-secondary" href="${SITE.whatsapp}" target="_blank" rel="noopener noreferrer">${escapeHtml(locale.common.whatsapp)}</a>`;
+    } else if (pageType === 'privacy') {
+        actions = `<a class="btn-premium" href="${route('home', localeKey)}">${escapeHtml(locale.common.backHome)} ${icon('arrow', 'button-icon')}</a>
+            <a class="hero-secondary" href="tel:${SITE.phoneHref}">${escapeHtml(locale.common.call)}: ${SITE.phoneDisplay}</a>`;
+    } else {
+        const label = pageType === 'service' ? locale.common.startAudit : locale.common.auditCta;
+        actions = `<a class="btn-premium" href="${route('audit', localeKey)}#audit-calculator">${escapeHtml(label)} ${icon('arrow', 'button-icon')}</a>
+            <a class="hero-secondary" href="tel:${SITE.phoneHref}">${escapeHtml(locale.common.call)}: ${SITE.phoneDisplay}</a>`;
+    }
+
+    return `<section class="page-hero page-hero--${heroClass}">
     <div class="page-hero__shade"></div>
     <div class="container page-hero__content">
         <nav class="breadcrumbs" aria-label="${escapeHtml(locale.breadcrumbLabel)}">
@@ -296,10 +314,7 @@ function pageHeader(localeKey, pageType, page) {
         <h1>${escapeHtml(page.heroTitle)}</h1>
         <p class="page-hero__lead">${escapeHtml(page.heroText)}</p>
         <div class="page-hero__actions">
-            ${pageType === 'audit'
-                ? `<a class="btn-premium" href="#audit-calculator">${escapeHtml(locale.common.auditCta)} ${icon('arrow', 'button-icon')}</a>`
-                : `<a class="btn-premium" href="${route('audit', localeKey)}">${escapeHtml(locale.common.auditCta)} ${icon('arrow', 'button-icon')}</a>`}
-            <a class="hero-secondary" href="tel:${SITE.phoneHref}">${escapeHtml(locale.common.call)}: ${SITE.phoneDisplay}</a>
+            ${actions}
         </div>
     </div>
 </section>`;
@@ -366,11 +381,12 @@ ${auditOnly ? '' : `        <div class="calc-tabs" role="group" aria-label="${es
             <div class="label-row">
                 <label class="setting-label" for="area-input">${escapeHtml(text.area)}</label>
                 <div class="area-input-wrapper">
-                    <input type="number" id="area-input" min="500" max="15000" step="10" value="500" inputmode="numeric" placeholder="500">
+                    <input type="number" id="area-input" min="500" max="150000" step="10" value="500" inputmode="numeric" placeholder="500">
                     <span>m²</span>
                 </div>
             </div>
-            <input type="range" id="area-range" min="500" max="15000" step="10" value="500" class="slider-premium-full" aria-label="${escapeHtml(text.area)}">
+            <input type="range" id="area-range" min="500" max="150000" step="10" value="500" class="slider-premium-full" aria-label="${escapeHtml(text.area)}">
+            <div class="area-scale" aria-hidden="true"><span>500</span><span>50 000</span><span>100 000</span><span>150 000</span></div>
 ${auditOnly ? '' : `            <div class="setting-group systems-setting" data-service-controls>
                 <div class="setting-label" id="systems-label">${escapeHtml(text.systems)}</div>
                 <div class="systems-grid-full" role="group" aria-labelledby="systems-label">${systemButtons}</div>
@@ -407,15 +423,18 @@ function modal(localeKey) {
         <form id="orderForm" class="modal-form" novalidate>
             <div class="input-group">
                 <label for="userName">${escapeHtml(text.nameLabel)}</label>
-                <input type="text" id="userName" name="name" placeholder="${escapeHtml(text.namePlaceholder)}" autocomplete="name" minlength="2" maxlength="80" required>
+                <input type="text" id="userName" name="name" placeholder="${escapeHtml(text.namePlaceholder)}" autocomplete="name" minlength="2" maxlength="80" aria-describedby="userName-error" required>
+                <p class="input-error" id="userName-error" role="alert" hidden>${escapeHtml(text.nameError)}</p>
             </div>
             <div class="input-group">
                 <label for="objName">${escapeHtml(text.objectLabel)}</label>
-                <input type="text" id="objName" name="object" placeholder="${escapeHtml(text.objectPlaceholder)}" autocomplete="organization" minlength="2" maxlength="120" required>
+                <input type="text" id="objName" name="object" placeholder="${escapeHtml(text.objectPlaceholder)}" autocomplete="organization" minlength="2" maxlength="120" aria-describedby="objName-error" required>
+                <p class="input-error" id="objName-error" role="alert" hidden>${escapeHtml(text.objectError)}</p>
             </div>
             <div class="input-group">
                 <label for="userPhone">${escapeHtml(text.phoneLabel)}</label>
-                <input type="tel" id="userPhone" name="phone" placeholder="+998 (__) ___-__-__" autocomplete="tel" inputmode="tel" maxlength="19" required>
+                <input type="tel" id="userPhone" name="phone" placeholder="+998 (__) ___-__-__" autocomplete="tel" inputmode="tel" maxlength="19" aria-describedby="userPhone-error" required>
+                <p class="input-error" id="userPhone-error" role="alert" hidden>${escapeHtml(text.phoneError)}</p>
             </div>
             <div class="honeypot" aria-hidden="true">
                 <label for="companyWebsite">Website</label>
@@ -425,7 +444,7 @@ function modal(localeKey) {
                 <span>${escapeHtml(text.submitService)}</span>
             </button>
             <p id="formStatus" class="form-status" role="status" aria-live="polite"></p>
-            <p class="form-disclaimer">${escapeHtml(text.disclaimer)}</p>
+            <p class="form-disclaimer">${escapeHtml(text.disclaimer)} <a href="${route('privacy', localeKey)}">${escapeHtml(LOCALES[localeKey].common.privacy)}</a>.</p>
         </form>
     </div>
 </div>`;
@@ -474,7 +493,7 @@ function renderHome(localeKey, page) {
                 </div>
                 <figure class="about-media reveal">
                     <img class="about-media__primary" src="/assets/img/engineering/hvac-rooftop.webp" width="1800" height="1201" loading="lazy" alt="${escapeHtml(page.photoCaption)}">
-                    <img class="about-media__detail" src="/assets/img/engineering/ventilation-units.webp" width="1800" height="1200" loading="lazy" alt="${escapeHtml(page.photoCaption)}">
+                    <img class="about-media__detail" src="/assets/img/engineering/ventilation-units.webp" width="1800" height="1200" loading="lazy" alt="">
                     <figcaption><span>ATS / ENGINEERING</span>${escapeHtml(page.photoCaption)}</figcaption>
                 </figure>
             </div>
@@ -496,7 +515,7 @@ function renderHome(localeKey, page) {
             <div class="section-heading"><p class="eyebrow">03 / ${escapeHtml(locale.sections.systems)}</p><h2 id="services-title">${escapeHtml(page.servicesTitle)}</h2></div>
             <div class="bento-grid">
                 <article class="bento-item bento-item--intro bento-base reveal">
-                    <div class="intro-content"><h3>${escapeHtml(page.servicesIntroTitle)}</h3><div class="indicator-line"></div><p>${escapeHtml(page.servicesIntroText)}</p><a class="text-link" href="${route('service', localeKey)}">${escapeHtml(locale.common.details)} ${icon('arrow', 'button-icon')}</a></div>
+                    <div class="intro-content"><h3>${escapeHtml(page.servicesIntroTitle)}</h3><div class="indicator-line"></div><p>${escapeHtml(page.servicesIntroText)}</p><a class="text-link" href="${route('service', localeKey)}" aria-label="${escapeHtml(locale.common.serviceDetails)}">${escapeHtml(locale.common.serviceDetails)} ${icon('arrow', 'button-icon')}</a></div>
                 </article>
                 ${serviceCards}
             </div>
@@ -506,17 +525,17 @@ function renderHome(localeKey, page) {
     <section id="audit" class="section audit-feature" aria-labelledby="audit-title">
         <div class="container audit-feature__grid">
             <div class="audit-feature__content reveal">
-                <p class="eyebrow">${escapeHtml(page.auditEyebrow)}</p>
+                <p class="eyebrow">04 / ${escapeHtml(page.auditEyebrow)}</p>
                 <h2 id="audit-title">${escapeHtml(page.auditTitle)}</h2>
                 <p class="audit-feature__lead">${escapeHtml(page.auditText)}</p>
                 ${numberedGrid(page.auditSteps, 'audit-step-grid')}
                 <div class="hero-actions hero-actions--left">
-                    <a class="btn-premium" href="${route('audit', localeKey)}">${escapeHtml(locale.common.details)} ${icon('arrow', 'button-icon')}</a>
-                    <a class="hero-secondary" href="#calculators">${escapeHtml(locale.common.auditCta)}</a>
+                    <a class="btn-premium" href="${route('audit', localeKey)}" aria-label="${escapeHtml(locale.common.auditDetails)}">${escapeHtml(locale.common.auditDetails)} ${icon('arrow', 'button-icon')}</a>
+                    <a class="hero-secondary" href="${route('audit', localeKey)}#audit-calculator">${escapeHtml(locale.common.auditCta)}</a>
                 </div>
             </div>
             <div class="audit-feature__visual reveal">
-                <img src="/assets/img/engineering/plant-room.webp" width="1800" height="1198" loading="lazy" alt="${escapeHtml(page.auditText)}">
+                <img src="/assets/img/engineering/plant-room.webp" width="1800" height="1198" loading="lazy" alt="${escapeHtml(page.auditImageAlt)}">
                 <div class="report-preview" aria-hidden="true">
                     <div class="report-preview__head"><span>ASIATECHNOSTROY</span><strong>${escapeHtml(locale.sections.technicalAudit)}</strong></div>
                     ${page.auditDeliverables.map((item, index) => `<div class="report-preview__row"><span>${String(index + 1).padStart(2, '0')}</span><i></i><b>${escapeHtml(item)}</b></div>`).join('')}
@@ -527,7 +546,7 @@ function renderHome(localeKey, page) {
 
     <section id="calculators" class="section calculator-section" aria-labelledby="calculator-title">
         <div class="container">
-            <div class="section-heading"><p class="eyebrow">04 / ${escapeHtml(locale.sections.estimate)}</p><h2 id="calculator-title">${escapeHtml(locale.calculator.title)}</h2></div>
+            <div class="section-heading"><p class="eyebrow">05 / ${escapeHtml(locale.sections.estimate)}</p><h2 id="calculator-title">${escapeHtml(locale.calculator.title)}</h2></div>
             ${calculator(localeKey)}
         </div>
     </section>
@@ -545,7 +564,7 @@ function renderAbout(localeKey, page) {
                 <div class="section-heading section-heading--left reveal"><p class="eyebrow">01 / ${escapeHtml(locale.sections.approach)}</p><h2>${escapeHtml(page.introTitle)}</h2></div>
                 <div class="editorial-copy reveal">${page.introParagraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}</div>
             </div>
-            <div class="container editorial-media reveal"><img src="/assets/img/engineering/building-exterior.webp" width="1800" height="1201" loading="eager" alt="${escapeHtml(page.introTitle)}"><span>ASIATECHNOSTROY / TASHKENT</span></div>
+            <div class="container editorial-media reveal"><img src="/assets/img/engineering/hvac-rooftop.webp" width="1800" height="1201" loading="eager" alt="${escapeHtml(page.editorialImageAlt)}"><span>ASIATECHNOSTROY / TASHKENT</span></div>
         </section>
         <section class="section section--surface">
             <div class="container"><div class="section-heading section-heading--left"><p class="eyebrow">02 / ${escapeHtml(locale.sections.operatingModel)}</p><h2>${escapeHtml(page.modelTitle)}</h2></div>${numberedGrid(page.model, 'operating-model')}</div>
@@ -556,7 +575,7 @@ function renderAbout(localeKey, page) {
                 <div class="responsibility-facts reveal">${factGrid(page.facts)}</div>
             </div>
         </section>
-        <section class="section audit-cta"><div class="container"><div class="audit-cta__card bento-base reveal"><div><p class="eyebrow">${escapeHtml(locale.sections.technicalAudit)}</p><h2>${escapeHtml(page.ctaTitle)}</h2><p>${escapeHtml(page.ctaText)}</p></div><a class="btn-premium" href="${route('audit', localeKey)}">${escapeHtml(locale.common.auditCta)} ${icon('arrow', 'button-icon')}</a></div></div></section>
+        <section class="section audit-cta"><div class="container"><div class="audit-cta__card bento-base reveal"><div><p class="eyebrow">04 / ${escapeHtml(locale.sections.technicalAudit)}</p><h2>${escapeHtml(page.ctaTitle)}</h2><p>${escapeHtml(page.ctaText)}</p></div><a class="btn-premium" href="${route('audit', localeKey)}#audit-calculator">${escapeHtml(locale.common.auditCta)} ${icon('arrow', 'button-icon')}</a></div></div></section>
         ${contactPanel(localeKey, locale.common.discuss, page.ctaText)}
     </main>`;
 }
@@ -567,7 +586,7 @@ function renderAudit(localeKey, page) {
         ${pageHeader(localeKey, 'audit', page)}
         <section class="section audit-intro"><div class="container editorial-grid"><div class="section-heading section-heading--left reveal"><p class="eyebrow">01 / ${escapeHtml(locale.sections.purpose)}</p><h2>${escapeHtml(page.introTitle)}</h2></div><div class="editorial-copy reveal"><p>${escapeHtml(page.introText)}</p></div></div></section>
         <section class="section section--surface"><div class="container"><div class="section-heading section-heading--left"><p class="eyebrow">02 / ${escapeHtml(locale.sections.process)}</p><h2>${escapeHtml(page.stagesTitle)}</h2></div>${numberedGrid(page.stages, 'audit-process')}</div></section>
-        <section class="section audit-scope"><div class="container split-panel"><div class="split-panel__media reveal"><img src="/assets/img/engineering/ventilation-units.webp" width="1800" height="1200" loading="lazy" alt="${escapeHtml(page.scopeTitle)}"></div><div class="split-panel__content reveal"><p class="eyebrow">03 / ${escapeHtml(locale.sections.scope)}</p><h2>${escapeHtml(page.scopeTitle)}</h2><p>${escapeHtml(page.scopeIntro)}</p>${checklist(page.scope)}</div></div></section>
+        <section class="section audit-scope"><div class="container split-panel"><div class="split-panel__media reveal"><img src="/assets/img/engineering/ventilation-units.webp" width="1800" height="1200" loading="lazy" alt="${escapeHtml(page.scopeImageAlt)}"></div><div class="split-panel__content reveal"><p class="eyebrow">03 / ${escapeHtml(locale.sections.scope)}</p><h2>${escapeHtml(page.scopeTitle)}</h2><p>${escapeHtml(page.scopeIntro)}</p>${checklist(page.scope)}</div></div></section>
         <section class="section report-section section--surface"><div class="container"><div class="section-heading section-heading--left"><p class="eyebrow">04 / ${escapeHtml(locale.sections.deliverable)}</p><h2>${escapeHtml(page.reportTitle)}</h2><p>${escapeHtml(page.reportIntro)}</p></div>${numberedGrid(page.report, 'report-grid')}<div class="confidentiality-note reveal"><span>${icon('shield')}</span><div><h3>${escapeHtml(page.confidentialityTitle)}</h3><p>${escapeHtml(page.confidentialityText)}</p></div></div></div></section>
         <section id="audit-calculator" class="section calculator-section"><div class="container"><div class="section-heading"><p class="eyebrow">05 / ${escapeHtml(locale.sections.estimate)}</p><h2>${escapeHtml(page.calculatorTitle)}</h2><p>${escapeHtml(page.calculatorText)}</p></div>${calculator(localeKey, { auditOnly: true })}</div></section>
         ${contactPanel(localeKey, locale.common.discuss, page.calculatorText)}
@@ -582,7 +601,7 @@ function renderService(localeKey, page) {
         <section class="section editorial-section"><div class="container editorial-grid"><div class="section-heading section-heading--left reveal"><p class="eyebrow">01 / ${escapeHtml(locale.sections.scope)}</p><h2>${escapeHtml(page.introTitle)}</h2></div><div class="editorial-copy reveal"><p>${escapeHtml(page.introText)}</p></div></div></section>
         <section class="section section--surface"><div class="container"><div class="section-heading section-heading--left"><p class="eyebrow">02 / ${escapeHtml(locale.sections.operatingCycle)}</p><h2>${escapeHtml(page.cycleTitle)}</h2></div>${numberedGrid(page.cycle, 'operating-model')}</div></section>
         <section class="section"><div class="container dual-lists"><article class="bento-base reveal"><p class="eyebrow">03 / ${escapeHtml(locale.sections.documents)}</p><h2>${escapeHtml(page.documentsTitle)}</h2>${checklist(page.documents)}</article><article class="bento-base reveal"><p class="eyebrow">04 / ${escapeHtml(locale.sections.agreement)}</p><h2>${escapeHtml(page.boundaryTitle)}</h2>${checklist(page.boundary)}</article></div></section>
-        <section class="section audit-cta"><div class="container"><div class="audit-cta__card bento-base reveal"><div><p class="eyebrow">${escapeHtml(locale.sections.technicalAudit)}</p><h2>${escapeHtml(page.ctaTitle)}</h2><p>${escapeHtml(page.ctaText)}</p></div><a class="btn-premium" href="${route('audit', localeKey)}">${escapeHtml(locale.common.auditCta)} ${icon('arrow', 'button-icon')}</a></div></div></section>
+        <section class="section audit-cta"><div class="container"><div class="audit-cta__card bento-base reveal"><div><p class="eyebrow">05 / ${escapeHtml(locale.sections.technicalAudit)}</p><h2>${escapeHtml(page.ctaTitle)}</h2><p>${escapeHtml(page.ctaText)}</p></div><a class="btn-premium" href="${route('audit', localeKey)}#audit-calculator">${escapeHtml(locale.common.startAudit)} ${icon('arrow', 'button-icon')}</a></div></div></section>
         ${contactPanel(localeKey, locale.common.discuss, page.ctaText)}
     </main>`;
 }
@@ -592,10 +611,20 @@ function renderContact(localeKey, page) {
     return `<main id="main-content">
         ${pageHeader(localeKey, 'contact', page)}
         <section class="section contact-page"><div class="container contact-page__grid">
-            <article class="contact-details bento-base reveal"><p class="eyebrow">ASIATECHNOSTROY</p><h2>${escapeHtml(page.contactTitle)}</h2><dl><div><dt>${escapeHtml(page.phoneLabel)}</dt><dd><a href="tel:${SITE.phoneHref}">${SITE.phoneDisplay}</a></dd></div><div><dt>${escapeHtml(page.channelLabel)}</dt><dd><a href="${SITE.whatsapp}" target="_blank" rel="noopener noreferrer">${escapeHtml(page.channelValue)}</a></dd></div><div><dt>${escapeHtml(page.serviceAreaLabel)}</dt><dd>${escapeHtml(page.serviceArea)}</dd></div></dl></article>
-            <article class="contact-preparation reveal"><p class="eyebrow">01 / ${escapeHtml(locale.sections.brief)}</p><h2>${escapeHtml(page.nextTitle)}</h2>${checklist(page.next)}<div class="hero-actions hero-actions--left"><a class="btn-premium" href="tel:${SITE.phoneHref}">${escapeHtml(locale.common.call)}</a><a class="hero-secondary" href="${SITE.whatsapp}" target="_blank" rel="noopener noreferrer">${escapeHtml(locale.common.whatsapp)}</a></div></article>
+            <article class="contact-details bento-base reveal"><p class="eyebrow">01 / ${escapeHtml(locale.sections.contact)}</p><h2>${escapeHtml(page.contactTitle)}</h2><dl><div><dt>${escapeHtml(page.phoneLabel)}</dt><dd><a href="tel:${SITE.phoneHref}">${SITE.phoneDisplay}</a></dd></div><div><dt>${escapeHtml(page.channelLabel)}</dt><dd><a href="${SITE.whatsapp}" target="_blank" rel="noopener noreferrer">${escapeHtml(page.channelValue)}</a></dd></div><div><dt>${escapeHtml(page.serviceAreaLabel)}</dt><dd>${escapeHtml(page.serviceArea)}</dd></div></dl></article>
+            <article class="contact-preparation reveal"><p class="eyebrow">02 / ${escapeHtml(locale.sections.brief)}</p><h2>${escapeHtml(page.nextTitle)}</h2>${checklist(page.next)}<div class="hero-actions hero-actions--left"><a class="btn-premium" href="tel:${SITE.phoneHref}">${escapeHtml(locale.common.call)}</a><a class="hero-secondary" href="${SITE.whatsapp}" target="_blank" rel="noopener noreferrer">${escapeHtml(locale.common.whatsapp)}</a></div></article>
         </div></section>
-        <section class="section calculator-link-section"><div class="container"><div class="calculator-link-card reveal"><p class="eyebrow">${escapeHtml(locale.sections.estimate)}</p><h2>${escapeHtml(locale.calculator.title)}</h2><p>${escapeHtml(locale.calculator.subtitle)}</p><a class="text-link" href="${route('home', localeKey)}#calculators">${escapeHtml(locale.nav.calculator)} ${icon('arrow', 'button-icon')}</a></div></div></section>
+        <section class="section calculator-link-section"><div class="container"><div class="calculator-link-card reveal"><p class="eyebrow">03 / ${escapeHtml(locale.sections.estimate)}</p><h2>${escapeHtml(locale.calculator.title)}</h2><p>${escapeHtml(locale.calculator.subtitle)}</p><a class="text-link" href="${route('home', localeKey)}#calculators">${escapeHtml(locale.nav.calculator)} ${icon('arrow', 'button-icon')}</a></div></div></section>
+    </main>`;
+}
+
+function renderPrivacy(localeKey, page) {
+    const locale = LOCALES[localeKey];
+    return `<main id="main-content">
+        ${pageHeader(localeKey, 'privacy', page)}
+        <section class="section editorial-section"><div class="container editorial-grid"><div class="section-heading section-heading--left reveal"><p class="eyebrow">01 / ${escapeHtml(locale.sections.data)}</p><h2>${escapeHtml(page.introTitle)}</h2></div><div class="editorial-copy reveal">${page.introParagraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}</div></div></section>
+        <section class="section section--surface"><div class="container"><div class="section-heading section-heading--left"><p class="eyebrow">02 / ${escapeHtml(locale.sections.processing)}</p><h2>${escapeHtml(locale.nav.privacy)}</h2></div>${numberedGrid(page.items, 'report-grid')}</div></section>
+        ${contactPanel(localeKey, page.contactTitle, page.contactText)}
     </main>`;
 }
 
@@ -605,6 +634,7 @@ function bodyFor(localeKey, pageType, page) {
     if (pageType === 'audit') return renderAudit(localeKey, page);
     if (pageType === 'service') return renderService(localeKey, page);
     if (pageType === 'contact') return renderContact(localeKey, page);
+    if (pageType === 'privacy') return renderPrivacy(localeKey, page);
     throw new Error(`Unknown page type: ${pageType}`);
 }
 

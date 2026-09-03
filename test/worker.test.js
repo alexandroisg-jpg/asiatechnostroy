@@ -83,6 +83,25 @@ test('localized requests return localized quote labels and keep the same server-
     assert.equal(payload.quote.pricePeriod, 'UZS/month');
 });
 
+test('Worker accepts the 150,000 m² upper bound and applies cumulative audit pricing', async () => {
+    let telegramBody;
+    const response = await handleSend(
+        leadRequest(validBody({ area: 150_000, mode: 'audit', systemIds: [] })),
+        environment(),
+        async (_url, init) => {
+            telegramBody = JSON.parse(init.body);
+            return new Response('{}', { status: 200 });
+        }
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.quote.area, 150_000);
+    assert.equal(payload.quote.total, 114_200_000);
+    assert.equal(payload.quote.pricePeriod, 'сум, разово');
+    assert.match(telegramBody.text, /Стоимость: 114\s200\s000/);
+});
+
 test('client-controlled total and unknown fields are rejected before Telegram', async () => {
     let calls = 0;
     const response = await handleSend(
@@ -234,7 +253,7 @@ test('Telegram failure stays non-fatal and is reported to the browser', async ()
     const payload = await response.json();
     assert.equal(response.status, 200);
     assert.equal(payload.notificationSent, false);
-    assert.equal(payload.quote.total, 2_500_000);
+    assert.equal(payload.quote.total, 1_500_000);
     assert.equal(payload.quote.pricePeriod, 'сум, разово');
 });
 

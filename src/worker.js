@@ -3,6 +3,7 @@ import { calculateQuote } from '../public/pricing.js';
 const MAX_BODY_BYTES = 16 * 1024;
 const MIN_FORM_TIME_MS = 1_500;
 const MAX_FORM_TIME_MS = 2 * 60 * 60 * 1_000;
+const CANONICAL_HOST = 'asiatechnostroy.uz';
 const ALLOWED_FIELDS = new Set([
     'name',
     'object',
@@ -242,6 +243,13 @@ export async function handleSend(request, env, fetchImpl = fetch) {
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
+
+        if ((url.hostname === CANONICAL_HOST && url.protocol !== 'https:') || url.hostname === `www.${CANONICAL_HOST}`) {
+            url.protocol = 'https:';
+            url.hostname = CANONICAL_HOST;
+            url.port = '';
+            return Response.redirect(url.href, 301);
+        }
 
         if (url.pathname === '/health') {
             if (request.method !== 'GET') {

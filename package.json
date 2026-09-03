@@ -10,9 +10,11 @@
     "build:check": "node scripts/build-site.mjs --check",
     "dev": "pnpm run build && wrangler dev",
     "deploy": "pnpm run check && wrangler deploy",
+    "indexnow": "node scripts/submit-indexnow.mjs --submit",
+    "indexnow:check": "node scripts/submit-indexnow.mjs --check",
     "preview": "pnpm run check && wrangler versions upload",
     "test": "node --test",
-    "check": "pnpm run build:check && node --check site/content.mjs && node --check site/render.mjs && node --check scripts/build-site.mjs && node --check src/worker.js && node --check public/pricing.js && node --check public/script.js && node --check public/i18n.js && node --test"
+    "check": "pnpm run build:check && pnpm run indexnow:check && node --check site/content.mjs && node --check site/render.mjs && node --check scripts/build-site.mjs && node --check scripts/submit-indexnow.mjs && node --check src/worker.js && node --check public/pricing.js && node --check public/script.js && node --check public/i18n.js && node --test"
   },
   "engines": {
     "node": ">=22"

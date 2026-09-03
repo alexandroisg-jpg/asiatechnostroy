@@ -247,3 +247,37 @@ test('health and method contracts are explicit', async () => {
     assert.equal(wrongMethod.status, 405);
     assert.equal(wrongMethod.headers.get('Allow'), 'POST');
 });
+
+test('production HTTP and www requests redirect to the canonical HTTPS host', async () => {
+    let assetCalls = 0;
+    const env = environment({
+        ASSETS: {
+            fetch: async () => {
+                assetCalls += 1;
+                return new Response('asset');
+            }
+        }
+    });
+
+    const httpResponse = await worker.fetch(
+        new Request('http://asiatechnostroy.uz/o-kompanii/?source=test'),
+        env
+    );
+    assert.equal(httpResponse.status, 301);
+    assert.equal(httpResponse.headers.get('Location'), 'https://asiatechnostroy.uz/o-kompanii/?source=test');
+
+    const wwwResponse = await worker.fetch(
+        new Request('https://www.asiatechnostroy.uz/en/about/'),
+        env
+    );
+    assert.equal(wwwResponse.status, 301);
+    assert.equal(wwwResponse.headers.get('Location'), 'https://asiatechnostroy.uz/en/about/');
+    assert.equal(assetCalls, 0);
+
+    const previewResponse = await worker.fetch(
+        new Request('http://localhost:8787/'),
+        env
+    );
+    assert.equal(previewResponse.status, 200);
+    assert.equal(assetCalls, 1);
+});

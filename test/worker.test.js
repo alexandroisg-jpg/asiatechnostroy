@@ -68,6 +68,21 @@ test('valid request is repriced on the Worker and sent to the fixed Telegram end
     assert.match(telegramRequest.body.text, /Стоимость: 1\s600\s000/);
 });
 
+test('localized requests return localized quote labels and keep the same server-side price', async () => {
+    const response = await handleSend(
+        leadRequest(validBody({ locale: 'en' })),
+        environment(),
+        async () => new Response('{}', { status: 200 })
+    );
+    const payload = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.quote.locale, 'en');
+    assert.equal(payload.quote.total, 1_600_000);
+    assert.equal(payload.quote.modeLabel, 'Ongoing maintenance');
+    assert.equal(payload.quote.pricePeriod, 'UZS/month');
+});
+
 test('client-controlled total and unknown fields are rejected before Telegram', async () => {
     let calls = 0;
     const response = await handleSend(
@@ -226,6 +241,7 @@ test('Telegram failure stays non-fatal and is reported to the browser', async ()
 test('health and method contracts are explicit', async () => {
     const health = await worker.fetch(new Request('https://asiatechnostroy.uz/health'), environment());
     assert.equal(health.status, 200);
+    assert.equal(health.headers.get('X-Robots-Tag'), 'noindex, nofollow');
 
     const wrongMethod = await worker.fetch(new Request('https://asiatechnostroy.uz/send'), environment());
     assert.equal(wrongMethod.status, 405);

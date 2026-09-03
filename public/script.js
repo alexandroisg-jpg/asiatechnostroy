@@ -1,10 +1,16 @@
-import { calculateQuote, normalizeArea } from './pricing.js';
+import { calculateQuote, normalizeArea } from '/pricing.js';
+import { CLIENT_LOCALES } from '/i18n.js';
 
 const PHONE_PREFIX = '998';
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const localeKey = Object.hasOwn(CLIENT_LOCALES, document.body.dataset.locale)
+    ? document.body.dataset.locale
+    : 'ru';
+const locale = CLIENT_LOCALES[localeKey];
+const text = locale.calculator;
 
 function formatMoney(value) {
-    return Number(value).toLocaleString('ru-RU');
+    return Number(value).toLocaleString(locale.intlLocale);
 }
 
 function formatPhone(value) {
@@ -32,8 +38,8 @@ function setStatus(element, message, type = '') {
     element.dataset.type = type;
 }
 
-function drawWrappedText(context, text, x, y, maxWidth, lineHeight, maxLines = 20) {
-    const words = String(text ?? '').trim().split(/\s+/).filter(Boolean);
+function drawWrappedText(context, value, x, y, maxWidth, lineHeight, maxLines = 20) {
+    const words = String(value ?? '').trim().split(/\s+/).filter(Boolean);
     const lines = [];
     let currentLine = '';
 
@@ -57,7 +63,7 @@ function canvasToJpeg(canvas) {
     return new Promise((resolve, reject) => {
         canvas.toBlob((blob) => {
             if (!blob) {
-                reject(new Error('Не удалось подготовить изображение КП'));
+                reject(new Error(text.statusFailure));
                 return;
             }
             resolve(blob);
@@ -78,29 +84,29 @@ function concatenateBytes(parts) {
 
 function createSingleImagePdf(jpegBytes, width, height) {
     const encoder = new TextEncoder();
-    const text = (value) => encoder.encode(value);
+    const encode = (value) => encoder.encode(value);
     const pageWidth = 595.28;
     const pageHeight = 841.89;
-    const pageContent = text(`q\n${pageWidth} 0 0 ${pageHeight} 0 0 cm\n/Im0 Do\nQ\n`);
+    const pageContent = encode(`q\n${pageWidth} 0 0 ${pageHeight} 0 0 cm\n/Im0 Do\nQ\n`);
     const objects = [
-        [text('<< /Type /Catalog /Pages 2 0 R >>')],
-        [text('<< /Type /Pages /Kids [3 0 R] /Count 1 >>')],
-        [text(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /ProcSet [/PDF /ImageC] /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`)],
+        [encode('<< /Type /Catalog /Pages 2 0 R >>')],
+        [encode('<< /Type /Pages /Kids [3 0 R] /Count 1 >>')],
+        [encode(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /ProcSet [/PDF /ImageC] /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`)],
         [
-            text(`<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`),
+            encode(`<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`),
             jpegBytes,
-            text('\nendstream')
+            encode('\nendstream')
         ],
-        [text(`<< /Length ${pageContent.length} >>\nstream\n`), pageContent, text('endstream')]
+        [encode(`<< /Length ${pageContent.length} >>\nstream\n`), pageContent, encode('endstream')]
     ];
 
-    const parts = [text('%PDF-1.4\n% AsiaTechnoStroy\n')];
+    const parts = [encode('%PDF-1.4\n% AsiaTechnoStroy\n')];
     const offsets = [0];
     let byteLength = parts[0].length;
 
     objects.forEach((bodyParts, index) => {
         offsets.push(byteLength);
-        const objectParts = [text(`${index + 1} 0 obj\n`), ...bodyParts, text('\nendobj\n')];
+        const objectParts = [encode(`${index + 1} 0 obj\n`), ...bodyParts, encode('\nendobj\n')];
         parts.push(...objectParts);
         byteLength += objectParts.reduce((sum, part) => sum + part.length, 0);
     });
@@ -109,7 +115,7 @@ function createSingleImagePdf(jpegBytes, width, height) {
     const xrefEntries = offsets.slice(1)
         .map((offset) => `${String(offset).padStart(10, '0')} 00000 n \n`)
         .join('');
-    parts.push(text(`xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${xrefEntries}trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`));
+    parts.push(encode(`xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${xrefEntries}trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`));
     return concatenateBytes(parts);
 }
 
@@ -120,7 +126,7 @@ async function buildQuotePdf(quote) {
     canvas.width = 1240;
     canvas.height = 1754;
     const context = canvas.getContext('2d');
-    if (!context) throw new Error('Браузер не поддерживает создание КП');
+    if (!context) throw new Error(text.statusFailure);
 
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -134,7 +140,7 @@ async function buildQuotePdf(quote) {
     context.fillText('ASIATECHNOSTROY', 90, 62);
     context.fillStyle = '#ffffff';
     context.font = '800 52px Inter, Arial, sans-serif';
-    context.fillText('КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ', 90, 116);
+    context.fillText(text.pdfTitle, 90, 116);
     context.fillStyle = '#a9b7c9';
     context.font = '500 24px Inter, Arial, sans-serif';
     context.fillText(`№ ${quote.number}  •  ${quote.date}`, 90, 198);
@@ -157,18 +163,16 @@ async function buildQuotePdf(quote) {
         return drawWrappedText(context, value, 90, y + 32, 1060, 36, 3) + 22;
     };
 
-    let y = drawSectionTitle('Заказчик', 318);
-    y = drawLabelValue('Имя', quote.name, y);
-    y = drawLabelValue('Организация / объект', quote.object, y);
-    y = drawLabelValue('Телефон', quote.phone, y);
-    y = drawSectionTitle('Параметры расчёта', y + 14);
-    y = drawLabelValue('Формат работ', quote.modeLabel, y);
-    y = drawLabelValue('Тип объекта', quote.typeLabel, y);
-    y = drawLabelValue('Площадь', `${formatMoney(quote.area)} м²`, y);
-    const systemsText = quote.systemLabels?.length
-        ? quote.systemLabels.join(' • ')
-        : 'Комплексная оценка состояния инженерных систем';
-    y = drawLabelValue('Инженерные системы', systemsText, y);
+    let y = drawSectionTitle(text.pdfClient, 318);
+    y = drawLabelValue(text.pdfName, quote.name, y);
+    y = drawLabelValue(text.pdfObject, quote.object, y);
+    y = drawLabelValue(text.pdfPhone, quote.phone, y);
+    y = drawSectionTitle(text.pdfParameters, y + 14);
+    y = drawLabelValue(text.pdfFormat, quote.modeLabel, y);
+    y = drawLabelValue(text.pdfType, quote.typeLabel, y);
+    y = drawLabelValue(text.pdfArea, `${formatMoney(quote.area)} m²`, y);
+    const systemsText = quote.systemLabels?.length ? quote.systemLabels.join(' • ') : text.pdfAuditSystems;
+    y = drawLabelValue(text.pdfSystems, systemsText, y);
 
     const totalTop = Math.max(y + 36, 1320);
     context.fillStyle = '#eef8fa';
@@ -178,7 +182,7 @@ async function buildQuotePdf(quote) {
     context.strokeRect(70, totalTop, 1100, 220);
     context.fillStyle = '#516174';
     context.font = '700 22px Inter, Arial, sans-serif';
-    context.fillText('ПРЕДВАРИТЕЛЬНАЯ СТОИМОСТЬ', 110, totalTop + 42);
+    context.fillText(text.pdfBudget, 110, totalTop + 42);
     context.fillStyle = '#07111f';
     context.font = '900 58px Inter, Arial, sans-serif';
     context.fillText(formatMoney(quote.total), 110, totalTop + 88);
@@ -187,15 +191,7 @@ async function buildQuotePdf(quote) {
     context.fillText(quote.pricePeriod, 110, totalTop + 164);
     context.fillStyle = '#667589';
     context.font = '500 19px Inter, Arial, sans-serif';
-    drawWrappedText(
-        context,
-        'Расчёт носит предварительный характер. Точная стоимость фиксируется после первичного технического аудита объекта.',
-        90,
-        1600,
-        1060,
-        28,
-        4
-    );
+    drawWrappedText(context, text.pdfNote, 90, 1600, 1060, 28, 4);
 
     const jpegBlob = await canvasToJpeg(canvas);
     const jpegBytes = new Uint8Array(await jpegBlob.arrayBuffer());
@@ -208,7 +204,7 @@ async function downloadQuotePdf(quote) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `KP_AsiaTechnoStroy_${quote.number}.pdf`;
+    link.download = `AsiaTechnoStroy_${quote.mode}_${quote.number}.pdf`;
     document.body.append(link);
     link.click();
     link.remove();
@@ -216,8 +212,6 @@ async function downloadQuotePdf(quote) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.lucide) window.lucide.createIcons();
-
     const revealElements = document.querySelectorAll('.reveal');
     if (reduceMotion || !('IntersectionObserver' in window)) {
         revealElements.forEach((element) => element.classList.add('visible'));
@@ -228,11 +222,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 entry.target.classList.add('visible');
                 observer.unobserve(entry.target);
             });
-        }, { threshold: 0.12 });
+        }, { threshold: 0.1 });
         revealElements.forEach((element) => observer.observe(element));
     }
 
     const header = document.querySelector('.header');
+    const navToggle = document.querySelector('.nav-toggle');
+    const menu = document.querySelector('.header__menu');
+    const closeMenu = () => {
+        header?.classList.remove('menu-open');
+        navToggle?.setAttribute('aria-expanded', 'false');
+        if (navToggle) navToggle.setAttribute('aria-label', navToggle.dataset.openLabel || 'Menu');
+    };
+    navToggle?.addEventListener('click', () => {
+        const opening = !header?.classList.contains('menu-open');
+        header?.classList.toggle('menu-open', opening);
+        navToggle.setAttribute('aria-expanded', String(opening));
+        navToggle.setAttribute('aria-label', opening ? navToggle.dataset.closeLabel : navToggle.dataset.openLabel);
+    });
+    menu?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
     const updateHeader = () => header?.classList.toggle('shrunk', window.scrollY > 60);
     updateHeader();
     window.addEventListener('scroll', updateHeader, { passive: true });
@@ -250,18 +258,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const year = document.getElementById('copyright-year');
+    if (year) year.textContent = String(new Date().getFullYear());
+
     const elements = {
+        calculator: document.querySelector('.calc-container'),
         areaInput: document.getElementById('area-input'),
         areaRange: document.getElementById('area-range'),
         total: document.getElementById('total-price'),
+        priceAnnouncement: document.getElementById('price-announcement'),
         period: document.getElementById('price-period'),
+        resultNote: document.getElementById('result-note'),
         typeButtons: [...document.querySelectorAll('.type-card')],
         systems: [...document.querySelectorAll('.system-item input[data-system]')],
-        systemsGrid: document.querySelector('.systems-grid-full'),
+        systemsSetting: document.querySelector('[data-service-controls]'),
+        auditCoverage: document.querySelector('[data-audit-coverage]'),
         tabs: [...document.querySelectorAll('.tab-btn')],
         orderButton: document.querySelector('.btn-order'),
         calcStatus: document.getElementById('calcStatus'),
         modal: document.getElementById('modalOrder'),
+        modalTitle: document.getElementById('modal-title'),
         closeModalButton: document.querySelector('.modal-close'),
         displayArea: document.getElementById('display-area'),
         form: document.getElementById('orderForm'),
@@ -269,11 +285,17 @@ document.addEventListener('DOMContentLoaded', () => {
         formStatus: document.getElementById('formStatus')
     };
 
-    if (!elements.areaRange || !elements.total) return;
+    if (!elements.calculator || !elements.areaRange || !elements.total) {
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeMenu();
+        });
+        return;
+    }
 
+    const defaultMode = elements.calculator.dataset.defaultMode === 'audit' ? 'audit' : 'service';
     const state = {
         area: normalizeArea(elements.areaRange.value),
-        mode: 'service',
+        mode: defaultMode,
         type: 'office',
         quote: null,
         displayedTotal: 0,
@@ -288,9 +310,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const animatePrice = (target) => {
         if (state.animationFrame) cancelAnimationFrame(state.animationFrame);
+        const announcePrice = () => {
+            if (elements.priceAnnouncement) {
+                elements.priceAnnouncement.textContent = `${text.budget}: ${formatMoney(target)} ${elements.period.textContent}`;
+            }
+        };
         if (reduceMotion) {
             state.displayedTotal = target;
             elements.total.textContent = formatMoney(target);
+            announcePrice();
             return;
         }
 
@@ -310,9 +338,35 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 state.animationFrame = null;
                 elements.total.textContent = formatMoney(target);
+                announcePrice();
             }
         };
         state.animationFrame = requestAnimationFrame(step);
+    };
+
+    const updateModePresentation = () => {
+        const auditMode = state.mode === 'audit';
+        elements.tabs.forEach((tab) => {
+            const selected = tab.dataset.tab === state.mode;
+            tab.classList.toggle('active', selected);
+            tab.setAttribute('aria-pressed', String(selected));
+        });
+        elements.systems.forEach((input) => { input.disabled = auditMode; });
+        if (elements.systemsSetting) elements.systemsSetting.hidden = auditMode;
+        if (elements.auditCoverage) {
+            elements.auditCoverage.hidden = !auditMode;
+            elements.auditCoverage.classList.toggle('is-visible', auditMode);
+        }
+        if (elements.resultNote) elements.resultNote.textContent = auditMode ? text.auditNote : text.serviceNote;
+        if (elements.orderButton) elements.orderButton.textContent = auditMode ? text.orderAudit : text.orderService;
+        if (elements.modalTitle) elements.modalTitle.textContent = auditMode
+            ? elements.modalTitle.dataset.auditTitle
+            : elements.modalTitle.dataset.serviceTitle;
+        const submit = elements.form?.querySelector('button[type="submit"]');
+        const submitLabel = submit?.querySelector('span');
+        if (submit && submitLabel) {
+            submitLabel.textContent = auditMode ? submit.dataset.auditLabel : submit.dataset.serviceLabel;
+        }
     };
 
     const updateQuote = () => {
@@ -321,15 +375,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 area: state.area,
                 mode: state.mode,
                 type: state.type,
-                systemIds: selectedSystemIds()
+                systemIds: selectedSystemIds(),
+                locale: localeKey
             });
             elements.period.textContent = state.quote.pricePeriod;
             setStatus(elements.calcStatus, '');
             animatePrice(state.quote.total);
-        } catch (error) {
+        } catch {
             state.quote = null;
-            elements.period.textContent = state.mode === 'service' ? 'сум/мес' : 'сум, разово';
-            setStatus(elements.calcStatus, error.message, 'error');
+            elements.period.textContent = state.mode === 'service' ? text.servicePeriod : text.auditPeriod;
+            setStatus(elements.calcStatus, state.mode === 'service' ? text.statusSelection : text.statusQuoteError, 'error');
             animatePrice(0);
         }
     };
@@ -361,14 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.tabs.forEach((tab) => {
         tab.addEventListener('click', () => {
             state.mode = tab.dataset.tab;
-            elements.tabs.forEach((item) => {
-                const selected = item === tab;
-                item.classList.toggle('active', selected);
-                item.setAttribute('aria-pressed', String(selected));
-            });
-            const auditMode = state.mode === 'audit';
-            elements.systems.forEach((input) => { input.disabled = auditMode; });
-            elements.systemsGrid?.classList.toggle('is-disabled', auditMode);
+            updateModePresentation();
             updateQuote();
         });
     });
@@ -382,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const openModal = () => {
         if (!state.quote) {
-            setStatus(elements.calcStatus, 'Выберите хотя бы одну инженерную систему.', 'error');
+            setStatus(elements.calcStatus, text.statusSelection, 'error');
             elements.systems[0]?.focus();
             return;
         }
@@ -390,6 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.formStartedAt = Date.now();
         elements.displayArea.textContent = formatMoney(state.area);
         setStatus(elements.formStatus, '');
+        updateModePresentation();
         elements.modal?.classList.add('active');
         elements.modal?.setAttribute('aria-hidden', 'false');
         document.body.classList.add('modal-open');
@@ -403,13 +452,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('keydown', (event) => {
-        if (!elements.modal?.classList.contains('active')) return;
         if (event.key === 'Escape') {
-            event.preventDefault();
-            closeModal();
+            closeMenu();
+            if (elements.modal?.classList.contains('active')) {
+                event.preventDefault();
+                closeModal();
+            }
             return;
         }
-        if (event.key !== 'Tab') return;
+        if (event.key !== 'Tab' || !elements.modal?.classList.contains('active')) return;
         const focusable = [...elements.modal.querySelectorAll('button:not([disabled]), input:not([disabled]):not([tabindex="-1"]), a[href]')];
         if (!focusable.length) return;
         const first = focusable[0];
@@ -438,22 +489,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const website = document.getElementById('companyWebsite')?.value ?? '';
 
         if (name.length < 2 || name.length > 80 || object.length < 2 || object.length > 120 || !phone) {
-            setStatus(elements.formStatus, 'Проверьте имя, название объекта и телефон в формате +998 (XX) XXX-XX-XX.', 'error');
+            setStatus(elements.formStatus, text.statusValidation, 'error');
             return;
         }
 
         updateQuote();
         if (!state.quote) {
-            setStatus(elements.formStatus, 'Не удалось проверить параметры расчёта.', 'error');
+            setStatus(elements.formStatus, text.statusQuoteError, 'error');
             return;
         }
 
         const submitButton = elements.form.querySelector('button[type="submit"]');
         const submitLabel = submitButton.querySelector('span');
+        const defaultLabel = state.mode === 'audit' ? submitButton.dataset.auditLabel : submitButton.dataset.serviceLabel;
         submitButton.disabled = true;
         submitButton.setAttribute('aria-busy', 'true');
-        submitLabel.textContent = 'Подготавливаем КП…';
-        setStatus(elements.formStatus, 'Проверяем расчёт и готовим документ.', 'loading');
+        submitLabel.textContent = text.statusBusy;
+        setStatus(elements.formStatus, text.statusPreparing, 'loading');
 
         try {
             const response = await fetch('/send', {
@@ -467,6 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     mode: state.mode,
                     type: state.type,
                     systemIds: selectedSystemIds(),
+                    locale: localeKey,
                     website,
                     formElapsedMs: Date.now() - state.formStartedAt
                 })
@@ -474,27 +527,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json().catch(() => ({}));
             if (!response.ok || !data.ok || !data.quote) {
-                throw new Error(data.message || (response.status === 429
-                    ? 'Слишком много попыток. Подождите минуту и повторите.'
-                    : 'Не удалось подготовить КП. Позвоните нам по номеру +998 91 788-88-05.'));
+                const fallback = response.status === 429 ? text.statusRateLimit : text.statusFailure;
+                throw new Error(localeKey === 'ru' && data.message ? data.message : fallback);
             }
 
             await downloadQuotePdf(data.quote);
-            if (data.notificationSent) {
-                setStatus(elements.formStatus, 'Готово: заявка отправлена, а КП скачано.', 'success');
-            } else {
-                setStatus(elements.formStatus, 'КП скачано, но уведомление не доставлено. Позвоните: +998 91 788-88-05.', 'warning');
-            }
+            setStatus(elements.formStatus, data.notificationSent ? text.statusSuccess : text.statusWarning, data.notificationSent ? 'success' : 'warning');
             state.formStartedAt = Date.now();
         } catch (error) {
-            setStatus(elements.formStatus, error.message || 'Не удалось отправить заявку.', 'error');
+            setStatus(elements.formStatus, error.message || text.statusFailure, 'error');
         } finally {
             submitButton.disabled = false;
             submitButton.removeAttribute('aria-busy');
-            submitLabel.textContent = submitButton.dataset.defaultLabel;
+            submitLabel.textContent = defaultLabel;
         }
     });
 
-    document.getElementById('copyright-year').textContent = String(new Date().getFullYear());
+    updateModePresentation();
     setArea(state.area);
 });

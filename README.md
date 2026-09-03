@@ -50,7 +50,7 @@ Cloudflare Workers Builds использует `wrangler.jsonc` и закреп�
 
 После публикации новой версии:
 
-1. В Cloudflare добавить проксируемый адрес `www`. Worker уже выполняет постоянное перенаправление с HTTP и `www` на `https://asiatechnostroy.uz` с сохранением пути и параметров.
+1. В Cloudflare привязать `www.asiatechnostroy.uz` к этому Worker как второй Custom Domain — одной DNS-записи недостаточно. После привязки Worker выполняет постоянное перенаправление с HTTP и `www` на `https://asiatechnostroy.uz` с сохранением пути и параметров.
 2. Подтвердить домен через DNS в Google Search Console и передать `https://asiatechnostroy.uz/sitemap.xml`.
 3. Добавить основной HTTPS-адрес в Яндекс Вебмастер, подтвердить права и передать тот же sitemap.
 4. При необходимости импортировать подтверждённый сайт в Bing Webmaster Tools. IndexNow уже подключён; дополнительно можно включить Cloudflare Crawler Hints.

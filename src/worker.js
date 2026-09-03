@@ -11,6 +11,7 @@ const ALLOWED_FIELDS = new Set([
     'mode',
     'type',
     'systemIds',
+    'locale',
     'website',
     'formElapsedMs'
 ]);
@@ -73,7 +74,8 @@ function parseLead(body) {
             area: body.area,
             mode: body.mode,
             type: body.type,
-            systemIds: body.systemIds
+            systemIds: body.systemIds,
+            locale: body.locale
         });
     } catch (error) {
         throw new InputError(error.message);
@@ -83,7 +85,8 @@ function parseLead(body) {
 }
 
 function createQuote(lead, now = new Date()) {
-    const date = new Intl.DateTimeFormat('ru-RU', {
+    const dateLocales = { ru: 'ru-RU', uz: 'uz-UZ', en: 'en-GB' };
+    const date = new Intl.DateTimeFormat(dateLocales[lead.calculation.locale] || 'ru-RU', {
         timeZone: 'Asia/Tashkent',
         day: '2-digit',
         month: '2-digit',
@@ -110,6 +113,7 @@ function telegramText(quote) {
         `Имя: ${quote.name}`,
         `Объект: ${quote.object}`,
         `Телефон: ${quote.phone}`,
+        `Язык: ${quote.locale}`,
         `Формат: ${quote.modeLabel}`,
         `Тип: ${quote.typeLabel}`,
         `Площадь: ${quote.area} м²`,
@@ -241,9 +245,13 @@ export default {
 
         if (url.pathname === '/health') {
             if (request.method !== 'GET') {
-                return jsonResponse({ ok: false }, 405, { Allow: 'GET' });
+                return jsonResponse(
+                    { ok: false },
+                    405,
+                    { Allow: 'GET', 'X-Robots-Tag': 'noindex, nofollow' }
+                );
             }
-            return jsonResponse({ ok: true });
+            return jsonResponse({ ok: true }, 200, { 'X-Robots-Tag': 'noindex, nofollow' });
         }
 
         if (url.pathname === '/send') {

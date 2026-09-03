@@ -50,6 +50,25 @@ test('audit pricing is one-time and independent of service systems', () => {
     assert.equal(quote.pricePeriod, 'сум, разово');
 });
 
+test('quote labels are localized while the commercial calculation stays identical', () => {
+    const base = {
+        area: 500,
+        mode: 'service',
+        type: 'bank',
+        systemIds: ['conditioning', 'ventilation']
+    };
+    const ru = calculateQuote({ ...base, locale: 'ru' });
+    const uz = calculateQuote({ ...base, locale: 'uz' });
+    const en = calculateQuote({ ...base, locale: 'en' });
+
+    assert.equal(ru.total, uz.total);
+    assert.equal(uz.total, en.total);
+    assert.equal(uz.modeLabel, 'Abonent texnik xizmati');
+    assert.equal(uz.pricePeriod, 'so‘m/oy');
+    assert.equal(en.typeLabel, 'Bank / restricted facility');
+    assert.deepEqual(en.systemLabels, ['Air conditioning', 'Ventilation']);
+});
+
 test('area normalization clamps and snaps to the public step', () => {
     assert.equal(normalizeArea(100), AREA_MIN);
     assert.equal(normalizeArea(505), 510);
@@ -63,6 +82,7 @@ test('invalid modes, types, areas and system selections are rejected', () => {
     assert.throws(() => calculateQuote({ ...base, type: 'other' }), /тип объекта/i);
     assert.throws(() => calculateQuote({ ...base, type: '__proto__' }), /тип объекта/i);
     assert.throws(() => calculateQuote({ ...base, type: 'constructor' }), /тип объекта/i);
+    assert.throws(() => calculateQuote({ ...base, locale: 'de' }), /язык/i);
     assert.throws(() => calculateQuote({ ...base, systemIds: [] }), /хотя бы одну/i);
     assert.throws(() => calculateQuote({ ...base, systemIds: ['conditioning', 'conditioning'] }), /инженерная система/i);
     assert.throws(() => calculateQuote({ ...base, systemIds: ['unknown'] }), /инженерная система/i);

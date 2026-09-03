@@ -1,10 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-<url>
-<loc>https://asiatechnostroy.uz/</loc>
-<priority>1.0</priority>
-</url>
-
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://asiatechnostroy.uz/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/uz/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/en/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/o-kompanii/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/o-kompanii/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/kompaniya-haqida/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/o-kompanii/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/uz/kompaniya-haqida/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/o-kompanii/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/kompaniya-haqida/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/o-kompanii/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/en/about/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/o-kompanii/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/kompaniya-haqida/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/o-kompanii/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/tehnicheskiy-audit/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/tehnicheskiy-audit/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/texnik-audit/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/technical-audit/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/tehnicheskiy-audit/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/uz/texnik-audit/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/tehnicheskiy-audit/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/texnik-audit/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/technical-audit/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/tehnicheskiy-audit/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/en/technical-audit/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/tehnicheskiy-audit/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/texnik-audit/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/technical-audit/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/tehnicheskiy-audit/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/uslugi/kompleksnaya-ekspluatatsiya/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/uslugi/kompleksnaya-ekspluatatsiya/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/xizmatlar/kompleks-ekspluatatsiya/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/services/integrated-maintenance/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/uslugi/kompleksnaya-ekspluatatsiya/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/uz/xizmatlar/kompleks-ekspluatatsiya/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/uslugi/kompleksnaya-ekspluatatsiya/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/xizmatlar/kompleks-ekspluatatsiya/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/services/integrated-maintenance/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/uslugi/kompleksnaya-ekspluatatsiya/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/en/services/integrated-maintenance/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/uslugi/kompleksnaya-ekspluatatsiya/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/xizmatlar/kompleks-ekspluatatsiya/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/services/integrated-maintenance/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/uslugi/kompleksnaya-ekspluatatsiya/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/kontakty/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/kontakty/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/aloqa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/contact/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/kontakty/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/uz/aloqa/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/kontakty/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/aloqa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/contact/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/kontakty/"/>
+  </url>
+  <url>
+    <loc>https://asiatechnostroy.uz/en/contact/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="ru-UZ" href="https://asiatechnostroy.uz/kontakty/"/>
+    <xhtml:link rel="alternate" hreflang="uz-UZ" href="https://asiatechnostroy.uz/uz/aloqa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://asiatechnostroy.uz/en/contact/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://asiatechnostroy.uz/kontakty/"/>
+  </url>
 </urlset>

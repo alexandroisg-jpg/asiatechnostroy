@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /send
+Disallow: /health
 
 Sitemap: https://asiatechnostroy.uz/sitemap.xml

@@ -8,7 +8,7 @@ export const SITE = Object.freeze({
     city: 'Tashkent',
     country: 'Uzbekistan',
     founded: 2012,
-    lastModified: '2026-09-03'
+    lastModified: '2026-09-07'
 });
 
 export const ROUTES = Object.freeze({

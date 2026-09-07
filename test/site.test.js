@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { access, readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { LOCALES, ROUTES, SITE } from '../site/content.mjs';
 
-const projectRoot = path.resolve(import.meta.dirname, '..');
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicRoot = path.join(projectRoot, 'public');
 const pageTypes = Object.keys(ROUTES);
 const localeKeys = Object.keys(LOCALES);
@@ -47,8 +48,8 @@ test('public contains exactly the generated HTML pages', async () => {
     assert.deepEqual((await htmlFiles(publicRoot)).sort(), expected);
 });
 
-test('the generated site contains five reciprocal pages in all three languages', async () => {
-    assert.equal(pageTypes.length, 5);
+test('the generated site contains six reciprocal pages in all three languages', async () => {
+    assert.equal(pageTypes.length, 6);
     assert.deepEqual(localeKeys, ['ru', 'uz', 'en']);
 
     const canonicals = new Set();
@@ -94,9 +95,9 @@ test('the generated site contains five reciprocal pages in all three languages',
         }
     }
 
-    assert.equal(canonicals.size, 15);
-    assert.equal(titles.size, 15);
-    assert.equal(descriptions.size, 15);
+    assert.equal(canonicals.size, 18);
+    assert.equal(titles.size, 18);
+    assert.equal(descriptions.size, 18);
 });
 
 test('calculator results and the shared 404 page are accessible in every language', async () => {
@@ -104,6 +105,10 @@ test('calculator results and the shared 404 page are accessible in every languag
         for (const pageType of ['home', 'audit']) {
             const html = await readFile(fileForRoute(ROUTES[pageType][localeKey]), 'utf8');
             assert.ok(html.includes('<output id="price-announcement" class="sr-only" aria-live="polite" aria-atomic="true"></output>'));
+            assert.ok(html.includes('id="area-input" min="500" max="150000"'));
+            assert.ok(html.includes('id="area-range" min="500" max="150000"'));
+            assert.ok(html.includes('<div class="area-scale" aria-hidden="true"><span>500</span><span>50 000</span><span>100 000</span><span>150 000</span></div>'));
+            assert.ok(html.includes(`href="${ROUTES.privacy[localeKey]}">${LOCALES[localeKey].common.privacy}</a>`));
         }
     }
 
@@ -115,6 +120,19 @@ test('calculator results and the shared 404 page are accessible in every languag
     assert.ok(notFound.includes('<meta name="robots" content="noindex, nofollow">'));
 });
 
+test('audit calls to action and form errors have unambiguous accessible destinations', async () => {
+    for (const localeKey of localeKeys) {
+        const home = await readFile(fileForRoute(ROUTES.home[localeKey]), 'utf8');
+        const service = await readFile(fileForRoute(ROUTES.service[localeKey]), 'utf8');
+        assert.ok(home.includes(`href="${ROUTES.audit[localeKey]}#audit-calculator">${LOCALES[localeKey].common.auditCta}</a>`));
+        assert.ok(home.includes(`aria-label="${LOCALES[localeKey].common.serviceDetails}"`));
+        assert.ok(home.includes(`aria-label="${LOCALES[localeKey].common.auditDetails}"`));
+        assert.ok(service.includes(`href="${ROUTES.audit[localeKey]}#audit-calculator">${LOCALES[localeKey].common.startAudit}`));
+        assert.ok(home.includes('aria-describedby="userName-error"'));
+        assert.ok(home.includes('id="userName-error" role="alert" hidden'));
+    }
+});
+
 test('sitemap and CSP cover every indexable page and inline schema', async () => {
     const sitemap = await readFile(path.join(publicRoot, 'sitemap.xml'), 'utf8');
     const headers = await readFile(path.join(publicRoot, '_headers'), 'utf8');
@@ -124,7 +142,7 @@ test('sitemap and CSP cover every indexable page and inline schema', async () =>
     );
 
     assert.deepEqual(new Set(locations), new Set(expectedLocations));
-    assert.equal(locations.length, 15);
+    assert.equal(locations.length, 18);
 
     for (const pageType of pageTypes) {
         for (const localeKey of localeKeys) {

@@ -8,6 +8,16 @@ import {
     normalizeArea
 } from '../public/pricing.js';
 
+const ALL_SYSTEMS = [
+    'conditioning',
+    'heating',
+    'ventilation',
+    'electricity',
+    'water',
+    'low_current',
+    'sewerage'
+];
+
 test('service pricing matches the published calculator matrix', () => {
     assert.equal(calculateQuote({
         area: 500,
@@ -27,16 +37,51 @@ test('service pricing matches the published calculator matrix', () => {
         area: 500,
         mode: 'service',
         type: 'office',
-        systemIds: [
-            'conditioning',
-            'heating',
-            'ventilation',
-            'electricity',
-            'water',
-            'low_current',
-            'sewerage'
-        ]
+        systemIds: ALL_SYSTEMS
     }).total, 6_000_000);
+});
+
+test('service pricing adds each area band at its own marginal rate', () => {
+    const quoteAtBoundary = calculateQuote({
+        area: 2_000,
+        mode: 'service',
+        type: 'office',
+        systemIds: ['conditioning']
+    });
+    const quotePastBoundary = calculateQuote({
+        area: 2_010,
+        mode: 'service',
+        type: 'office',
+        systemIds: ['conditioning']
+    });
+
+    assert.equal(quoteAtBoundary.total, 6_400_000);
+    assert.equal(quotePastBoundary.total, 6_428_800);
+    assert.notEqual(quotePastBoundary.total, 2_010 * 2_880);
+});
+
+test('large service estimates use cumulative bands through 150,000 square metres', () => {
+    const expectedTotals = new Map([
+        [500, 6_000_000],
+        [2_000, 24_000_000],
+        [5_000, 56_400_000],
+        [10_000, 104_400_000],
+        [20_000, 188_400_000],
+        [25_000, 230_400_000],
+        [50_000, 410_400_000],
+        [100_000, 710_400_000],
+        [150_000, 950_400_000]
+    ]);
+
+    for (const [area, expectedTotal] of expectedTotals) {
+        const quote = calculateQuote({
+            area,
+            mode: 'service',
+            type: 'office',
+            systemIds: ALL_SYSTEMS
+        });
+        assert.equal(quote.total, expectedTotal, `unexpected service total for ${area} m2`);
+    }
 });
 
 test('audit pricing is one-time and independent of service systems', () => {
@@ -46,8 +91,65 @@ test('audit pricing is one-time and independent of service systems', () => {
         type: 'office',
         systemIds: []
     });
-    assert.equal(quote.total, 2_500_000);
+    assert.equal(quote.total, 1_500_000);
     assert.equal(quote.pricePeriod, 'сум, разово');
+});
+
+test('audit pricing is a lower one-off cumulative scale, not a maintenance rate', () => {
+    const expectedTotals = new Map([
+        [500, 1_500_000],
+        [2_000, 6_000_000],
+        [5_000, 13_200_000],
+        [10_000, 22_200_000],
+        [20_000, 35_200_000],
+        [25_000, 41_700_000],
+        [50_000, 64_200_000],
+        [100_000, 94_200_000],
+        [150_000, 114_200_000]
+    ]);
+
+    for (const [area, expectedTotal] of expectedTotals) {
+        const audit = calculateQuote({
+            area,
+            mode: 'audit',
+            type: 'office',
+            systemIds: []
+        });
+        const service = calculateQuote({
+            area,
+            mode: 'service',
+            type: 'office',
+            systemIds: ['conditioning']
+        });
+        assert.equal(audit.total, expectedTotal, `unexpected audit total for ${area} m2`);
+        assert.ok(audit.total < service.total);
+    }
+
+    const auditPastBoundary = calculateQuote({
+        area: 2_010,
+        mode: 'audit',
+        type: 'office',
+        systemIds: []
+    });
+    assert.equal(auditPastBoundary.total, 6_024_000);
+});
+
+test('object complexity multiplier is applied after cumulative area pricing', () => {
+    const office = calculateQuote({
+        area: 50_000,
+        mode: 'service',
+        type: 'office',
+        systemIds: ALL_SYSTEMS
+    });
+    const bank = calculateQuote({
+        area: 50_000,
+        mode: 'service',
+        type: 'bank',
+        systemIds: ALL_SYSTEMS
+    });
+
+    assert.equal(office.total, 410_400_000);
+    assert.equal(bank.total, 533_520_000);
 });
 
 test('quote labels are localized while the commercial calculation stays identical', () => {
@@ -72,7 +174,16 @@ test('quote labels are localized while the commercial calculation stays identica
 test('area normalization clamps and snaps to the public step', () => {
     assert.equal(normalizeArea(100), AREA_MIN);
     assert.equal(normalizeArea(505), 510);
-    assert.equal(normalizeArea(99_999), AREA_MAX);
+    assert.equal(normalizeArea(149_999), AREA_MAX);
+    assert.equal(normalizeArea(150_001), AREA_MAX);
+});
+
+test('150,000 square metres is accepted while raw off-step and over-limit areas are rejected', () => {
+    const base = { mode: 'service', type: 'office', systemIds: ['conditioning'] };
+
+    assert.equal(calculateQuote({ ...base, area: 150_000 }).area, AREA_MAX);
+    assert.throws(() => calculateQuote({ ...base, area: 149_999 }), /площадь/i);
+    assert.throws(() => calculateQuote({ ...base, area: 150_010 }), /площадь/i);
 });
 
 test('invalid modes, types, areas and system selections are rejected', () => {

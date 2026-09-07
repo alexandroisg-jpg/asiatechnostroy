@@ -1,8 +1,31 @@
 export const AREA_MIN = 500;
-export const AREA_MAX = 15_000;
+export const AREA_MAX = 150_000;
 export const AREA_STEP = 10;
-export const AUDIT_RATE = 5_000;
+export const AUDIT_RATE = 3_000;
 export const SUPPORTED_LOCALES = Object.freeze(['ru', 'uz', 'en']);
+
+// Each rate applies only to the part of the area inside its band. This keeps
+// large-facility estimates realistic without retroactively discounting the
+// first square metres when a facility crosses a threshold.
+export const SERVICE_AREA_TIERS = Object.freeze([
+    Object.freeze({ upTo: 2_000, multiplierPercent: 100 }),
+    Object.freeze({ upTo: 5_000, multiplierPercent: 90 }),
+    Object.freeze({ upTo: 10_000, multiplierPercent: 80 }),
+    Object.freeze({ upTo: 25_000, multiplierPercent: 70 }),
+    Object.freeze({ upTo: 50_000, multiplierPercent: 60 }),
+    Object.freeze({ upTo: 100_000, multiplierPercent: 50 }),
+    Object.freeze({ upTo: AREA_MAX, multiplierPercent: 40 })
+]);
+
+export const AUDIT_AREA_TIERS = Object.freeze([
+    Object.freeze({ upTo: 2_000, rate: AUDIT_RATE }),
+    Object.freeze({ upTo: 5_000, rate: 2_400 }),
+    Object.freeze({ upTo: 10_000, rate: 1_800 }),
+    Object.freeze({ upTo: 25_000, rate: 1_300 }),
+    Object.freeze({ upTo: 50_000, rate: 900 }),
+    Object.freeze({ upTo: 100_000, rate: 600 }),
+    Object.freeze({ upTo: AREA_MAX, rate: 400 })
+]);
 
 const LABELS = Object.freeze({
     ru: Object.freeze({
@@ -65,6 +88,22 @@ export function normalizeArea(value) {
     return AREA_MIN + Math.round((clamped - AREA_MIN) / AREA_STEP) * AREA_STEP;
 }
 
+function calculateTieredAmount(area, tiers, tierRate) {
+    let lowerBound = 0;
+    let amount = 0;
+
+    for (const tier of tiers) {
+        const upperBound = Math.min(area, tier.upTo);
+        const areaInTier = Math.max(0, upperBound - lowerBound);
+        amount += areaInTier * tierRate(tier);
+
+        if (area <= tier.upTo) break;
+        lowerBound = tier.upTo;
+    }
+
+    return amount;
+}
+
 export function calculateQuote({ area, mode, type, systemIds, locale = 'ru' }) {
     if (!Number.isInteger(area) || area < AREA_MIN || area > AREA_MAX || (area - AREA_MIN) % AREA_STEP !== 0) {
         throw new TypeError('Некорректная площадь');
@@ -99,8 +138,14 @@ export function calculateQuote({ area, mode, type, systemIds, locale = 'ru' }) {
     }
 
     const systemRate = uniqueSystemIds.reduce((sum, id) => sum + ENGINEERING_SYSTEMS[id].rate, 0);
-    const baseRate = mode === 'service' ? systemRate : AUDIT_RATE;
-    const total = Math.round((area * baseRate * objectType.multiplierPercent) / 100);
+    const baseTotal = mode === 'service'
+        ? calculateTieredAmount(
+            area,
+            SERVICE_AREA_TIERS,
+            (tier) => (systemRate * tier.multiplierPercent) / 100
+        )
+        : calculateTieredAmount(area, AUDIT_AREA_TIERS, (tier) => tier.rate);
+    const total = Math.round((baseTotal * objectType.multiplierPercent) / 100);
 
     return Object.freeze({
         area,
@@ -110,7 +155,7 @@ export function calculateQuote({ area, mode, type, systemIds, locale = 'ru' }) {
         typeLabel: labels.objectTypes[type],
         systemIds: Object.freeze(uniqueSystemIds),
         systemLabels: Object.freeze(uniqueSystemIds.map((id) => labels.systems[id])),
-        rate: Math.round((baseRate * objectType.multiplierPercent) / 100),
+        rate: Math.round(total / area),
         total,
         pricePeriod: labels.periods[mode],
         locale

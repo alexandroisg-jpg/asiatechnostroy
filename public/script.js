@@ -231,16 +231,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const menu = document.querySelector('.header__menu');
     const closeMenu = () => {
         header?.classList.remove('menu-open');
+        document.body.classList.remove('nav-open');
         navToggle?.setAttribute('aria-expanded', 'false');
         if (navToggle) navToggle.setAttribute('aria-label', navToggle.dataset.openLabel || 'Menu');
     };
     navToggle?.addEventListener('click', () => {
         const opening = !header?.classList.contains('menu-open');
         header?.classList.toggle('menu-open', opening);
+        document.body.classList.toggle('nav-open', opening);
         navToggle.setAttribute('aria-expanded', String(opening));
         navToggle.setAttribute('aria-label', opening ? navToggle.dataset.closeLabel : navToggle.dataset.openLabel);
     });
     menu?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+    document.addEventListener('pointerdown', (event) => {
+        if (
+            header?.classList.contains('menu-open')
+            && !menu?.contains(event.target)
+            && !navToggle?.contains(event.target)
+        ) closeMenu();
+    });
+    window.addEventListener('resize', () => {
+        if (navToggle && getComputedStyle(navToggle).display === 'none') closeMenu();
+    }, { passive: true });
     const updateHeader = () => header?.classList.toggle('shrunk', window.scrollY > 60);
     updateHeader();
     window.addEventListener('scroll', updateHeader, { passive: true });
@@ -281,8 +293,11 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModalButton: document.querySelector('.modal-close'),
         displayArea: document.getElementById('display-area'),
         form: document.getElementById('orderForm'),
+        nameInput: document.getElementById('userName'),
+        objectInput: document.getElementById('objName'),
         phoneInput: document.getElementById('userPhone'),
-        formStatus: document.getElementById('formStatus')
+        formStatus: document.getElementById('formStatus'),
+        languageLinks: [...document.querySelectorAll('.language-switch__link')]
     };
 
     if (!elements.calculator || !elements.areaRange || !elements.total) {
@@ -293,10 +308,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const defaultMode = elements.calculator.dataset.defaultMode === 'audit' ? 'audit' : 'service';
+    const urlState = new URLSearchParams(window.location.search);
+    const requestedMode = urlState.get('calcMode');
+    const restoredMode = defaultMode === 'audit'
+        ? 'audit'
+        : requestedMode === 'audit' || requestedMode === 'service' ? requestedMode : defaultMode;
+    const validTypes = new Set(elements.typeButtons.map((button) => button.dataset.type));
+    const requestedType = urlState.get('calcType');
+    const restoredType = requestedType && validTypes.has(requestedType) ? requestedType : 'office';
+    const validSystems = new Set(elements.systems.map((input) => input.dataset.system));
+    const requestedSystems = urlState.has('calcSystems')
+        ? urlState.get('calcSystems').split(',').filter((id) => validSystems.has(id))
+        : null;
+    const requestedArea = Number(urlState.get('calcArea'));
+    const restoredArea = urlState.has('calcArea') && Number.isFinite(requestedArea)
+        ? normalizeArea(requestedArea)
+        : normalizeArea(elements.areaRange.value);
     const state = {
-        area: normalizeArea(elements.areaRange.value),
-        mode: defaultMode,
-        type: 'office',
+        area: restoredArea,
+        mode: restoredMode,
+        type: restoredType,
         quote: null,
         displayedTotal: 0,
         animationFrame: null,
@@ -304,9 +335,33 @@ document.addEventListener('DOMContentLoaded', () => {
         lastFocused: null
     };
 
-    const selectedSystemIds = () => state.mode === 'audit'
-        ? []
-        : elements.systems.filter((input) => input.checked).map((input) => input.dataset.system);
+    elements.typeButtons.forEach((button) => {
+        const selected = button.dataset.type === state.type;
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+    });
+    if (requestedSystems) {
+        elements.systems.forEach((input) => { input.checked = requestedSystems.includes(input.dataset.system); });
+    }
+
+    const checkedSystemIds = () => elements.systems
+        .filter((input) => input.checked)
+        .map((input) => input.dataset.system);
+    const selectedSystemIds = () => state.mode === 'audit' ? [] : checkedSystemIds();
+
+    const updateLanguageLinks = () => {
+        elements.languageLinks.forEach((link) => {
+            const baseHref = link.dataset.baseHref || link.getAttribute('href');
+            link.dataset.baseHref = baseHref;
+            const target = new URL(baseHref, window.location.origin);
+            target.searchParams.set('calcMode', state.mode);
+            target.searchParams.set('calcArea', String(state.area));
+            target.searchParams.set('calcType', state.type);
+            target.searchParams.set('calcSystems', checkedSystemIds().join(','));
+            target.hash = window.location.hash;
+            link.href = `${target.pathname}${target.search}${target.hash}`;
+        });
+    };
 
     const animatePrice = (target) => {
         if (state.animationFrame) cancelAnimationFrame(state.animationFrame);
@@ -387,6 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setStatus(elements.calcStatus, state.mode === 'service' ? text.statusSelection : text.statusQuoteError, 'error');
             animatePrice(0);
         }
+        updateLanguageLinks();
     };
 
     const setArea = (value) => {
@@ -397,6 +453,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     elements.areaRange.addEventListener('input', (event) => setArea(event.target.value));
+    elements.areaInput?.addEventListener('input', (event) => {
+        const rawValue = event.target.value.trim();
+        const numericValue = Number(rawValue);
+        const minimum = Number(elements.areaInput.min);
+        const maximum = Number(elements.areaInput.max);
+        if (!rawValue || !Number.isFinite(numericValue) || numericValue < minimum || numericValue > maximum) return;
+        state.area = normalizeArea(numericValue);
+        elements.areaRange.value = state.area;
+        updateQuote();
+    });
     elements.areaInput?.addEventListener('change', (event) => setArea(event.target.value));
     elements.areaInput?.addEventListener('blur', (event) => setArea(event.target.value));
 
@@ -421,6 +487,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const fieldErrors = new Map([
+        [elements.nameInput, document.getElementById('userName-error')],
+        [elements.objectInput, document.getElementById('objName-error')],
+        [elements.phoneInput, document.getElementById('userPhone-error')]
+    ].filter(([input, error]) => input && error));
+    const setFieldError = (input, invalid) => {
+        const error = fieldErrors.get(input);
+        if (!error) return;
+        if (invalid) {
+            input.setAttribute('aria-invalid', 'true');
+            error.hidden = false;
+        } else {
+            input.removeAttribute('aria-invalid');
+            error.hidden = true;
+        }
+    };
+    const resetFieldErrors = () => fieldErrors.forEach((_, input) => setFieldError(input, false));
+    fieldErrors.forEach((_, input) => input.addEventListener('input', () => setFieldError(input, false)));
+
     const closeModal = () => {
         elements.modal?.classList.remove('active');
         elements.modal?.setAttribute('aria-hidden', 'true');
@@ -438,6 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.formStartedAt = Date.now();
         elements.displayArea.textContent = formatMoney(state.area);
         setStatus(elements.formStatus, '');
+        resetFieldErrors();
         updateModePresentation();
         elements.modal?.classList.add('active');
         elements.modal?.setAttribute('aria-hidden', 'false');
@@ -483,13 +569,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     elements.form?.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const name = document.getElementById('userName')?.value.trim() ?? '';
-        const object = document.getElementById('objName')?.value.trim() ?? '';
+        const name = elements.nameInput?.value.trim() ?? '';
+        const object = elements.objectInput?.value.trim() ?? '';
         const phone = normalizePhone(elements.phoneInput?.value);
         const website = document.getElementById('companyWebsite')?.value ?? '';
 
-        if (name.length < 2 || name.length > 80 || object.length < 2 || object.length > 120 || !phone) {
+        const invalidFields = [
+            [elements.nameInput, name.length < 2 || name.length > 80],
+            [elements.objectInput, object.length < 2 || object.length > 120],
+            [elements.phoneInput, !phone]
+        ].filter(([input, invalid]) => input && invalid);
+        resetFieldErrors();
+        invalidFields.forEach(([input]) => setFieldError(input, true));
+        if (invalidFields.length) {
             setStatus(elements.formStatus, text.statusValidation, 'error');
+            invalidFields[0][0].focus();
             return;
         }
 
@@ -543,6 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    window.addEventListener('hashchange', updateLanguageLinks);
     updateModePresentation();
     setArea(state.area);
 });

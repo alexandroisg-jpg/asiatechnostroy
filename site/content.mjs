@@ -36,6 +36,11 @@ export const ROUTES = Object.freeze({
         ru: '/kontakty/',
         uz: '/uz/aloqa/',
         en: '/en/contact/'
+    }),
+    privacy: Object.freeze({
+        ru: '/politika-konfidentsialnosti/',
+        uz: '/uz/maxfiylik-siyosati/',
+        en: '/en/privacy/'
     })
 });
 
@@ -130,7 +135,10 @@ export const LOCALES = Object.freeze({
             operatingCycle: 'РАБОЧИЙ ЦИКЛ',
             documents: 'ДОКУМЕНТЫ',
             agreement: 'СОГЛАСОВАНИЕ',
-            brief: 'ИСХОДНЫЕ ДАННЫЕ'
+            brief: 'ИСХОДНЫЕ ДАННЫЕ',
+            contact: 'КОНТАКТ',
+            data: 'ДАННЫЕ',
+            processing: 'ОБРАБОТКА'
         }),
         nav: Object.freeze({
             home: 'Главная',
@@ -138,7 +146,8 @@ export const LOCALES = Object.freeze({
             service: 'Эксплуатация',
             audit: 'Техаудит',
             calculator: 'Калькулятор',
-            contact: 'Контакты'
+            contact: 'Контакты',
+            privacy: 'Обработка данных'
         }),
         common: Object.freeze({
             established: 'С 2012 года',
@@ -148,7 +157,10 @@ export const LOCALES = Object.freeze({
             discuss: 'Обсудить объект с инженером',
             auditCta: 'Оценить стоимость аудита',
             serviceCta: 'Оценить стоимость обслуживания',
-            details: 'Подробнее',
+            startAudit: 'Начать с технического аудита',
+            serviceDetails: 'Как устроена эксплуатация',
+            auditDetails: 'Как проходит технический аудит',
+            privacy: 'Обработка данных и конфиденциальность',
             backHome: 'Вернуться на главную'
         }),
         calculator: Object.freeze({
@@ -177,6 +189,9 @@ export const LOCALES = Object.freeze({
             objectLabel: 'Организация / объект',
             objectPlaceholder: 'Например, БЦ Anhor',
             phoneLabel: 'Контактный номер',
+            nameError: 'Укажите имя длиной от 2 до 80 символов.',
+            objectError: 'Укажите организацию или объект длиной от 2 до 120 символов.',
+            phoneError: 'Укажите номер в формате +998 (XX) XXX-XX-XX.',
             submitService: 'Получить предварительный расчёт',
             submitAudit: 'Получить расчёт по аудиту',
             disclaimer: 'Отправляя форму, вы соглашаетесь на обработку введённых данных для подготовки предварительного расчёта и обратной связи.',
@@ -236,7 +251,10 @@ export const LOCALES = Object.freeze({
             operatingCycle: 'ISH SIKLI',
             documents: 'HUJJATLAR',
             agreement: 'KELISHUV',
-            brief: 'BOSHLANG‘ICH MA’LUMOTLAR'
+            brief: 'BOSHLANG‘ICH MA’LUMOTLAR',
+            contact: 'ALOQA',
+            data: 'MA’LUMOTLAR',
+            processing: 'QAYTA ISHLASH'
         }),
         nav: Object.freeze({
             home: 'Bosh sahifa',
@@ -244,7 +262,8 @@ export const LOCALES = Object.freeze({
             service: 'Ekspluatatsiya',
             audit: 'Texnik audit',
             calculator: 'Kalkulyator',
-            contact: 'Aloqa'
+            contact: 'Aloqa',
+            privacy: 'Ma’lumotlar'
         }),
         common: Object.freeze({
             established: '2012-yildan buyon',
@@ -254,7 +273,10 @@ export const LOCALES = Object.freeze({
             discuss: 'Obyektni muhandis bilan muhokama qilish',
             auditCta: 'Audit narxini dastlabki baholash',
             serviceCta: 'Xizmat narxini dastlabki baholash',
-            details: 'Batafsil',
+            startAudit: 'Texnik auditdan boshlash',
+            serviceDetails: 'Ekspluatatsiya qanday tashkil etiladi',
+            auditDetails: 'Texnik audit qanday o‘tkaziladi',
+            privacy: 'Ma’lumotlarni qayta ishlash va maxfiylik',
             backHome: 'Bosh sahifaga qaytish'
         }),
         calculator: Object.freeze({
@@ -283,6 +305,9 @@ export const LOCALES = Object.freeze({
             objectLabel: 'Tashkilot / obyekt',
             objectPlaceholder: 'Masalan, Anhor biznes markazi',
             phoneLabel: 'Telefon raqami',
+            nameError: '2 dan 80 tagacha belgidan iborat ismni kiriting.',
+            objectError: '2 dan 120 tagacha belgidan iborat tashkilot yoki obyekt nomini kiriting.',
+            phoneError: 'Raqamni +998 (XX) XXX-XX-XX formatida kiriting.',
             submitService: 'Dastlabki hisobni olish',
             submitAudit: 'Audit hisobini olish',
             disclaimer: 'Shaklni yuborish orqali siz dastlabki hisobni tayyorlash va bog‘lanish uchun kiritilgan ma’lumotlarni qayta ishlashga rozilik bildirasiz.',
@@ -342,7 +367,10 @@ export const LOCALES = Object.freeze({
             operatingCycle: 'OPERATING CYCLE',
             documents: 'DOCUMENTS',
             agreement: 'AGREEMENT',
-            brief: 'BRIEF'
+            brief: 'BRIEF',
+            contact: 'CONTACT',
+            data: 'DATA',
+            processing: 'PROCESSING'
         }),
         nav: Object.freeze({
             home: 'Home',
@@ -350,7 +378,8 @@ export const LOCALES = Object.freeze({
             service: 'Maintenance',
             audit: 'Technical audit',
             calculator: 'Calculator',
-            contact: 'Contact'
+            contact: 'Contact',
+            privacy: 'Data use'
         }),
         common: Object.freeze({
             established: 'Established 2012',
@@ -360,7 +389,10 @@ export const LOCALES = Object.freeze({
             discuss: 'Discuss the facility with an engineer',
             auditCta: 'Estimate audit cost',
             serviceCta: 'Estimate maintenance cost',
-            details: 'Learn more',
+            startAudit: 'Start with a technical audit',
+            serviceDetails: 'How maintenance is organised',
+            auditDetails: 'How the technical audit works',
+            privacy: 'Data processing and privacy',
             backHome: 'Back to home'
         }),
         calculator: Object.freeze({
@@ -389,6 +421,9 @@ export const LOCALES = Object.freeze({
             objectLabel: 'Organisation / facility',
             objectPlaceholder: 'For example, Anhor Business Centre',
             phoneLabel: 'Contact number',
+            nameError: 'Enter a name between 2 and 80 characters.',
+            objectError: 'Enter an organisation or facility between 2 and 120 characters.',
+            phoneError: 'Enter the number in +998 (XX) XXX-XX-XX format.',
             submitService: 'Get a preliminary estimate',
             submitAudit: 'Get an audit estimate',
             disclaimer: 'By submitting this form, you agree that the information entered may be processed to prepare a preliminary estimate and contact you.',
@@ -432,7 +467,7 @@ const COMMON_PAGES = Object.freeze({
                 'AsiaTechnoStroy организует техническую эксплуатацию коммерческих объектов в Ташкенте. Инженерные системы, регламентные работы, документация и контроль исполнения объединяются в единый рабочий контур.',
                 'До начала обслуживания определяются состав оборудования, границы работ, порядок взаимодействия и формат отчётности. Эти параметры становятся основой технического регламента объекта.'
             ],
-            photoCaption: 'Инженерная инфраструктура коммерческого объекта',
+            photoCaption: 'Климатическое оборудование на кровле коммерческого здания',
             facts: [
                 ['2012', 'год начала работы'],
                 ['7', 'инженерных направлений'],
@@ -465,6 +500,7 @@ const COMMON_PAGES = Object.freeze({
             auditEyebrow: 'ТЕХНИЧЕСКИЙ АУДИТ ОБЪЕКТА',
             auditTitle: 'Начать с объективной технической картины',
             auditText: 'Инженеры обследуют доступные системы, изучают переданную документацию, фиксируют состояние оборудования и оформляют результат в структурированном отчёте.',
+            auditImageAlt: 'Инженерное оборудование в техническом помещении',
             auditSteps: [
                 ['01', 'Границы', 'Системы, зоны, документы и условия доступа.'],
                 ['02', 'Обследование', 'Осмотр, измерения по согласованной программе и фотофиксация.'],
@@ -486,6 +522,7 @@ const COMMON_PAGES = Object.freeze({
                 'Мы обслуживаем инженерные системы коммерческой недвижимости в Ташкенте. Работа начинается не с общих обещаний, а с определения состава оборудования, доступной документации и границ ответственности сторон.',
                 'По результатам первичного обследования формируются регламенты, календарь плановых операций и формат технической отчётности. Такой подход делает состояние объекта понятным собственнику, управляющей компании и технической службе.'
             ],
+            editorialImageAlt: 'Наружные блоки климатической системы на кровле здания',
             modelTitle: 'Как организована работа',
             model: [
                 ['01', 'Инвентаризация', 'Фиксируем системы, оборудование, зоны и доступные исходные данные.'],
@@ -516,6 +553,7 @@ const COMMON_PAGES = Object.freeze({
             ],
             scopeTitle: 'Что обследуется',
             scopeIntro: 'Фактический перечень определяется границами конкретного объекта.',
+            scopeImageAlt: 'Оборудование приточно-вытяжной вентиляции',
             scope: ['VRV/VRF, чиллеры и фанкойлы', 'Приточно-вытяжная вентиляция', 'Отопление и тепловые узлы', 'Электроснабжение и распределение', 'Водоснабжение и канализация', 'Слаботочные системы и СКУД', 'Эксплуатационная документация'],
             reportTitle: 'Состав технического отчёта',
             reportIntro: 'Структура результата позволяет использовать его как основу для планирования работ, подготовки регламентов и постановки задач подрядчикам.',
@@ -566,6 +604,27 @@ const COMMON_PAGES = Object.freeze({
             channelValue: 'WhatsApp',
             nextTitle: 'Что подготовить к разговору',
             next: ['Назначение и ориентировочную площадь объекта', 'Перечень основных инженерных систем', 'Наличие проектной или эксплуатационной документации', 'Требуемый формат: аудит или регулярное обслуживание']
+        }),
+        privacy: Object.freeze({
+            title: 'Обработка данных и конфиденциальность | AsiaTechnoStroy',
+            description: 'Какие данные получает AsiaTechnoStroy через форму расчёта, для чего они используются и как запросить их уточнение или удаление.',
+            eyebrow: 'ОБРАБОТКА ДАННЫХ',
+            heroTitle: 'Как обрабатываются данные из формы',
+            heroText: 'Краткая информация о данных, которые вы передаёте для получения расчёта и обратной связи.',
+            introTitle: 'Что получает сайт',
+            introParagraphs: [
+                'При отправке формы передаются имя, организация или объект, телефон и выбранные параметры предварительного расчёта: формат работ, тип объекта, площадь и инженерные системы.',
+                'На сайте не используются рекламные или аналитические cookie. Инфраструктура Cloudflare может обрабатывать технические данные запроса, включая IP-адрес, для защиты формы и ограничения автоматических отправок.',
+                'Для загрузки фирменных шрифтов браузер обращается к Google Fonts. Этот сервис может получать стандартные технические данные соединения, включая IP-адрес.'
+            ],
+            items: [
+                ['01', 'Основание и цель', 'Данные передаются по вашей инициативе при отправке формы и используются, чтобы проверить параметры, подготовить предварительную оценку и связаться с вами по заявке.'],
+                ['02', 'Передача заявки', 'После отправки формы заявка проходит через Cloudflare Worker и передаётся ответственному сотруднику в служебном уведомлении Telegram.'],
+                ['03', 'Хранение', 'Сайт не создаёт отдельную базу заявок. Служебное сообщение хранится для обработки обращения и связанной с ним деловой коммуникации; автоматическое удаление сайтом не выполняется.'],
+                ['04', 'Уточнение или удаление', 'Чтобы уточнить переданные данные или запросить удаление сообщения с заявкой, свяжитесь с нами по телефону или через WhatsApp.']
+            ],
+            contactTitle: 'Вопрос по переданным данным',
+            contactText: 'Назовите телефон, указанный в форме, и сообщите, какие данные нужно уточнить или удалить.'
         })
     }),
     uz: Object.freeze({
@@ -579,7 +638,7 @@ const COMMON_PAGES = Object.freeze({
                 'AsiaTechnoStroy Toshkentdagi tijorat obyektlarining texnik ekspluatatsiyasini tashkil etadi. Muhandislik tizimlari, rejali ishlar, hujjatlar va ijro nazorati yagona boshqaruv tizimida birlashtiriladi.',
                 'Xizmat boshlanishidan oldin uskunalar tarkibi, ish chegaralari, o‘zaro aloqa tartibi va hisobot formati aniqlanadi. Ushbu parametrlar obyektning texnik reglamentiga asos bo‘ladi.'
             ],
-            photoCaption: 'Tijorat obyektining muhandislik infratuzilmasi',
+            photoCaption: 'Tijorat binosi tomidagi iqlim uskunalari',
             facts: [['2012', 'faoliyat boshlangan yil'], ['7', 'muhandislik yo‘nalishi'], ['Yagona', 'boshqaruv tizimi']],
             principlesTitle: 'Ish tamoyillari',
             principles: [
@@ -608,6 +667,7 @@ const COMMON_PAGES = Object.freeze({
             auditEyebrow: 'OBYEKTNING TEXNIK AUDITI',
             auditTitle: 'Obyektiv texnik holatdan boshlash',
             auditText: 'Muhandislar mavjud tizimlarni tekshiradi, taqdim etilgan hujjatlarni o‘rganadi, uskunalar holatini qayd etadi va natijani tizimlashtirilgan texnik hisobotda taqdim etadi.',
+            auditImageAlt: 'Texnik xonadagi muhandislik uskunalari',
             auditSteps: [['01', 'Chegaralar', 'Tizimlar, zonalar, hujjatlar va kirish shartlari.'], ['02', 'Tekshiruv', 'Ko‘zdan kechirish, kelishilgan dastur bo‘yicha o‘lchovlar va fotofiksatsiya.'], ['03', 'Tahlil', 'Holat, kamchiliklar va texnik ustuvorliklar.'], ['04', 'Hisobot', 'Kelishilgan audit qamrovidagi uskunalar reyestri va harakatlar ketma-ketligi.']],
             auditDeliverables: ['Rahbariyat uchun qisqa xulosa', 'Kelishilgan audit qamrovidagi uskunalar reyestri', 'Fotofiksatsiya va kamchiliklar', 'Ustuvor ishlar rejasi'],
             contactTitle: 'Obyektingiz bo‘yicha ishlar tarkibini muhokama qilamiz',
@@ -621,6 +681,7 @@ const COMMON_PAGES = Object.freeze({
             heroText: 'Obyektning texnik vazifalari kelishilgan chegaralar, davriylik, mas’ul ijrochi va hujjatlashtirilgan natijaga ega bo‘lgan ish tizimi.',
             introTitle: 'Obyektning muhandislik tizimlarini boshqarish',
             introParagraphs: ['Biz Toshkentdagi tijorat ko‘chmas mulkining muhandislik tizimlariga xizmat ko‘rsatamiz. Ish umumiy va’dalardan emas, balki uskunalar tarkibi, mavjud hujjatlar va tomonlarning javobgarlik chegaralarini aniqlashdan boshlanadi.', 'Dastlabki tekshiruv natijasida reglamentlar, rejali operatsiyalar taqvimi va texnik hisobot formati shakllantiriladi. Bu obyekt holatini mulkdor, boshqaruv kompaniyasi va texnik xizmat uchun tushunarli qiladi.'],
+            editorialImageAlt: 'Bino tomidagi iqlim tizimining tashqi bloklari',
             modelTitle: 'Ish qanday tashkil etiladi',
             model: [['01', 'Inventarizatsiya', 'Tizimlar, uskunalar, zonalar va mavjud boshlang‘ich ma’lumotlarni qayd etamiz.'], ['02', 'Reglamentlash', 'Operatsiyalar, davriylik va kirish tartibini kelishamiz.'], ['03', 'Bajarish', 'Rejali ishlarni bajaramiz va texnik kamchiliklarni ko‘rib chiqamiz.'], ['04', 'Hisobot', 'Holat, bajarilgan ishlar va zarur harakatlar bo‘yicha ma’lumot beramiz.']],
             responsibilityTitle: 'Chegaralar va’dalardan muhimroq',
@@ -641,6 +702,7 @@ const COMMON_PAGES = Object.freeze({
             stages: [['01', 'Chegaralarni aniqlash', 'Tekshiriladigan tizim va zonalar, boshlang‘ich hujjatlar, kirish shartlari va yakuniy materiallar tarkibini kelishamiz.'], ['02', 'Tekshiruv', 'Uskunalarni ko‘zdan kechiramiz, mavjud ish parametrlarini qayd etamiz va dasturda ko‘zda tutilgan tekshiruvlarni bajaramiz.'], ['03', 'Tahlil', 'Haqiqiy holatni hujjatlar va baholash mezonlari bilan solishtiramiz, texnik kamchiliklar reyestrini tuzamiz.'], ['04', 'Natijani topshirish', 'Buyurtmachi hisobot, uskunalar reyestri, ustuvorliklar va keyingi harakatlar ketma-ketligini oladi.']],
             scopeTitle: 'Nimalar tekshiriladi',
             scopeIntro: 'Aniq ro‘yxat muayyan obyekt chegaralari bilan belgilanadi.',
+            scopeImageAlt: 'Ta’minot va chiqarish ventilyatsiyasi uskunalari',
             scope: ['VRV/VRF, chillerlar va fankoyllar', 'Ta’minot va chiqarish ventilyatsiyasi', 'Isitish va issiqlik uzellari', 'Elektr ta’minoti va taqsimlash', 'Suv ta’minoti va kanalizatsiya', 'Past tok tizimlari va SKUD', 'Ekspluatatsiya hujjatlari'],
             reportTitle: 'Texnik hisobot tarkibi',
             reportIntro: 'Natija tuzilishi undan ishlarni rejalashtirish, reglamentlar tayyorlash va pudratchilarga vazifalar qo‘yish uchun asos sifatida foydalanish imkonini beradi.',
@@ -681,17 +743,38 @@ const COMMON_PAGES = Object.freeze({
             channelValue: 'WhatsApp',
             nextTitle: 'Suhbat uchun nimalarni tayyorlash kerak',
             next: ['Obyekt vazifasi va taxminiy maydoni', 'Asosiy muhandislik tizimlari ro‘yxati', 'Loyiha yoki ekspluatatsiya hujjatlarining mavjudligi', 'Kerakli format: audit yoki muntazam xizmat']
+        }),
+        privacy: Object.freeze({
+            title: 'Ma’lumotlarni qayta ishlash va maxfiylik | AsiaTechnoStroy',
+            description: 'Hisob-kitob shakli orqali AsiaTechnoStroy qanday ma’lumotlarni olishi, ulardan qanday foydalanishi va ularni aniqlashtirish yoki o‘chirishni qanday so‘rash mumkinligi haqida.',
+            eyebrow: 'MA’LUMOTLARNI QAYTA ISHLASH',
+            heroTitle: 'Shakldagi ma’lumotlar qanday qayta ishlanadi',
+            heroText: 'Hisob-kitob va qayta aloqa uchun yuboradigan ma’lumotlaringiz haqida qisqa tushuntirish.',
+            introTitle: 'Sayt qanday ma’lumotlarni oladi',
+            introParagraphs: [
+                'Shakl yuborilganda ism, tashkilot yoki obyekt, telefon raqami va dastlabki hisob parametrlari — ish turi, obyekt turi, maydon hamda muhandislik tizimlari uzatiladi.',
+                'Saytda reklama yoki tahliliy cookie-fayllar ishlatilmaydi. Cloudflare infratuzilmasi shaklni himoya qilish va avtomatik yuborishlarni cheklash uchun so‘rovning texnik ma’lumotlarini, jumladan IP-manzilni qayta ishlashi mumkin.',
+                'Brend shriftlarini yuklash uchun brauzer Google Fonts xizmatiga murojaat qiladi. Ushbu xizmat ulanishning standart texnik ma’lumotlarini, jumladan IP-manzilni olishi mumkin.'
+            ],
+            items: [
+                ['01', 'Asos va maqsad', 'Ma’lumotlar shaklni yuborishda sizning tashabbusingiz bilan beriladi hamda parametrlarni tekshirish, dastlabki bahoni tayyorlash va so‘rov bo‘yicha siz bilan bog‘lanish uchun ishlatiladi.'],
+                ['02', 'So‘rovni yetkazish', 'Shakl yuborilgach, so‘rov Cloudflare Worker orqali o‘tadi va mas’ul xodimga Telegram’dagi xizmat bildirishnomasi sifatida yuboriladi.'],
+                ['03', 'Saqlash', 'Sayt so‘rovlar uchun alohida ma’lumotlar bazasini yaratmaydi. Xizmat xabari murojaatni ko‘rib chiqish va unga bog‘liq ishbilarmonlik aloqasi uchun saqlanadi; sayt uni avtomatik o‘chirmaydi.'],
+                ['04', 'Aniqlashtirish yoki o‘chirish', 'Yuborilgan ma’lumotlarni aniqlashtirish yoki so‘rov haqidagi xabarni o‘chirishni so‘rash uchun telefon yoki WhatsApp orqali biz bilan bog‘laning.']
+            ],
+            contactTitle: 'Yuborilgan ma’lumotlar bo‘yicha savol',
+            contactText: 'Shaklda ko‘rsatilgan telefon raqamini ayting va qaysi ma’lumotni aniqlashtirish yoki o‘chirish kerakligini bildiring.'
         })
     }),
     en: Object.freeze({
         home: Object.freeze({
             title: 'Engineering systems maintenance in Tashkent | AsiaTechnoStroy',
             description: 'Engineering operations and maintenance for commercial facilities, building systems maintenance and technical audits in Tashkent.',
-            heroTitle: ['Engineering systems', 'under one management framework'],
+            heroTitle: ['Engineering systems', 'under unified management'],
             heroText: 'Engineering operations and maintenance for commercial facilities in Tashkent: planned maintenance, condition audits and engineering reporting.',
             aboutTitle: 'Engineering operations and maintenance as a managed system',
             aboutParagraphs: ['AsiaTechnoStroy organises engineering operations and maintenance for commercial facilities in Tashkent. Engineering systems, scheduled work, documentation and delivery control are brought into one operating framework.', 'Before maintenance begins, the equipment scope, work boundaries, communication process and reporting format are defined. These parameters become the basis of the facility’s technical operating plan.'],
-            photoCaption: 'Engineering infrastructure of a commercial facility',
+            photoCaption: 'Climate equipment on the roof of a commercial building',
             facts: [['2012', 'year established'], ['7', 'engineering disciplines'], ['Single', 'management framework']],
             principlesTitle: 'Operating principles',
             principles: [['01', 'Defined responsibility boundaries', 'Systems, equipment and service areas are agreed before work begins.'], ['02', 'Operating plan', 'A planned maintenance calendar and control operations are established for the facility.'], ['03', 'Documented outcome', 'Reporting records equipment condition, priority and the next technical action.']],
@@ -704,6 +787,7 @@ const COMMON_PAGES = Object.freeze({
             auditEyebrow: 'FACILITY TECHNICAL AUDIT',
             auditTitle: 'Start with an objective technical picture',
             auditText: 'Engineers inspect accessible systems, review the documentation provided, record equipment condition and present the findings in a structured technical report.',
+            auditImageAlt: 'Engineering equipment inside a plant room',
             auditSteps: [['01', 'Scope', 'Systems, areas, documentation and access conditions.'], ['02', 'Survey', 'Inspection, measurements defined by the agreed audit programme, and photographic records.'], ['03', 'Assessment', 'Condition, observations and technical priorities.'], ['04', 'Report', 'Equipment register within the agreed audit scope and a sequenced action plan.']],
             auditDeliverables: ['Executive summary', 'Equipment register within the agreed audit scope', 'Photographic records and observations', 'Prioritised action plan'],
             contactTitle: 'Discuss the scope for your facility',
@@ -717,6 +801,7 @@ const COMMON_PAGES = Object.freeze({
             heroText: 'A working system in which each technical task has an agreed boundary, frequency, responsible party and documented outcome.',
             introTitle: 'Managing the facility’s technical scope',
             introParagraphs: ['We maintain the engineering systems of commercial property in Tashkent. Work starts with the equipment scope, available documentation and responsibility boundaries—not broad promises.', 'The initial survey provides the basis for operating procedures, the planned maintenance calendar and the reporting format. This makes the facility’s condition clear to the owner, property manager and technical team.'],
+            editorialImageAlt: 'Outdoor climate-system units on a building roof',
             modelTitle: 'How the work is organised',
             model: [['01', 'Inventory', 'We record systems, equipment, areas and available source information.'], ['02', 'Operating plan', 'We agree the operations, frequencies and access process.'], ['03', 'Delivery', 'We complete planned work and process technical observations.'], ['04', 'Reporting', 'We report condition, completed work and required next actions.']],
             responsibilityTitle: 'Boundaries are more useful than promises',
@@ -737,6 +822,7 @@ const COMMON_PAGES = Object.freeze({
             stages: [['01', 'Define the scope', 'We agree the systems and areas to be surveyed, source documentation, access conditions and final deliverables.'], ['02', 'Survey', 'We inspect equipment, record available operating parameters and complete the checks included in the agreed audit programme.'], ['03', 'Assessment', 'We compare the actual condition with the documentation and assessment criteria, then prepare the technical observations register.'], ['04', 'Deliver the findings', 'The client receives the report, equipment register, priorities and the sequence of further action.']],
             scopeTitle: 'What is surveyed',
             scopeIntro: 'The final list is defined by the agreed boundaries of the facility.',
+            scopeImageAlt: 'Supply and extract ventilation equipment',
             scope: ['VRV/VRF, chillers and fan-coil units', 'Supply and extract ventilation', 'Heating and heat interface units', 'Electrical supply and distribution', 'Water supply and drainage', 'Low-voltage and access-control systems', 'Operating documentation'],
             reportTitle: 'Technical report package',
             reportIntro: 'The deliverable is structured to support work planning, operating procedures and contractor work packages.',
@@ -777,6 +863,27 @@ const COMMON_PAGES = Object.freeze({
             channelValue: 'WhatsApp',
             nextTitle: 'What to prepare for the conversation',
             next: ['Facility use and approximate floor area', 'List of principal engineering systems', 'Availability of design or operating documentation', 'Required format: audit or ongoing maintenance']
+        }),
+        privacy: Object.freeze({
+            title: 'Data processing and privacy | AsiaTechnoStroy',
+            description: 'What data AsiaTechnoStroy receives through the estimate form, how it is used, and how to request correction or deletion.',
+            eyebrow: 'DATA PROCESSING',
+            heroTitle: 'How form data is processed',
+            heroText: 'A concise explanation of the information you provide for an estimate and follow-up contact.',
+            introTitle: 'Information received by the website',
+            introParagraphs: [
+                'When the form is submitted, it sends your name, organisation or facility, telephone number and the selected estimate parameters: work format, facility type, floor area and engineering systems.',
+                'The website does not use advertising or analytics cookies. Cloudflare infrastructure may process technical request data, including the IP address, to protect the form and limit automated submissions.',
+                'To load the brand fonts, the browser connects to Google Fonts. This service may receive standard connection data, including the IP address.'
+            ],
+            items: [
+                ['01', 'Basis and purpose', 'You provide the information on your own initiative when submitting the form. It is used to verify the parameters, prepare a preliminary estimate and contact you about the enquiry.'],
+                ['02', 'Delivery of the enquiry', 'After submission, the enquiry passes through a Cloudflare Worker and is delivered to the responsible team member as an internal Telegram notification.'],
+                ['03', 'Storage', 'The website does not create a separate enquiry database. The internal message is retained to handle the enquiry and related business communication; the website does not delete it automatically.'],
+                ['04', 'Correction or deletion', 'To correct submitted information or ask for the enquiry message to be deleted, contact us by telephone or WhatsApp.']
+            ],
+            contactTitle: 'Question about submitted information',
+            contactText: 'Tell us the telephone number used in the form and which information should be corrected or deleted.'
         })
     })
 });

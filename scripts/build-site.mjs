@@ -11,7 +11,7 @@ const publicRoot = path.join(projectRoot, 'public');
 const checkOnly = process.argv.includes('--check');
 const pageTypes = Object.keys(ROUTES);
 const localeKeys = Object.keys(LOCALES);
-const assetVersion = SITE.lastModified.replaceAll('-', '');
+const assetVersion = SITE.assetVersion;
 
 function outputPath(pathname) {
     if (pathname === '/') return path.join(publicRoot, 'index.html');

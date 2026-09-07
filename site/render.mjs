@@ -1,6 +1,6 @@
 import { LOCALES, PAGES, ROUTES, SITE } from './content.mjs';
 
-const ASSET_VERSION = SITE.lastModified.replaceAll('-', '');
+const ASSET_VERSION = SITE.assetVersion;
 
 const ICONS = Object.freeze({
     building: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/>',
@@ -210,7 +210,7 @@ function head(localeKey, pageType, page, schemaText) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Syncopate:wght@400;700&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css?v=${ASSET_VERSION}">
-    <script type="module" src="/script.js"></script>
+    <script type="module" src="/script.js?v=${ASSET_VERSION}"></script>
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="/favicon-16.png" sizes="16x16">

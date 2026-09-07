@@ -11,6 +11,7 @@ const publicRoot = path.join(projectRoot, 'public');
 const checkOnly = process.argv.includes('--check');
 const pageTypes = Object.keys(ROUTES);
 const localeKeys = Object.keys(LOCALES);
+const assetVersion = SITE.lastModified.replaceAll('-', '');
 
 function outputPath(pathname) {
     if (pathname === '/') return path.join(publicRoot, 'index.html');
@@ -153,7 +154,7 @@ function build404() {
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#010409">
     <title>404 | AsiaTechnoStroy</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/style.css?v=${assetVersion}">
     <link rel="icon" href="/favicon.ico" sizes="any">
 </head>
 <body class="not-found-page">

@@ -8,6 +8,7 @@ export const SITE = Object.freeze({
     city: 'Tashkent',
     country: 'Uzbekistan',
     founded: 2012,
+    assetVersion: '20260907.2',
     lastModified: '2026-09-07'
 });
 

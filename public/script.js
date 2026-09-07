@@ -1,5 +1,11 @@
-import { calculateQuote, normalizeArea } from '/pricing.js';
-import { CLIENT_LOCALES } from '/i18n.js';
+const assetVersion = new URL(import.meta.url).searchParams.get('v');
+const assetQuery = assetVersion ? `?v=${encodeURIComponent(assetVersion)}` : '';
+const [pricingModule, localeModule] = await Promise.all([
+    import(`/pricing.js${assetQuery}`),
+    import(`/i18n.js${assetQuery}`)
+]);
+const { calculateQuote, normalizeArea } = pricingModule;
+const { CLIENT_LOCALES } = localeModule;
 
 const PHONE_PREFIX = '998';
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -211,7 +217,7 @@ async function downloadQuotePdf(quote) {
     window.setTimeout(() => URL.revokeObjectURL(url), 2_000);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initializeSite() {
     const revealElements = document.querySelectorAll('.reveal');
     if (reduceMotion || !('IntersectionObserver' in window)) {
         revealElements.forEach((element) => element.classList.add('visible'));
@@ -640,4 +646,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('hashchange', updateLanguageLinks);
     updateModePresentation();
     setArea(state.area);
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSite, { once: true });
+} else {
+    initializeSite();
+}

@@ -33,8 +33,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Syncopate:wght@400;700&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=20260907.2">
-    <script type="module" src="/script.js?v=20260907.2"></script>
+    <link rel="stylesheet" href="/style.css?v=20260908.1">
+    <script type="module" src="/script.js?v=20260908.1"></script>
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="/favicon-16.png" sizes="16x16">
@@ -261,7 +261,7 @@
             <div class="label-row">
                 <label class="setting-label" for="area-input">Площадь объекта</label>
                 <div class="area-input-wrapper">
-                    <input type="number" id="area-input" min="500" max="150000" step="10" value="500" inputmode="numeric" placeholder="500">
+                    <input type="number" id="area-input" min="500" max="150000" step="10" value="500" inputmode="numeric" placeholder="500" aria-describedby="calcStatus">
                     <span>m²</span>
                 </div>
             </div>
@@ -270,41 +270,54 @@
             <div class="setting-group systems-setting" data-service-controls>
                 <div class="setting-label" id="systems-label">Инженерные системы под управлением</div>
                 <div class="systems-grid-full" role="group" aria-labelledby="systems-label"><label class="system-item">
-        <input type="checkbox" checked data-system="conditioning">
-        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 0 20M4.22 6.5l15.56 9M4.22 17.5l15.56-9M8 4l4 2 4-2M8 20l4-2 4 2M3.5 10l.5 4-3 2M23 8l-3 2 .5 4"/></svg><span>Кондиционирование</span></span>
+        <input type="checkbox" checked data-system="conditioning" aria-describedby="system-note-conditioning">
+        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 0 20M4.22 6.5l15.56 9M4.22 17.5l15.56-9M8 4l4 2 4-2M8 20l4-2 4 2M3.5 10l.5 4-3 2M23 8l-3 2 .5 4"/></svg><span>Кондиционирование</span><small class="system-minimum" id="system-note-conditioning">Отдельный договор от 2 200 000 сум/мес.</small></span>
     </label><label class="system-item">
-        <input type="checkbox" data-system="heating">
-        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0Z"/><path d="M11.5 6v10"/></svg><span>Отопление</span></span>
+        <input type="checkbox" data-system="heating" aria-describedby="system-note-heating">
+        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0Z"/><path d="M11.5 6v10"/></svg><span>Отопление</span><small class="system-minimum" id="system-note-heating">Отдельный договор от 1 200 000 сум/мес.</small></span>
     </label><label class="system-item">
-        <input type="checkbox" data-system="ventilation">
-        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg><span>Вентиляция</span></span>
+        <input type="checkbox" data-system="ventilation" aria-describedby="system-note-ventilation">
+        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg><span>Вентиляция</span><small class="system-minimum" id="system-note-ventilation">Отдельный договор от 1 500 000 сум/мес.</small></span>
     </label><label class="system-item">
-        <input type="checkbox" data-system="electricity">
-        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg><span>Электроснабжение</span></span>
+        <input type="checkbox" data-system="electricity" aria-describedby="system-note-electricity">
+        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg><span>Электроснабжение</span><small class="system-minimum" id="system-note-electricity">Отдельный договор от 2 800 000 сум/мес.</small></span>
     </label><label class="system-item">
-        <input type="checkbox" data-system="water">
-        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 6 9a6 6 0 1 0 12 0l-6-7Z"/><path d="M8.5 14.5a3.5 3.5 0 0 0 7 0"/></svg><span>Водоснабжение</span></span>
+        <input type="checkbox" data-system="water" aria-describedby="system-note-water">
+        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 6 9a6 6 0 1 0 12 0l-6-7Z"/><path d="M8.5 14.5a3.5 3.5 0 0 0 7 0"/></svg><span>Водоснабжение</span><small class="system-minimum" id="system-note-water">Отдельный договор от 1 200 000 сум/мес.</small></span>
+    </label><label class="system-item is-unavailable">
+        <input type="checkbox" disabled data-unavailable="true" data-system="low_current" aria-describedby="system-note-low_current">
+        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg><span>Слаботочные системы / СКУД</span><small class="system-minimum availability-badge" id="system-note-low_current">Временно недоступно</small></span>
     </label><label class="system-item">
-        <input type="checkbox" data-system="low_current">
-        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg><span>Слаботочные системы / СКУД</span></span>
-    </label><label class="system-item">
-        <input type="checkbox" data-system="sewerage">
-        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2M2 12c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2M2 18c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/></svg><span>Канализация</span></span>
+        <input type="checkbox" data-system="sewerage" aria-describedby="system-note-sewerage">
+        <span class="system-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2M2 12c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2M2 18c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/></svg><span>Канализация</span><small class="system-minimum" id="system-note-sewerage">Отдельный договор от 800 000 сум/мес.</small></span>
     </label></div>
             </div>
             <div class="audit-coverage" data-audit-coverage hidden>
                 <span class="audit-coverage__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4V2h6v2M9 11h6M9 15h6M9 19h4"/></svg></span>
-                <div><h3>Комплексный технический охват</h3><p>В базовый расчёт аудита входит обследование доступных инженерных систем, изучение переданной документации, фотофиксация и структурированный отчёт.</p></div>
+                <div><h3>Базовое техническое обследование</h3><p>Осмотр доступного оборудования, изучение переданных документов, фотофиксация и структурированный отчёт. Сплошная инвентаризация и расширенные инструментальные измерения согласовываются отдельно.</p><ul class="audit-systems"><li class="audit-system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 0 20M4.22 6.5l15.56 9M4.22 17.5l15.56-9M8 4l4 2 4-2M8 20l4-2 4 2M3.5 10l.5 4-3 2M23 8l-3 2 .5 4"/></svg><span>Кондиционирование</span><small>В базовом обследовании</small></li><li class="audit-system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0Z"/><path d="M11.5 6v10"/></svg><span>Отопление</span><small>В базовом обследовании</small></li><li class="audit-system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg><span>Вентиляция</span><small>В базовом обследовании</small></li><li class="audit-system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg><span>Электроснабжение</span><small>В базовом обследовании</small></li><li class="audit-system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 6 9a6 6 0 1 0 12 0l-6-7Z"/><path d="M8.5 14.5a3.5 3.5 0 0 0 7 0"/></svg><span>Водоснабжение</span><small>В базовом обследовании</small></li><li class="audit-system is-unavailable"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg><span>Слаботочные системы / СКУД</span><button type="button" class="availability-badge" disabled>Временно недоступно</button></li><li class="audit-system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2M2 12c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2M2 18c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/></svg><span>Канализация</span><small>В базовом обследовании</small></li></ul><p class="audit-exclusion">Слаботочные системы и СКУД временно не входят в аудит и расчёт стоимости.</p></div>
             </div>
-            <div class="calc-result-full">
+            <div class="review-settings">
+                <label class="review-choice" data-review-service><input type="checkbox" id="service-review"><span>Много оборудования, особые условия или постоянная команда на объекте<small>Индивидуальная программа и стоимость после уточнения оборудования и задач.</small></span></label>
+                <label class="review-choice" data-review-audit hidden><input type="checkbox" id="audit-review"><span>Нужен подробный аудит с полным реестром и инструментальными измерениями<small>Индивидуальная программа и стоимость после уточнения оборудования и задач.</small></span></label>
+            </div>
+            <div class="calc-result-full" data-result>
                 <div class="result-info-center">
                     <span class="result-label">Предварительный бюджет</span>
-                    <div class="result-price"><span id="total-price" aria-hidden="true">0</span> <small id="price-period">сум/мес</small></div>
+                    <div class="result-price"><span id="total-price" aria-hidden="true">—</span> <small id="price-period"></small></div>
                     <output id="price-announcement" class="sr-only" aria-live="polite" aria-atomic="true"></output>
                     <p class="result-note" id="result-note">Точная стоимость фиксируется после определения состава оборудования и границ обслуживания.</p>
                 </div>
                 <div class="btn-wrapper">
-                    <button type="button" class="btn-premium btn-order">Получить предварительный расчёт</button>
+                    <button type="button" class="btn-premium btn-order" disabled aria-describedby="calcStatus">Получить предварительный расчёт</button>
+                </div>
+            </div>
+            <div class="quote-guidance" data-quote-guidance hidden>
+                <div class="quote-guidance__heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4V2h6v2M9 11h6M9 15h6M9 19h4"/></svg><h3 data-guidance-title></h3></div>
+                <p data-guidance-text></p><p class="quote-guidance__help" data-guidance-help></p>
+                <div class="quote-guidance__actions">
+                    <button type="button" class="quote-link" data-expand-systems>Пересмотреть состав систем</button>
+                    <button type="button" class="quote-link" data-switch-audit>Рассчитать базовое обследование</button>
+                    <a class="quote-link quote-link--primary" href="/kontakty/">Обсудить с инженером <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
                 </div>
             </div>
             <p id="calcStatus" class="calc-status" role="status" aria-live="polite"></p>

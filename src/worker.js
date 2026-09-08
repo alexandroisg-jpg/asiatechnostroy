@@ -1,4 +1,4 @@
-import { calculateQuote } from '../public/pricing.js';
+import { evaluateQuote } from '../public/pricing.js';
 
 const MAX_BODY_BYTES = 16 * 1024;
 const MIN_FORM_TIME_MS = 1_500;
@@ -13,6 +13,7 @@ const ALLOWED_FIELDS = new Set([
     'type',
     'systemIds',
     'locale',
+    'assessment',
     'website',
     'formElapsedMs'
 ]);
@@ -71,12 +72,13 @@ function parseLead(body) {
 
     let calculation;
     try {
-        calculation = calculateQuote({
+        calculation = evaluateQuote({
             area: body.area,
             mode: body.mode,
             type: body.type,
             systemIds: body.systemIds,
-            locale: body.locale
+            locale: body.locale,
+            assessment: body.assessment
         });
     } catch (error) {
         throw new InputError(error.message);
@@ -119,7 +121,8 @@ function telegramText(quote) {
         `Тип: ${quote.typeLabel}`,
         `Площадь: ${quote.area} м²`,
         `Системы: ${systems}`,
-        `Стоимость: ${quote.total.toLocaleString('ru-RU')} ${quote.pricePeriod}`
+        `Стоимость: ${quote.total.toLocaleString('ru-RU')} ${quote.pricePeriod}`,
+        ...(quote.mode === 'audit' ? ['Базовое обследование. Слаботочные системы и СКУД исключены.'] : [])
     ].join('\n');
 }
 
@@ -228,6 +231,14 @@ export async function handleSend(request, env, fetchImpl = fetch) {
     try {
         const body = await readJsonBody(request);
         const lead = parseLead(body);
+        if (!lead.calculation.eligibility.canAutoQuote) {
+            return jsonResponse({
+                ok: false,
+                code: 'QUOTE_REQUIRES_REVIEW',
+                reason: lead.calculation.eligibility.reason,
+                message: 'Для выбранных параметров автоматическое предложение не формируется. Требуется согласование с инженером.'
+            }, 422);
+        }
         const quote = createQuote(lead);
         const notificationSent = await notifyTelegram(quote, env, fetchImpl);
         return jsonResponse({ ok: true, notificationSent, quote });

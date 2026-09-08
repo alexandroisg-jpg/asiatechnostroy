@@ -1,4 +1,5 @@
 import { LOCALES, PAGES, ROUTES, SITE } from './content.mjs';
+import { SERVICE_MINIMUMS, UNAVAILABLE_SYSTEM_IDS } from '../public/pricing.js';
 
 const ASSET_VERSION = SITE.assetVersion;
 
@@ -334,8 +335,8 @@ function factGrid(items) {
     return `<ul class="fact-grid">${items.map(([value, label]) => `<li><strong>${escapeHtml(value)}</strong><span>${escapeHtml(label)}</span></li>`).join('')}</ul>`;
 }
 
-function checklist(items, className = '') {
-    return `<ul class="technical-list ${className}">${items.map((item) => `<li><span aria-hidden="true">${icon('shield')}</span><span>${escapeHtml(item)}</span></li>`).join('')}</ul>`;
+function checklist(items, className = '', unavailable = {}) {
+    return `<ul class="technical-list ${className}">${items.map((item, index) => `<li${unavailable[index] ? ' class="scope-unavailable"' : ''}><span aria-hidden="true">${icon(unavailable[index] ? 'cpu' : 'shield')}</span><span>${escapeHtml(item)}${unavailable[index] ? `<small class="availability-badge">${escapeHtml(unavailable[index])}</small>` : ''}</span></li>`).join('')}</ul>`;
 }
 
 function contactPanel(localeKey, title, text) {
@@ -364,10 +365,15 @@ function calculator(localeKey, { auditOnly = false } = {}) {
         ${icon(TYPE_ICONS[id])}
         <span>${escapeHtml(label)}</span>
     </button>`).join('');
-    const systemButtons = locale.systems.map(([id, label], index) => `<label class="system-item">
-        <input type="checkbox"${index === 0 ? ' checked' : ''} data-system="${id}">
-        <span class="system-box">${icon(SYSTEM_ICONS[id])}<span>${escapeHtml(label)}</span></span>
-    </label>`).join('');
+    const systemButtons = locale.systems.map(([id, label], index) => {
+        const unavailable = UNAVAILABLE_SYSTEM_IDS.includes(id);
+        const minimum = unavailable ? text.unavailable : text.standaloneFrom.replace('{amount}', new Intl.NumberFormat(locale.intlLocale).format(SERVICE_MINIMUMS[id]));
+        return `<label class="system-item${unavailable ? ' is-unavailable' : ''}">
+        <input type="checkbox"${unavailable ? ' disabled data-unavailable="true"' : index === 0 ? ' checked' : ''} data-system="${id}" aria-describedby="system-note-${id}">
+        <span class="system-box">${icon(SYSTEM_ICONS[id])}<span>${escapeHtml(label)}</span><small class="system-minimum${unavailable ? ' availability-badge' : ''}" id="system-note-${id}">${escapeHtml(minimum)}</small></span>
+    </label>`;
+    }).join('');
+    const auditSystems = locale.systems.map(([id, label]) => `<li class="audit-system${UNAVAILABLE_SYSTEM_IDS.includes(id) ? ' is-unavailable' : ''}">${icon(SYSTEM_ICONS[id])}<span>${escapeHtml(label)}</span>${UNAVAILABLE_SYSTEM_IDS.includes(id) ? `<button type="button" class="availability-badge" disabled>${escapeHtml(text.unavailable)}</button>` : `<small>${escapeHtml(text.included)}</small>`}</li>`).join('');
 
     return `<div class="calc-container bento-base reveal" data-default-mode="${auditOnly ? 'audit' : 'service'}" data-locale="${localeKey}">
 ${auditOnly ? '' : `        <div class="calc-tabs" role="group" aria-label="${escapeHtml(text.tabsLabel)}">
@@ -383,7 +389,7 @@ ${auditOnly ? '' : `        <div class="calc-tabs" role="group" aria-label="${es
             <div class="label-row">
                 <label class="setting-label" for="area-input">${escapeHtml(text.area)}</label>
                 <div class="area-input-wrapper">
-                    <input type="number" id="area-input" min="500" max="150000" step="10" value="500" inputmode="numeric" placeholder="500">
+                    <input type="number" id="area-input" min="500" max="150000" step="10" value="500" inputmode="numeric" placeholder="500" aria-describedby="calcStatus">
                     <span>m²</span>
                 </div>
             </div>
@@ -395,17 +401,30 @@ ${auditOnly ? '' : `            <div class="setting-group systems-setting" data-
             </div>`}
             <div class="audit-coverage${auditOnly ? ' is-visible' : ''}" data-audit-coverage${auditOnly ? '' : ' hidden'}>
                 <span class="audit-coverage__icon">${icon('clipboard')}</span>
-                <div><h3>${escapeHtml(text.auditCoverageTitle)}</h3><p>${escapeHtml(text.auditCoverageText)}</p></div>
+                <div><h3>${escapeHtml(text.auditCoverageTitle)}</h3><p>${escapeHtml(text.auditCoverageText)}</p><ul class="audit-systems">${auditSystems}</ul><p class="audit-exclusion">${escapeHtml(text.auditExclusion)}</p></div>
             </div>
-            <div class="calc-result-full">
+            <div class="review-settings">
+${auditOnly ? '' : `                <label class="review-choice" data-review-service><input type="checkbox" id="service-review"><span>${escapeHtml(text.reviewService)}<small>${escapeHtml(text.reviewHint)}</small></span></label>\n`}\
+                <label class="review-choice" data-review-audit${auditOnly ? '' : ' hidden'}><input type="checkbox" id="audit-review"><span>${escapeHtml(text.reviewAudit)}<small>${escapeHtml(text.reviewHint)}</small></span></label>
+            </div>
+            <div class="calc-result-full" data-result>
                 <div class="result-info-center">
                     <span class="result-label">${escapeHtml(text.budget)}</span>
-                    <div class="result-price"><span id="total-price" aria-hidden="true">0</span> <small id="price-period">${escapeHtml(auditOnly ? text.auditPeriod : text.servicePeriod)}</small></div>
+                    <div class="result-price"><span id="total-price" aria-hidden="true">—</span> <small id="price-period"></small></div>
                     <output id="price-announcement" class="sr-only" aria-live="polite" aria-atomic="true"></output>
                     <p class="result-note" id="result-note">${escapeHtml(auditOnly ? text.auditNote : text.serviceNote)}</p>
                 </div>
                 <div class="btn-wrapper">
-                    <button type="button" class="btn-premium btn-order">${escapeHtml(auditOnly ? text.orderAudit : text.orderService)}</button>
+                    <button type="button" class="btn-premium btn-order" disabled aria-describedby="calcStatus">${escapeHtml(auditOnly ? text.orderAudit : text.orderService)}</button>
+                </div>
+            </div>
+            <div class="quote-guidance" data-quote-guidance hidden>
+                <div class="quote-guidance__heading">${icon('clipboard')}<h3 data-guidance-title></h3></div>
+                <p data-guidance-text></p><p class="quote-guidance__help" data-guidance-help></p>
+                <div class="quote-guidance__actions">
+                    <button type="button" class="quote-link" data-expand-systems>${escapeHtml(text.expandSystems)}</button>
+                    <button type="button" class="quote-link" data-switch-audit>${escapeHtml(text.switchAudit)}</button>
+                    <a class="quote-link quote-link--primary" href="${route('contact', localeKey)}">${escapeHtml(text.contactEngineer)} ${icon('arrow', 'button-icon')}</a>
                 </div>
             </div>
             <p id="calcStatus" class="calc-status" role="status" aria-live="polite"></p>
@@ -588,7 +607,7 @@ function renderAudit(localeKey, page) {
         ${pageHeader(localeKey, 'audit', page)}
         <section class="section audit-intro"><div class="container editorial-grid"><div class="section-heading section-heading--left reveal"><p class="eyebrow">01 / ${escapeHtml(locale.sections.purpose)}</p><h2>${escapeHtml(page.introTitle)}</h2></div><div class="editorial-copy reveal"><p>${escapeHtml(page.introText)}</p></div></div></section>
         <section class="section section--surface"><div class="container"><div class="section-heading section-heading--left"><p class="eyebrow">02 / ${escapeHtml(locale.sections.process)}</p><h2>${escapeHtml(page.stagesTitle)}</h2></div>${numberedGrid(page.stages, 'audit-process')}</div></section>
-        <section class="section audit-scope"><div class="container split-panel"><div class="split-panel__media reveal"><img src="/assets/img/engineering/ventilation-units.webp" width="1800" height="1200" loading="lazy" alt="${escapeHtml(page.scopeImageAlt)}"></div><div class="split-panel__content reveal"><p class="eyebrow">03 / ${escapeHtml(locale.sections.scope)}</p><h2>${escapeHtml(page.scopeTitle)}</h2><p>${escapeHtml(page.scopeIntro)}</p>${checklist(page.scope)}</div></div></section>
+        <section class="section audit-scope"><div class="container split-panel"><div class="split-panel__media reveal"><img src="/assets/img/engineering/ventilation-units.webp" width="1800" height="1200" loading="lazy" alt="${escapeHtml(page.scopeImageAlt)}"></div><div class="split-panel__content reveal"><p class="eyebrow">03 / ${escapeHtml(locale.sections.scope)}</p><h2>${escapeHtml(page.scopeTitle)}</h2><p>${escapeHtml(page.scopeIntro)}</p>${checklist(page.scope, '', { 5: locale.calculator.unavailable })}<p class="audit-exclusion">${escapeHtml(locale.calculator.auditExclusion)}</p></div></div></section>
         <section class="section report-section section--surface"><div class="container"><div class="section-heading section-heading--left"><p class="eyebrow">04 / ${escapeHtml(locale.sections.deliverable)}</p><h2>${escapeHtml(page.reportTitle)}</h2><p>${escapeHtml(page.reportIntro)}</p></div>${numberedGrid(page.report, 'report-grid')}<div class="confidentiality-note reveal"><span>${icon('shield')}</span><div><h3>${escapeHtml(page.confidentialityTitle)}</h3><p>${escapeHtml(page.confidentialityText)}</p></div></div></div></section>
         <section id="audit-calculator" class="section calculator-section"><div class="container"><div class="section-heading"><p class="eyebrow">05 / ${escapeHtml(locale.sections.estimate)}</p><h2>${escapeHtml(page.calculatorTitle)}</h2><p>${escapeHtml(page.calculatorText)}</p></div>${calculator(localeKey, { auditOnly: true })}</div></section>
         ${contactPanel(localeKey, locale.common.discuss, page.calculatorText)}

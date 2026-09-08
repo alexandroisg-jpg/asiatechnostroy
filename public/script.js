@@ -4,7 +4,7 @@ const [pricingModule, localeModule] = await Promise.all([
     import(`/pricing.js${assetQuery}`),
     import(`/i18n.js${assetQuery}`)
 ]);
-const { calculateQuote, normalizeArea } = pricingModule;
+const { evaluateQuote, normalizeArea, UNAVAILABLE_SYSTEM_IDS } = pricingModule;
 const { CLIENT_LOCALES } = localeModule;
 
 const PHONE_PREFIX = '998';
@@ -50,19 +50,36 @@ function drawWrappedText(context, value, x, y, maxWidth, lineHeight, maxLines = 
     let currentLine = '';
 
     for (const word of words) {
-        const candidate = currentLine ? `${currentLine} ${word}` : word;
-        if (context.measureText(candidate).width <= maxWidth) {
-            currentLine = candidate;
-            continue;
+        const pieces = [];
+        let piece = '';
+        for (const character of word) {
+            if (piece && context.measureText(piece + character).width > maxWidth) {
+                pieces.push(piece);
+                piece = '';
+            }
+            piece += character;
         }
-        if (currentLine) lines.push(currentLine);
-        currentLine = word;
-        if (lines.length >= maxLines - 1) break;
+        if (piece) pieces.push(piece);
+        for (const segment of pieces) {
+            const candidate = currentLine ? `${currentLine} ${segment}` : segment;
+            if (currentLine && context.measureText(candidate).width > maxWidth) {
+                lines.push(currentLine);
+                currentLine = segment;
+            } else {
+                currentLine = candidate;
+            }
+        }
     }
 
-    if (currentLine && lines.length < maxLines) lines.push(currentLine);
-    lines.forEach((line, index) => context.fillText(line, x, y + index * lineHeight));
-    return y + lines.length * lineHeight;
+    if (currentLine) lines.push(currentLine);
+    const visibleLines = lines.slice(0, maxLines);
+    if (lines.length > maxLines) {
+        let lastLine = visibleLines.at(-1);
+        while (lastLine && context.measureText(`${lastLine}…`).width > maxWidth) lastLine = lastLine.slice(0, -1);
+        visibleLines[maxLines - 1] = `${lastLine}…`;
+    }
+    visibleLines.forEach((line, index) => context.fillText(line, x, y + index * lineHeight));
+    return y + visibleLines.length * lineHeight;
 }
 
 function canvasToJpeg(canvas) {
@@ -126,6 +143,10 @@ function createSingleImagePdf(jpegBytes, width, height) {
 }
 
 async function buildQuotePdf(quote) {
+    if (!quote.eligibility?.canAutoQuote || !Number.isFinite(quote.total)
+        || quote.systemIds.some((id) => UNAVAILABLE_SYSTEM_IDS.includes(id))) {
+        throw new Error(text.blockedAction);
+    }
     if (document.fonts?.ready) await document.fonts.ready;
 
     const canvas = document.createElement('canvas');
@@ -165,8 +186,8 @@ async function buildQuotePdf(quote) {
         context.font = '700 19px Inter, Arial, sans-serif';
         context.fillText(label.toUpperCase(), 90, y);
         context.fillStyle = '#101b2b';
-        context.font = '600 27px Inter, Arial, sans-serif';
-        return drawWrappedText(context, value, 90, y + 32, 1060, 36, 3) + 22;
+        context.font = '600 24px Inter, Arial, sans-serif';
+        return drawWrappedText(context, value, 90, y + 28, 1060, 32, 3) + 16;
     };
 
     let y = drawSectionTitle(text.pdfClient, 318);
@@ -177,7 +198,7 @@ async function buildQuotePdf(quote) {
     y = drawLabelValue(text.pdfFormat, quote.modeLabel, y);
     y = drawLabelValue(text.pdfType, quote.typeLabel, y);
     y = drawLabelValue(text.pdfArea, `${formatMoney(quote.area)} m²`, y);
-    const systemsText = quote.systemLabels?.length ? quote.systemLabels.join(' • ') : text.pdfAuditSystems;
+    const systemsText = quote.mode === 'audit' ? text.pdfAuditSystems : quote.systemLabels.join(' • ');
     y = drawLabelValue(text.pdfSystems, systemsText, y);
 
     const totalTop = Math.max(y + 36, 1320);
@@ -197,7 +218,7 @@ async function buildQuotePdf(quote) {
     context.fillText(quote.pricePeriod, 110, totalTop + 164);
     context.fillStyle = '#667589';
     context.font = '500 19px Inter, Arial, sans-serif';
-    drawWrappedText(context, text.pdfNote, 90, 1600, 1060, 28, 4);
+    drawWrappedText(context, quote.mode === 'audit' ? `${text.pdfAuditNote} ${text.pdfNote}` : text.pdfNote, 90, 1575, 1060, 26, 6);
 
     const jpegBlob = await canvasToJpeg(canvas);
     const jpegBytes = new Uint8Array(await jpegBlob.arrayBuffer());
@@ -322,7 +343,7 @@ function initializeSite() {
     const validTypes = new Set(elements.typeButtons.map((button) => button.dataset.type));
     const requestedType = urlState.get('calcType');
     const restoredType = requestedType && validTypes.has(requestedType) ? requestedType : 'office';
-    const validSystems = new Set(elements.systems.map((input) => input.dataset.system));
+    const validSystems = new Set(elements.systems.map((input) => input.dataset.system).filter((id) => !UNAVAILABLE_SYSTEM_IDS.includes(id)));
     const requestedSystems = urlState.has('calcSystems')
         ? urlState.get('calcSystems').split(',').filter((id) => validSystems.has(id))
         : null;
@@ -336,10 +357,25 @@ function initializeSite() {
         type: restoredType,
         quote: null,
         displayedTotal: 0,
+        displayedMode: null,
         animationFrame: null,
         formStartedAt: 0,
         lastFocused: null
     };
+    const guidance = {
+        panel: document.querySelector('[data-quote-guidance]'),
+        title: document.querySelector('[data-guidance-title]'),
+        text: document.querySelector('[data-guidance-text]'),
+        help: document.querySelector('[data-guidance-help]'),
+        expand: document.querySelector('[data-expand-systems]'),
+        audit: document.querySelector('[data-switch-audit]'),
+        result: document.querySelector('[data-result]')
+    };
+    const reviewInputs = { service: document.getElementById('service-review'), audit: document.getElementById('audit-review') };
+    Object.entries(reviewInputs).forEach(([mode, input]) => {
+        if (input) input.checked = urlState.get(`calcReview_${mode}`) === '1';
+    });
+    const selectedAssessment = () => reviewInputs[state.mode]?.checked ? 'individual' : 'standard';
 
     elements.typeButtons.forEach((button) => {
         const selected = button.dataset.type === state.type;
@@ -351,7 +387,7 @@ function initializeSite() {
     }
 
     const checkedSystemIds = () => elements.systems
-        .filter((input) => input.checked)
+        .filter((input) => input.checked && validSystems.has(input.dataset.system))
         .map((input) => input.dataset.system);
     const selectedSystemIds = () => state.mode === 'audit' ? [] : checkedSystemIds();
 
@@ -364,6 +400,10 @@ function initializeSite() {
             target.searchParams.set('calcArea', String(state.area));
             target.searchParams.set('calcType', state.type);
             target.searchParams.set('calcSystems', checkedSystemIds().join(','));
+            Object.entries(reviewInputs).forEach(([mode, input]) => {
+                if (input?.checked) target.searchParams.set(`calcReview_${mode}`, '1');
+                else target.searchParams.delete(`calcReview_${mode}`);
+            });
             target.hash = window.location.hash;
             link.href = `${target.pathname}${target.search}${target.hash}`;
         });
@@ -376,8 +416,13 @@ function initializeSite() {
                 elements.priceAnnouncement.textContent = `${text.budget}: ${formatMoney(target)} ${elements.period.textContent}`;
             }
         };
-        if (reduceMotion) {
+        // Reveal a new price immediately; only animate within an already valid pricing context.
+        const revealImmediately = reduceMotion || !state.displayedTotal || state.displayedMode !== state.mode
+            || state.displayedTotal < state.quote.eligibility.minimumContract;
+        state.displayedMode = state.mode;
+        if (revealImmediately) {
             state.displayedTotal = target;
+            state.animationFrame = null;
             elements.total.textContent = formatMoney(target);
             announcePrice();
             return;
@@ -412,7 +457,15 @@ function initializeSite() {
             tab.classList.toggle('active', selected);
             tab.setAttribute('aria-pressed', String(selected));
         });
-        elements.systems.forEach((input) => { input.disabled = auditMode; });
+        elements.systems.forEach((input) => {
+            const unavailable = UNAVAILABLE_SYSTEM_IDS.includes(input.dataset.system);
+            input.disabled = auditMode || unavailable;
+            if (unavailable) input.checked = false;
+        });
+        const serviceReview = document.querySelector('[data-review-service]');
+        const auditReview = document.querySelector('[data-review-audit]');
+        if (serviceReview) serviceReview.hidden = auditMode;
+        if (auditReview) auditReview.hidden = !auditMode;
         if (elements.systemsSetting) elements.systemsSetting.hidden = auditMode;
         if (elements.auditCoverage) {
             elements.auditCoverage.hidden = !auditMode;
@@ -430,24 +483,78 @@ function initializeSite() {
         }
     };
 
+    const clearPrice = () => {
+        if (state.animationFrame) cancelAnimationFrame(state.animationFrame);
+        state.animationFrame = null;
+        state.displayedTotal = 0;
+        state.displayedMode = null;
+        elements.total.textContent = '—';
+        elements.period.textContent = '';
+        if (elements.priceAnnouncement) elements.priceAnnouncement.textContent = '';
+    };
+
+    const presentEligibility = () => {
+        const eligibility = state.quote?.eligibility;
+        const allowed = Boolean(eligibility?.canAutoQuote);
+        elements.orderButton.disabled = !allowed;
+        elements.orderButton.textContent = allowed
+            ? state.mode === 'audit' ? text.orderAudit : text.orderService
+            : text.blockedAction;
+        const blocked = Boolean(eligibility && !allowed);
+        guidance.panel.hidden = !blocked;
+        guidance.result.classList.toggle('is-unavailable', !allowed);
+        if (!blocked) return;
+        const reason = eligibility.reason;
+        const isMinimum = reason === 'minimum_contract';
+        const isLarge = reason === 'large_facility';
+        guidance.title.textContent = isMinimum ? text.minimumTitle : isLarge ? text.largeTitle : text.reviewTitle;
+        guidance.text.textContent = isMinimum ? text.minimumText.replace('{amount}', formatMoney(eligibility.minimumContract))
+            : isLarge ? text.largeText : text.reviewText;
+        guidance.help.textContent = isMinimum ? text.minimumHelp : '';
+        guidance.help.hidden = !isMinimum;
+        guidance.expand.hidden = !isMinimum || !elements.systems.length;
+        guidance.audit.hidden = !isMinimum || !elements.tabs.length;
+        setStatus(elements.calcStatus, `${guidance.title.textContent}. ${guidance.text.textContent}`, 'warning');
+    };
+
+    const areaInputIsValid = () => {
+        const value = elements.areaInput.value.trim();
+        const numericValue = Number(value);
+        return value !== '' && Number.isFinite(numericValue)
+            && numericValue >= Number(elements.areaInput.min) && numericValue <= Number(elements.areaInput.max);
+    };
+
     const updateQuote = () => {
+        if (!areaInputIsValid()) {
+            state.quote = null;
+            clearPrice();
+            presentEligibility();
+            elements.areaInput.setAttribute('aria-invalid', 'true');
+            setStatus(elements.calcStatus, text.areaInvalid, 'error');
+            return;
+        }
+        elements.areaInput.removeAttribute('aria-invalid');
         try {
-            state.quote = calculateQuote({
+            state.quote = evaluateQuote({
                 area: state.area,
                 mode: state.mode,
                 type: state.type,
                 systemIds: selectedSystemIds(),
-                locale: localeKey
+                locale: localeKey,
+                assessment: selectedAssessment()
             });
-            elements.period.textContent = state.quote.pricePeriod;
             setStatus(elements.calcStatus, '');
-            animatePrice(state.quote.total);
+            if (state.quote.total === null) clearPrice();
+            else {
+                elements.period.textContent = state.quote.pricePeriod;
+                animatePrice(state.quote.total);
+            }
         } catch {
             state.quote = null;
-            elements.period.textContent = state.mode === 'service' ? text.servicePeriod : text.auditPeriod;
             setStatus(elements.calcStatus, state.mode === 'service' ? text.statusSelection : text.statusQuoteError, 'error');
-            animatePrice(0);
+            clearPrice();
         }
+        presentEligibility();
         updateLanguageLinks();
     };
 
@@ -464,13 +571,16 @@ function initializeSite() {
         const numericValue = Number(rawValue);
         const minimum = Number(elements.areaInput.min);
         const maximum = Number(elements.areaInput.max);
-        if (!rawValue || !Number.isFinite(numericValue) || numericValue < minimum || numericValue > maximum) return;
+        if (!rawValue || !Number.isFinite(numericValue) || numericValue < minimum || numericValue > maximum) {
+            updateQuote();
+            return;
+        }
         state.area = normalizeArea(numericValue);
         elements.areaRange.value = state.area;
         updateQuote();
     });
-    elements.areaInput?.addEventListener('change', (event) => setArea(event.target.value));
-    elements.areaInput?.addEventListener('blur', (event) => setArea(event.target.value));
+    elements.areaInput?.addEventListener('change', (event) => { if (areaInputIsValid()) setArea(event.target.value); });
+    elements.areaInput?.addEventListener('blur', (event) => { if (areaInputIsValid()) setArea(event.target.value); });
 
     elements.typeButtons.forEach((button) => {
         button.addEventListener('click', () => {
@@ -485,6 +595,17 @@ function initializeSite() {
     });
 
     elements.systems.forEach((input) => input.addEventListener('change', updateQuote));
+    Object.values(reviewInputs).forEach((input) => input?.addEventListener('change', updateQuote));
+    guidance.expand?.addEventListener('click', () => {
+        elements.systemsSetting?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+        elements.systems.find((input) => !input.disabled)?.focus({ preventScroll: true });
+    });
+    guidance.audit?.addEventListener('click', () => {
+        state.mode = 'audit';
+        updateModePresentation();
+        updateQuote();
+        elements.tabs.find((tab) => tab.dataset.tab === 'audit')?.focus({ preventScroll: true });
+    });
     elements.tabs.forEach((tab) => {
         tab.addEventListener('click', () => {
             state.mode = tab.dataset.tab;
@@ -520,9 +641,8 @@ function initializeSite() {
     };
 
     const openModal = () => {
-        if (!state.quote) {
-            setStatus(elements.calcStatus, text.statusSelection, 'error');
-            elements.systems[0]?.focus();
+        updateQuote();
+        if (!state.quote?.eligibility.canAutoQuote) {
             return;
         }
         state.lastFocused = document.activeElement;
@@ -530,7 +650,6 @@ function initializeSite() {
         elements.displayArea.textContent = formatMoney(state.area);
         setStatus(elements.formStatus, '');
         resetFieldErrors();
-        updateModePresentation();
         elements.modal?.classList.add('active');
         elements.modal?.setAttribute('aria-hidden', 'false');
         document.body.classList.add('modal-open');
@@ -594,8 +713,8 @@ function initializeSite() {
         }
 
         updateQuote();
-        if (!state.quote) {
-            setStatus(elements.formStatus, text.statusQuoteError, 'error');
+        if (!state.quote?.eligibility.canAutoQuote) {
+            setStatus(elements.formStatus, text.blockedAction, 'error');
             return;
         }
 
@@ -620,6 +739,7 @@ function initializeSite() {
                     type: state.type,
                     systemIds: selectedSystemIds(),
                     locale: localeKey,
+                    assessment: selectedAssessment(),
                     website,
                     formElapsedMs: Date.now() - state.formStartedAt
                 })
@@ -627,7 +747,7 @@ function initializeSite() {
 
             const data = await response.json().catch(() => ({}));
             if (!response.ok || !data.ok || !data.quote) {
-                const fallback = response.status === 429 ? text.statusRateLimit : text.statusFailure;
+                const fallback = response.status === 429 ? text.statusRateLimit : response.status === 422 ? text.blockedAction : text.statusFailure;
                 throw new Error(localeKey === 'ru' && data.message ? data.message : fallback);
             }
 

@@ -5,6 +5,7 @@ import {
     AREA_MAX,
     AREA_MIN,
     calculateQuote,
+    evaluateQuote,
     normalizeArea
 } from '../public/pricing.js';
 
@@ -14,7 +15,6 @@ const ALL_SYSTEMS = [
     'ventilation',
     'electricity',
     'water',
-    'low_current',
     'sewerage'
 ];
 
@@ -38,7 +38,7 @@ test('service pricing matches the published calculator matrix', () => {
         mode: 'service',
         type: 'office',
         systemIds: ALL_SYSTEMS
-    }).total, 6_000_000);
+    }).total, 5_250_000);
 });
 
 test('service pricing adds each area band at its own marginal rate', () => {
@@ -62,15 +62,15 @@ test('service pricing adds each area band at its own marginal rate', () => {
 
 test('large service estimates use cumulative bands through 150,000 square metres', () => {
     const expectedTotals = new Map([
-        [500, 6_000_000],
-        [2_000, 24_000_000],
-        [5_000, 56_400_000],
-        [10_000, 104_400_000],
-        [20_000, 188_400_000],
-        [25_000, 230_400_000],
-        [50_000, 410_400_000],
-        [100_000, 710_400_000],
-        [150_000, 950_400_000]
+        [500, 5_250_000],
+        [2_000, 21_000_000],
+        [5_000, 49_350_000],
+        [10_000, 91_350_000],
+        [20_000, 164_850_000],
+        [25_000, 201_600_000],
+        [50_000, 359_100_000],
+        [100_000, 621_600_000],
+        [150_000, 831_600_000]
     ]);
 
     for (const [area, expectedTotal] of expectedTotals) {
@@ -148,8 +148,8 @@ test('object complexity multiplier is applied after cumulative area pricing', ()
         systemIds: ALL_SYSTEMS
     });
 
-    assert.equal(office.total, 410_400_000);
-    assert.equal(bank.total, 533_520_000);
+    assert.equal(office.total, 359_100_000);
+    assert.equal(bank.total, 466_830_000);
 });
 
 test('quote labels are localized while the commercial calculation stays identical', () => {
@@ -202,4 +202,65 @@ test('invalid modes, types, areas and system selections are rejected', () => {
         () => calculateQuote({ ...base, mode: 'audit', systemIds: ['conditioning'] }),
         /аудита/i
     );
+});
+
+test('single-system thresholds apply after object coefficients and suppress the low price', () => {
+    const firstEligibleAreas = { conditioning: 690, heating: 750, ventilation: 840, electricity: 1170, water: 1200, sewerage: 1600 };
+    for (const [id, area] of Object.entries(firstEligibleAreas)) {
+        const base = { mode: 'service', type: 'office', systemIds: [id] };
+        const blocked = evaluateQuote({ ...base, area: area - 10 });
+        assert.equal(blocked.eligibility.reason, 'minimum_contract', id);
+        assert.equal(blocked.eligibility.canAutoQuote, false);
+        assert.equal(blocked.total, null);
+        assert.equal(blocked.rate, null);
+        assert.equal(evaluateQuote({ ...base, area }).eligibility.canAutoQuote, true, id);
+    }
+    const base = { area: 500, mode: 'service', systemIds: ['conditioning'] };
+    assert.equal(evaluateQuote({ ...base, type: 'bank' }).eligibility.canAutoQuote, false);
+    assert.equal(evaluateQuote({ ...base, type: 'clinic' }).eligibility.canAutoQuote, true);
+    assert.equal(evaluateQuote({ ...base, type: 'warehouse' }).eligibility.canAutoQuote, false);
+});
+
+test('bundle minimum is based on the whole scope, with exact equality accepted', () => {
+    const base = { area: 1000, mode: 'service', type: 'office' };
+    const two = ['conditioning', 'heating'];
+    const three = [...two, 'ventilation'];
+    const four = [...three, 'water'];
+    assert.equal(evaluateQuote({ ...base, systemIds: two }).total, null);
+    assert.equal(evaluateQuote({ ...base, systemIds: three }).total, 6_600_000);
+    assert.equal(evaluateQuote({ ...base, systemIds: four }).total, null);
+    assert.equal(evaluateQuote({ ...base, systemIds: ALL_SYSTEMS }).total, 10_500_000);
+    const exact = evaluateQuote({ ...base, systemIds: ['conditioning', 'ventilation'] });
+    assert.equal(exact.total, 5_000_000);
+    assert.equal(exact.eligibility.canAutoQuote, true);
+    assert.equal(evaluateQuote({ ...base, area: 900, systemIds: ALL_SYSTEMS }).total, null);
+});
+
+test('large sites and individual scopes cannot issue an automatic offer in either mode', () => {
+    for (const mode of ['service', 'audit']) {
+        const base = { mode, type: 'office', systemIds: mode === 'audit' ? [] : ALL_SYSTEMS };
+        assert.equal(evaluateQuote({ ...base, area: 50_000 }).eligibility.canAutoQuote, true);
+        for (const area of [50_010, 150_000]) {
+            const quote = evaluateQuote({ ...base, area });
+            assert.equal(quote.eligibility.reason, 'large_facility');
+            assert.equal(quote.eligibility.canAutoQuote, false);
+            assert.ok(quote.total > 0);
+        }
+        const review = evaluateQuote({ ...base, area: 1000, assessment: 'individual' });
+        assert.equal(review.total, null);
+        assert.equal(review.eligibility.reason, 'individual_review');
+    }
+});
+
+test('unavailable low-voltage systems cannot be priced or included in an audit', () => {
+    for (const mode of ['service', 'audit']) {
+        assert.throws(() => evaluateQuote({ area: 2000, mode, type: 'office', systemIds: ['low_current'] }), /временно недоступны/u);
+    }
+    for (const locale of ['ru', 'uz', 'en']) {
+        const quote = evaluateQuote({ area: 500, mode: 'audit', type: 'office', systemIds: [], locale });
+        assert.equal(quote.systemLabels.length, 6);
+        assert.deepEqual(quote.excludedSystemIds, ['low_current']);
+        assert.equal(quote.eligibility.canAutoQuote, true);
+        assert.equal(quote.total, 1_500_000);
+    }
 });

@@ -133,6 +133,33 @@ test('audit calls to action and form errors have unambiguous accessible destinat
     }
 });
 
+test('commercial guidance and the unavailable scope are consistent in all calculator languages', async () => {
+    for (const localeKey of localeKeys) {
+        const copy = LOCALES[localeKey].calculator;
+        const home = await readFile(fileForRoute(ROUTES.home[localeKey]), 'utf8');
+        assert.match(home, /<input type="checkbox" disabled data-unavailable="true" data-system="low_current"/u);
+        assert.equal((home.match(/data-system="[^"]+"/gu) || []).length, 7);
+        assert.ok(home.includes('id="service-review"'));
+        for (const pageType of ['home', 'audit']) {
+            const html = await readFile(fileForRoute(ROUTES[pageType][localeKey]), 'utf8');
+            const scope = html.match(/<ul class="audit-systems">([\s\S]*?)<\/ul>/u)?.[1];
+            assert.ok(scope);
+            assert.equal((scope.match(/<li class="audit-system">/gu) || []).length, 6);
+            assert.equal((scope.match(/<li class="audit-system is-unavailable">/gu) || []).length, 1);
+            assert.ok(scope.includes(`<button type="button" class="availability-badge" disabled>${copy.unavailable}</button>`));
+            assert.ok(html.includes('id="audit-review"'));
+            assert.ok(html.includes('class="btn-premium btn-order" disabled aria-describedby="calcStatus"'));
+            assert.ok(html.includes('id="total-price" aria-hidden="true">—</span>'));
+            assert.ok(html.includes('data-quote-guidance hidden'));
+            assert.ok(html.includes(`href="${ROUTES.contact[localeKey]}">${copy.contactEngineer}`));
+            assert.equal(html.includes('NaN'), false);
+            for (const key of ['minimumText', 'largeText', 'reviewText', 'auditExclusion', 'pdfAuditNote']) {
+                assert.ok(copy[key]?.length > 20, `${localeKey}: missing ${key}`);
+            }
+        }
+    }
+});
+
 test('sitemap and CSP cover every indexable page and inline schema', async () => {
     const sitemap = await readFile(path.join(publicRoot, 'sitemap.xml'), 'utf8');
     const headers = await readFile(path.join(publicRoot, '_headers'), 'utf8');

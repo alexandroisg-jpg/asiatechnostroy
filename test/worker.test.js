@@ -13,7 +13,7 @@ function validBody(overrides = {}) {
         name: 'Александр',
         object: 'БЦ Anhor',
         phone: '+998917888805',
-        area: 500,
+        area: 1000,
         mode: 'service',
         type: 'office',
         systemIds: ['conditioning'],
@@ -60,12 +60,12 @@ test('valid request is repriced on the Worker and sent to the fixed Telegram end
     assert.equal(response.status, 200);
     assert.equal(payload.ok, true);
     assert.equal(payload.notificationSent, true);
-    assert.equal(payload.quote.total, 1_600_000);
+    assert.equal(payload.quote.total, 3_200_000);
     assert.equal(payload.quote.pricePeriod, 'сум/мес');
     assert.equal(telegramRequest.url, 'https://api.telegram.org/bottest-token/sendMessage');
     assert.equal(telegramRequest.body.chat_id, 'test-chat');
     assert.equal(telegramRequest.body.parse_mode, undefined);
-    assert.match(telegramRequest.body.text, /Стоимость: 1\s600\s000/);
+    assert.match(telegramRequest.body.text, /Стоимость: 3\s200\s000/);
 });
 
 test('localized requests return localized quote labels and keep the same server-side price', async () => {
@@ -78,15 +78,15 @@ test('localized requests return localized quote labels and keep the same server-
 
     assert.equal(response.status, 200);
     assert.equal(payload.quote.locale, 'en');
-    assert.equal(payload.quote.total, 1_600_000);
+    assert.equal(payload.quote.total, 3_200_000);
     assert.equal(payload.quote.modeLabel, 'Ongoing maintenance');
     assert.equal(payload.quote.pricePeriod, 'UZS/month');
 });
 
-test('Worker accepts the 150,000 m² upper bound and applies cumulative audit pricing', async () => {
+test('Worker issues a base audit at the 50,000 m² boundary with six systems and exclusions', async () => {
     let telegramBody;
     const response = await handleSend(
-        leadRequest(validBody({ area: 150_000, mode: 'audit', systemIds: [] })),
+        leadRequest(validBody({ area: 50_000, mode: 'audit', systemIds: [] })),
         environment(),
         async (_url, init) => {
             telegramBody = JSON.parse(init.body);
@@ -96,10 +96,39 @@ test('Worker accepts the 150,000 m² upper bound and applies cumulative audit pr
     const payload = await response.json();
 
     assert.equal(response.status, 200);
-    assert.equal(payload.quote.area, 150_000);
-    assert.equal(payload.quote.total, 114_200_000);
+    assert.equal(payload.quote.area, 50_000);
+    assert.equal(payload.quote.total, 64_200_000);
+    assert.equal(payload.quote.systemLabels.length, 6);
     assert.equal(payload.quote.pricePeriod, 'сум, разово');
-    assert.match(telegramBody.text, /Стоимость: 114\s200\s000/);
+    assert.match(telegramBody.text, /Стоимость: 64\s200\s000/);
+    assert.match(telegramBody.text, /Слаботочные системы и СКУД исключены/u);
+});
+
+test('ineligible and stale-client submissions create no offer and no notification', async () => {
+    let calls = 0;
+    const scenarios = [
+        { area: 500 },
+        { systemIds: ['conditioning', 'heating'] },
+        { systemIds: ['conditioning', 'heating', 'ventilation', 'water'] },
+        { area: 50_010 },
+        { area: 150_000 },
+        { area: 150_000, mode: 'audit', systemIds: [] },
+        { assessment: 'individual' },
+        { assessment: 'individual', mode: 'audit', systemIds: [] }
+    ];
+    for (const scenario of scenarios) {
+        const response = await handleSend(leadRequest(validBody(scenario)), environment(), async () => { calls++; return new Response('{}'); });
+        const payload = await response.json();
+        assert.equal(response.status, 422, JSON.stringify(scenario));
+        assert.equal(payload.code, 'QUOTE_REQUIRES_REVIEW');
+        assert.equal(payload.quote, undefined);
+        assert.equal(payload.total, undefined);
+    }
+    for (const mode of ['service', 'audit']) {
+        const response = await handleSend(leadRequest(validBody({ area: 2000, mode, systemIds: ['low_current'] })), environment(), async () => { calls++; return new Response('{}'); });
+        assert.equal(response.status, 400);
+    }
+    assert.equal(calls, 0);
 });
 
 test('client-controlled total and unknown fields are rejected before Telegram', async () => {
@@ -246,7 +275,7 @@ test('rate limiting and missing limiter prevent downstream work', async () => {
 
 test('Telegram failure stays non-fatal and is reported to the browser', async () => {
     const response = await handleSend(
-        leadRequest(validBody({ mode: 'audit', systemIds: [] })),
+        leadRequest(validBody({ mode: 'audit', area: 500, systemIds: [] })),
         environment(),
         async () => new Response('{}', { status: 502 })
     );

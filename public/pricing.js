@@ -3,6 +3,16 @@ export const AREA_MAX = 150_000;
 export const AREA_STEP = 10;
 export const AUDIT_RATE = 3_000;
 export const SUPPORTED_LOCALES = Object.freeze(['ru', 'uz', 'en']);
+export const AUTO_QUOTE_AREA_MAX = 50_000;
+export const UNAVAILABLE_SYSTEM_IDS = Object.freeze(['low_current']);
+export const SERVICE_MINIMUMS = Object.freeze({
+    conditioning: 2_200_000,
+    heating: 1_200_000,
+    ventilation: 1_500_000,
+    electricity: 2_800_000,
+    water: 1_200_000,
+    sewerage: 800_000
+});
 
 // Each rate applies only to the part of the area inside its band. This keeps
 // large-facility estimates realistic without retroactively discounting the
@@ -80,6 +90,10 @@ export const ENGINEERING_SYSTEMS = Object.freeze({
     sewerage: Object.freeze({ rate: 500 })
 });
 
+export const AUDIT_SYSTEM_IDS = Object.freeze(
+    Object.keys(ENGINEERING_SYSTEMS).filter((id) => !UNAVAILABLE_SYSTEM_IDS.includes(id))
+);
+
 export function normalizeArea(value) {
     const numericValue = Number(value);
     if (!Number.isFinite(numericValue)) return AREA_MIN;
@@ -124,6 +138,9 @@ export function calculateQuote({ area, mode, type, systemIds, locale = 'ru' }) {
     }
 
     const uniqueSystemIds = [...new Set(systemIds)];
+    if (uniqueSystemIds.some((id) => UNAVAILABLE_SYSTEM_IDS.includes(id))) {
+        throw new TypeError('Слаботочные системы и СКУД временно недоступны для расчёта и аудита.');
+    }
     if (
         uniqueSystemIds.length !== systemIds.length
         || uniqueSystemIds.some((id) => typeof id !== 'string' || !Object.hasOwn(ENGINEERING_SYSTEMS, id))
@@ -154,10 +171,39 @@ export function calculateQuote({ area, mode, type, systemIds, locale = 'ru' }) {
         type,
         typeLabel: labels.objectTypes[type],
         systemIds: Object.freeze(uniqueSystemIds),
-        systemLabels: Object.freeze(uniqueSystemIds.map((id) => labels.systems[id])),
+        systemLabels: Object.freeze((mode === 'audit' ? AUDIT_SYSTEM_IDS : uniqueSystemIds).map((id) => labels.systems[id])),
+        excludedSystemIds: UNAVAILABLE_SYSTEM_IDS,
         rate: Math.round(total / area),
         total,
         pricePeriod: labels.periods[mode],
         locale
+    });
+}
+
+// Shared commercial gate. A request for engineering review can never unlock
+// an automatic quote or turn an unverified equipment count into a price.
+export function evaluateQuote({ assessment = 'standard', ...parameters }) {
+    if (!['standard', 'individual'].includes(assessment)) {
+        throw new TypeError('Некорректный формат обследования.');
+    }
+    const calculation = calculateQuote(parameters);
+    const count = calculation.systemIds.length;
+    const minimumContract = calculation.mode === 'audit' ? 0
+        : count === 1 ? SERVICE_MINIMUMS[calculation.systemIds[0]]
+            : count <= 3 ? 5_000_000 : 10_000_000;
+    const reason = assessment === 'individual' ? 'individual_review'
+        : calculation.area > AUTO_QUOTE_AREA_MAX ? 'large_facility'
+            : calculation.total < minimumContract ? 'minimum_contract' : 'eligible';
+    const showPrice = reason === 'eligible' || reason === 'large_facility';
+    return Object.freeze({
+        ...calculation,
+        assessment,
+        total: showPrice ? calculation.total : null,
+        rate: showPrice ? calculation.rate : null,
+        eligibility: Object.freeze({
+            reason,
+            canAutoQuote: reason === 'eligible',
+            minimumContract
+        })
     });
 }

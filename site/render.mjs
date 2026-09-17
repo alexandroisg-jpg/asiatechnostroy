@@ -1,4 +1,5 @@
 import { LOCALES, PAGES, ROUTES, SITE } from './content.mjs';
+import { DIRECTIONS, DIRECTION_UI } from './directions.mjs';
 import { SERVICE_MINIMUMS, UNAVAILABLE_SYSTEM_IDS } from '../public/pricing.js';
 
 const ASSET_VERSION = SITE.assetVersion;
@@ -67,6 +68,7 @@ function absolute(pathname) {
 }
 
 function pageImage(pageType) {
+    if (DIRECTIONS[pageType]) return `/assets/img/engineering/${DIRECTIONS[pageType].image}`;
     if (pageType === 'audit') return '/assets/img/engineering/plant-room.webp';
     if (pageType === 'service') return '/assets/img/engineering/hvac-rooftop.webp';
     if (pageType === 'about') return '/assets/img/engineering/building-exterior.webp';
@@ -141,21 +143,29 @@ function schemaFor(localeKey, pageType, page) {
                 },
                 {
                     '@type': 'ListItem',
-                    position: 2,
-                    name: locale.nav[pageType],
+                    position: page.direction ? 3 : 2,
+                    name: page.name || locale.nav[pageType],
                     item: canonical
                 }
             ]
         });
+        if (page.direction) {
+            graph.at(-1).itemListElement.splice(1, 0, {
+                '@type': 'ListItem',
+                position: 2,
+                name: locale.nav.service,
+                item: absolute(route('service', localeKey))
+            });
+        }
     }
 
-    if (pageType === 'audit' || pageType === 'service') {
+    if (pageType === 'audit' || pageType === 'service' || page.direction) {
         graph.push({
             '@type': 'Service',
             '@id': `${canonical}#service`,
             name: page.heroTitle,
             description: page.description,
-            serviceType: pageType === 'audit' ? 'Technical audit of building engineering systems' : 'Integrated engineering operations and maintenance',
+            serviceType: page.direction ? page.name : pageType === 'audit' ? 'Technical audit of building engineering systems' : 'Integrated engineering operations and maintenance',
             provider: { '@id': organizationId },
             areaServed: {
                 '@type': 'City',
@@ -165,7 +175,7 @@ function schemaFor(localeKey, pageType, page) {
         });
     }
 
-    return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph });
+    return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replaceAll('<', '\\u003c');
 }
 
 function head(localeKey, pageType, page, schemaText) {
@@ -195,10 +205,9 @@ function head(localeKey, pageType, page, schemaText) {
     <meta property="og:description" content="${escapeHtml(page.description)}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="${canonical}">
-    <meta property="og:image" content="${SITE.domain}/preview.jpg">
-    <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:image:width" content="1731">
-    <meta property="og:image:height" content="909">
+    <meta property="og:image" content="${page.direction ? absolute(pageImage(pageType)) : `${SITE.domain}/preview.jpg`}">
+    <meta property="og:image:type" content="${page.direction ? 'image/webp' : 'image/jpeg'}">
+    ${page.direction ? '' : '<meta property="og:image:width" content="1731"><meta property="og:image:height" content="909">'}
     <meta property="og:image:alt" content="AsiaTechnoStroy Engineering Group">
     <meta property="og:locale" content="${locale.ogLocale}">
     ${alternateLocales}
@@ -206,11 +215,12 @@ function head(localeKey, pageType, page, schemaText) {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeHtml(page.title)}">
     <meta name="twitter:description" content="${escapeHtml(page.description)}">
-    <meta name="twitter:image" content="${SITE.domain}/preview.jpg">
+    <meta name="twitter:image" content="${page.direction ? absolute(pageImage(pageType)) : `${SITE.domain}/preview.jpg`}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Syncopate:wght@400;700&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css?v=${ASSET_VERSION}">
+    ${(page.direction || pageType === 'home' || pageType === 'service') ? `<link rel="stylesheet" href="/directions.css?v=${ASSET_VERSION}">` : ''}
     <script type="module" src="/script.js?v=${ASSET_VERSION}"></script>
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32">
@@ -233,8 +243,8 @@ function header(localeKey, pageType) {
     const locale = LOCALES[localeKey];
     const navItems = ['about', 'service', 'audit', 'calculator', 'contact'].map((key) => {
         const href = key === 'calculator' ? `${route('home', localeKey)}#calculators` : route(key, localeKey);
-        const active = key === pageType;
-        return `<li><a href="${href}" class="nav__link${active ? ' is-active' : ''}"${active ? ' aria-current="page"' : ''}>${escapeHtml(locale.nav[key])}</a></li>`;
+        const active = key === pageType || (DIRECTIONS[pageType] && key === 'service');
+        return `<li><a href="${href}" class="nav__link${active ? ' is-active' : ''}"${active ? ` aria-current="${key === pageType ? 'page' : 'location'}"` : ''}>${escapeHtml(locale.nav[key])}</a></li>`;
     }).join('');
 
     return `<header class="header">
@@ -473,13 +483,6 @@ function modal(localeKey) {
 
 function renderHome(localeKey, page) {
     const locale = LOCALES[localeKey];
-    const serviceCards = page.services.map(([iconName, title, text], index) => `<article class="bento-item bento-base reveal" data-future-section="true">
-        <div class="bento-number">${String(index + 1).padStart(2, '0')}</div>
-        <div class="feature-icon">${icon(iconName)}</div>
-        <h3>${escapeHtml(title)}</h3>
-        <div class="indicator-line"></div>
-        <p>${escapeHtml(text)}</p>
-    </article>`).join('');
     const segments = page.segments.map(([iconName, title, text]) => `<article class="bento-base segment-card reveal" data-future-section="true">
         <div class="segment-card-top"><div class="feature-icon">${icon(iconName)}</div><h3>${escapeHtml(title)}</h3></div>
         <div class="indicator-line"></div><p>${escapeHtml(text)}</p>
@@ -534,12 +537,8 @@ function renderHome(localeKey, page) {
     <section id="services" class="section" aria-labelledby="services-title">
         <div class="container">
             <div class="section-heading"><p class="eyebrow">03 / ${escapeHtml(locale.sections.systems)}</p><h2 id="services-title">${escapeHtml(page.servicesTitle)}</h2></div>
-            <div class="bento-grid">
-                <article class="bento-item bento-item--intro bento-base reveal">
-                    <div class="intro-content"><h3>${escapeHtml(page.servicesIntroTitle)}</h3><div class="indicator-line"></div><p>${escapeHtml(page.servicesIntroText)}</p><a class="text-link" href="${route('service', localeKey)}" aria-label="${escapeHtml(locale.common.serviceDetails)}">${escapeHtml(locale.common.serviceDetails)} ${icon('arrow', 'button-icon')}</a></div>
-                </article>
-                ${serviceCards}
-            </div>
+            ${directionCards(localeKey)}
+            <a class="text-link direction-overview" href="${route('service', localeKey)}" aria-label="${escapeHtml(locale.common.serviceDetails)}">${escapeHtml(locale.common.serviceDetails)} ${icon('arrow', 'button-icon')}</a>
         </div>
     </section>
 
@@ -617,8 +616,10 @@ function renderAudit(localeKey, page) {
 
 function renderService(localeKey, page) {
     const locale = LOCALES[localeKey];
+    const directionsText = DIRECTION_UI[localeKey];
     return `<main id="main-content">
         ${pageHeader(localeKey, 'service', page)}
+        <section id="service-directions" class="section"><div class="container"><div class="section-heading section-heading--left direction-directory-intro"><p class="eyebrow">ATS / ENGINEERING</p><h2>${escapeHtml(directionsText.directory)}</h2><p>${escapeHtml(directionsText.directoryText)}</p></div>${directionCards(localeKey)}</div></section>
         <section class="section editorial-section"><div class="container editorial-grid"><div class="section-heading section-heading--left reveal"><p class="eyebrow">01 / ${escapeHtml(locale.sections.scope)}</p><h2>${escapeHtml(page.introTitle)}</h2></div><div class="editorial-copy reveal"><p>${escapeHtml(page.introText)}</p></div></div></section>
         <section class="section section--surface"><div class="container"><div class="section-heading section-heading--left"><p class="eyebrow">02 / ${escapeHtml(locale.sections.operatingCycle)}</p><h2>${escapeHtml(page.cycleTitle)}</h2></div>${numberedGrid(page.cycle, 'operating-model')}</div></section>
         <section class="section"><div class="container dual-lists"><article class="bento-base reveal"><p class="eyebrow">03 / ${escapeHtml(locale.sections.documents)}</p><h2>${escapeHtml(page.documentsTitle)}</h2>${checklist(page.documents)}</article><article class="bento-base reveal"><p class="eyebrow">04 / ${escapeHtml(locale.sections.agreement)}</p><h2>${escapeHtml(page.boundaryTitle)}</h2>${checklist(page.boundary)}</article></div></section>
@@ -649,7 +650,47 @@ function renderPrivacy(localeKey, page) {
     </main>`;
 }
 
+function directionCards(localeKey) {
+    const text = DIRECTION_UI[localeKey];
+    const cards = Object.entries(DIRECTIONS).map(([key, direction]) => {
+        const page = PAGES[localeKey][key];
+        return `<a class="direction-card" href="${route(key, localeKey)}">
+            <div class="direction-card__media"><img src="${pageImage(key)}" width="900" height="600" alt="" loading="lazy" decoding="async"><span class="direction-card__number">${direction.number} / ATS</span>${direction.illustration ? `<span class="direction-card__caption">${escapeHtml(text.illustration)}</span>` : ''}</div>
+            <div class="direction-card__body"><div class="direction-card__title"><h3>${escapeHtml(page.name)}</h3>${icon('arrow')}</div><p>${escapeHtml(page.cardText)}</p><span class="direction-card__more">${escapeHtml(text.details)}</span></div>
+        </a>`;
+    }).join('');
+    return `<div class="direction-directory">${cards}<article class="direction-card direction-card--unavailable" aria-disabled="true"><div class="direction-card__future">${icon('cpu')}<span class="availability-badge">${escapeHtml(LOCALES[localeKey].calculator.unavailable)}</span></div><div class="direction-card__body"><h3>${escapeHtml(text.lowName)}</h3><p>${escapeHtml(text.lowText)}</p></div></article></div>`;
+}
+
+function renderDirection(localeKey, pageType, page) {
+    const locale = LOCALES[localeKey];
+    const text = DIRECTION_UI[localeKey];
+    const direction = DIRECTIONS[pageType];
+    const calculationUrl = `${route('home', localeKey)}?calcMode=service&calcSystems=${direction.systems}#calculators`;
+    const related = Object.entries(DIRECTIONS).filter(([key]) => key !== pageType).map(([key, item]) => `<a href="${route(key, localeKey)}"><span>${item.number}</span><strong>${escapeHtml(PAGES[localeKey][key].name)}</strong>${icon('arrow')}</a>`).join('');
+    return `<main id="main-content" class="direction-page">
+        <section class="direction-hero">
+            <div class="container">
+                <nav class="breadcrumbs" aria-label="${escapeHtml(locale.breadcrumbLabel)}"><a href="${route('home', localeKey)}">${escapeHtml(locale.nav.home)}</a><span aria-hidden="true">/</span><a href="${route('service', localeKey)}">${escapeHtml(locale.nav.service)}</a><span aria-hidden="true">/</span><span aria-current="page">${escapeHtml(page.name)}</span></nav>
+                <div class="direction-hero__grid">
+                    <div class="direction-hero__copy"><p class="eyebrow">${escapeHtml(text.eyebrow)}</p><h1>${escapeHtml(page.heroTitle)}</h1><p class="direction-lead">${escapeHtml(page.lead)}</p><div class="direction-actions"><a class="btn-premium" href="${escapeHtml(calculationUrl)}">${escapeHtml(text.budget)} ${icon('arrow', 'button-icon')}</a><a class="hero-secondary" href="${route('contact', localeKey)}">${escapeHtml(text.discuss)}</a></div></div>
+                    <figure class="direction-hero__visual"><img src="${pageImage(pageType)}" width="${direction.illustration ? 1536 : 1800}" height="${direction.illustration ? 1024 : pageType === 'conditioning' ? 1201 : pageType === 'heating' ? 1198 : 1200}" alt="${escapeHtml(page.name)}" fetchpriority="high"><figcaption><span>${direction.number} / ATS</span><span>${escapeHtml(direction.illustration ? text.illustration : page.name)}</span></figcaption></figure>
+                </div>
+                <ul class="direction-tags">${page.tags.map((tag) => `<li>${icon(direction.icon)}${escapeHtml(tag)}</li>`).join('')}</ul>
+            </div>
+        </section>
+        <nav class="direction-jump container" aria-label="${escapeHtml(locale.navigationLabel)}"><a href="#direction-scope">01 / ${escapeHtml(text.scope)}</a><a href="#direction-process">02 / ${escapeHtml(text.workflow)}</a><a href="#direction-faq">03 / ${escapeHtml(text.faq)}</a></nav>
+        <section id="direction-scope" class="section direction-scope"><div class="container"><div class="section-heading section-heading--left"><p class="eyebrow">01 / ${escapeHtml(text.scope)}</p><h2>${escapeHtml(text.scopeTitle)}</h2><p>${escapeHtml(text.scopeNote)}</p></div><div class="direction-scope__grid">${page.groups.map(([title, body], index) => `<article><span class="direction-section-number">${String(index + 1).padStart(2, '0')}</span><div><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></div></article>`).join('')}</div></div></section>
+        <section id="direction-process" class="section section--surface direction-process"><div class="container"><div class="section-heading section-heading--left"><p class="eyebrow">02 / ${escapeHtml(text.workflow)}</p><h2>${escapeHtml(text.workflowTitle)}</h2></div>${numberedGrid(text.steps, 'direction-steps')}<div class="direction-outcomes"><article class="direction-result"><div class="direction-outcome-icon">${icon('clipboard')}</div><h3>${escapeHtml(text.result)}</h3><p>${escapeHtml(page.result)}</p></article><article class="direction-boundary"><div class="direction-outcome-icon">${icon('shield')}</div><h3>${escapeHtml(text.boundary)}</h3><p>${escapeHtml(page.boundary)}</p></article></div></div></section>
+        <section id="direction-faq" class="section direction-faq"><div class="container direction-faq__grid"><div class="section-heading section-heading--left"><p class="eyebrow">03 / ${escapeHtml(text.faq)}</p><h2>${escapeHtml(text.faqTitle)}</h2></div><div class="direction-faq__items">${page.faq.map(([question, answer]) => `<details><summary>${escapeHtml(question)}<span aria-hidden="true">+</span></summary><p>${escapeHtml(answer)}</p></details>`).join('')}</div></div></section>
+        <section class="section direction-next"><div class="container"><div class="direction-next__card"><p class="eyebrow">${escapeHtml(locale.sections.estimate)}</p><h2>${escapeHtml(text.auditTitle)}</h2><p>${escapeHtml(text.auditText)}</p><div class="direction-actions"><a class="btn-premium" href="${escapeHtml(calculationUrl)}">${escapeHtml(text.budget)} ${icon('arrow', 'button-icon')}</a><a class="text-link" href="${route('audit', localeKey)}#audit-calculator">${escapeHtml(locale.common.auditCta)} ${icon('arrow', 'button-icon')}</a></div><p class="direction-quote-note">${escapeHtml(text.quoteNote)}</p></div></div></section>
+        <section class="section direction-related"><div class="container"><div class="section-heading section-heading--left"><p class="eyebrow">ATS / ENGINEERING</p><h2>${escapeHtml(text.related)}</h2></div><nav class="direction-related__links" aria-label="${escapeHtml(text.related)}">${related}</nav></div></section>
+        ${contactPanel(localeKey, text.discuss, text.steps[0][2])}
+    </main>`;
+}
+
 function bodyFor(localeKey, pageType, page) {
+    if (page.direction) return renderDirection(localeKey, pageType, page);
     if (pageType === 'home') return renderHome(localeKey, page);
     if (pageType === 'about') return renderAbout(localeKey, page);
     if (pageType === 'audit') return renderAudit(localeKey, page);
@@ -674,6 +715,6 @@ ${bodyFor(localeKey, pageType, page)}
 ${footer(localeKey)}
 </body>
 </html>
-`;
+`.replace(/[ \t]+$/gmu, '');
     return Object.freeze({ html, schemaText });
 }

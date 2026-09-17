@@ -7,6 +7,9 @@ import { fileURLToPath } from 'node:url';
 
 import { LOCALES, ROUTES, SITE } from '../site/content.mjs';
 
+import { DIRECTIONS } from '../site/directions.mjs';
+import { policyForPath } from '../src/csp.mjs';
+
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const publicRoot = path.join(projectRoot, 'public');
 const pageTypes = Object.keys(ROUTES);
@@ -48,8 +51,8 @@ test('public contains exactly the generated HTML pages', async () => {
     assert.deepEqual((await htmlFiles(publicRoot)).sort(), expected);
 });
 
-test('the generated site contains six reciprocal pages in all three languages', async () => {
-    assert.equal(pageTypes.length, 6);
+test('the generated site contains eleven reciprocal pages in all three languages', async () => {
+    assert.equal(pageTypes.length, 11);
     assert.deepEqual(localeKeys, ['ru', 'uz', 'en']);
 
     const canonicals = new Set();
@@ -95,9 +98,9 @@ test('the generated site contains six reciprocal pages in all three languages', 
         }
     }
 
-    assert.equal(canonicals.size, 18);
-    assert.equal(titles.size, 18);
-    assert.equal(descriptions.size, 18);
+    assert.equal(canonicals.size, 33);
+    assert.equal(titles.size, 33);
+    assert.equal(descriptions.size, 33);
 });
 
 test('calculator results and the shared 404 page are accessible in every language', async () => {
@@ -169,14 +172,18 @@ test('sitemap and CSP cover every indexable page and inline schema', async () =>
     );
 
     assert.deepEqual(new Set(locations), new Set(expectedLocations));
-    assert.equal(locations.length, 18);
+    assert.equal(locations.length, 33);
 
     for (const pageType of pageTypes) {
         for (const localeKey of localeKeys) {
             const html = await readFile(fileForRoute(ROUTES[pageType][localeKey]), 'utf8');
             const schemaText = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/u)?.[1];
             const hash = createHash('sha256').update(schemaText, 'utf8').digest('base64');
-            assert.ok(headers.includes(`'sha256-${hash}'`));
+            const policy = policyForPath(ROUTES[pageType][localeKey]);
+            assert.ok(policy.includes(`'sha256-${hash}'`));
+            assert.ok(policy.length < 2000);
+            assert.equal((policy.match(/sha256-/gu) || []).length, 1);
+            assert.equal(policy.includes("'unsafe-inline'"), false);
         }
     }
 
@@ -212,4 +219,36 @@ test('shared CSS and browser modules keep asset references root-relative', async
 
     assert.ok(cssReferences.every((value) => value.startsWith('/') || value.startsWith('data:')));
     assert.ok(moduleImports.every((value) => value.startsWith('/')));
+});
+
+test('five service disciplines have full localized content, working links and labelled illustrations', async () => {
+    for (const localeKey of localeKeys) {
+        for (const pageType of ['home', 'service']) {
+            const directory = await readFile(fileForRoute(ROUTES[pageType][localeKey]), 'utf8');
+            assert.equal((directory.match(/<a class="direction-card"/gu) || []).length, 5);
+            assert.match(directory, /<article class="direction-card direction-card--unavailable" aria-disabled="true">/u);
+            for (const key of Object.keys(DIRECTIONS)) assert.ok(directory.includes(`href="${ROUTES[key][localeKey]}"`));
+        }
+        for (const [key, direction] of Object.entries(DIRECTIONS)) {
+            const html = await readFile(fileForRoute(ROUTES[key][localeKey]), 'utf8');
+            assert.equal((html.match(/<details>/gu) || []).length, 3);
+            assert.equal((html.match(/<summary>/gu) || []).length, 3);
+            assert.ok(html.includes('calcMode=service&amp;calcSystems=' + direction.systems + '#calculators'));
+            assert.ok(html.includes(`href="${ROUTES.audit[localeKey]}#audit-calculator"`));
+            for (const other of Object.keys(DIRECTIONS).filter((value) => value !== key)) {
+                assert.ok(html.includes(`href="${ROUTES[other][localeKey]}"`));
+            }
+            assert.equal(html.includes('undefined'), false);
+            assert.equal(html.includes('low_current'), false);
+            assert.equal(html.includes('<form'), false);
+            assert.ok(html.includes('fetchpriority="high"'));
+            if (direction.illustration) assert.ok(html.includes('1536'));
+            const schema = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/u)[1]);
+            assert.ok(schema['@graph'].some((item) => item['@type'] === 'Service'));
+            const crumbs = schema['@graph'].find((item) => item['@type'] === 'BreadcrumbList').itemListElement;
+            assert.deepEqual(crumbs.map((item) => item.position), [1, 2, 3]);
+            assert.equal(crumbs[1].item, SITE.domain + ROUTES.service[localeKey]);
+        }
+    }
+    assert.equal(policyForPath('/unknown/').includes('sha256-'), false);
 });

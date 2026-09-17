@@ -1,4 +1,5 @@
 import { evaluateQuote } from '../public/pricing.js';
+import { policyForPath } from './csp.mjs';
 
 const MAX_BODY_BYTES = 16 * 1024;
 const MIN_FORM_TIME_MS = 1_500;
@@ -280,6 +281,12 @@ export default {
             return handleSend(request, env);
         }
 
-        return env.ASSETS.fetch(request);
+        const asset = await env.ASSETS.fetch(request);
+        if (!asset.headers.get('Content-Type')?.toLowerCase().startsWith('text/html')) return asset;
+        // A page-specific hash keeps the policy small as localized pages grow.
+        // Replace, never append: intersecting policies would block the page's JSON-LD.
+        const response = new Response(asset.body, asset);
+        response.headers.set('Content-Security-Policy', policyForPath(url.pathname));
+        return response;
     }
 };

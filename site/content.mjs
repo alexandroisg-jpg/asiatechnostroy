@@ -1,3 +1,5 @@
+import { DIRECTION_ROUTES, directionPages } from './directions.mjs';
+
 export const SITE = Object.freeze({
     domain: 'https://asiatechnostroy.uz',
     name: 'AsiaTechnoStroy',
@@ -8,11 +10,12 @@ export const SITE = Object.freeze({
     city: 'Tashkent',
     country: 'Uzbekistan',
     founded: 2012,
-    assetVersion: '20260908.1',
-    lastModified: '2026-09-08'
+    assetVersion: '20260917.2',
+    lastModified: '2026-09-17'
 });
 
 export const ROUTES = Object.freeze({
+    ...DIRECTION_ROUTES,
     home: Object.freeze({
         ru: '/',
         uz: '/uz/',
@@ -534,7 +537,7 @@ const COMMON_PAGES = Object.freeze({
             photoCaption: 'Климатическое оборудование на кровле коммерческого здания',
             facts: [
                 ['2012', 'год начала работы'],
-                ['7', 'инженерных направлений'],
+                ['5', 'направлений обслуживания'],
                 ['Единый', 'контур управления']
             ],
             principlesTitle: 'Основа работы',
@@ -569,7 +572,7 @@ const COMMON_PAGES = Object.freeze({
                 ['01', 'Границы', 'Системы, зоны, документы и условия доступа.'],
                 ['02', 'Обследование', 'Осмотр, измерения по согласованной программе и фотофиксация.'],
                 ['03', 'Анализ', 'Состояние, замечания и технические приоритеты.'],
-                ['04', 'Отчёт', 'Реестр оборудования в согласованных границах аудита и последовательность действий.']
+                ['04', 'Отчёт', 'Сведения об обследованном оборудовании и последовательность действий. Полный реестр — в расширенной программе.']
             ],
             auditDeliverables: ['Резюме для руководителя', 'Реестр оборудования в согласованных границах аудита', 'Фотофиксация и замечания', 'Приоритетный план работ'],
             contactTitle: 'Обсудим состав работ по вашему объекту',
@@ -596,13 +599,13 @@ const COMMON_PAGES = Object.freeze({
             ],
             responsibilityTitle: 'Границы важнее обещаний',
             responsibilityText: 'Состав услуги фиксируется для конкретного объекта. Это позволяет отделить регулярную эксплуатацию от ремонтных работ, модернизации и задач сторонних подрядчиков.',
-            facts: [['2012', 'работаем в Ташкенте'], ['7', 'инженерных направлений'], ['B2B', 'коммерческие объекты']],
+            facts: [['2012', 'работаем в Ташкенте'], ['5', 'направлений обслуживания'], ['B2B', 'коммерческие объекты']],
             ctaTitle: 'Первый рабочий документ — техническая картина объекта',
             ctaText: 'Технический аудит определяет фактическое состояние систем и даёт основу для подготовки регламентов, планирования работ и дальнейшего обслуживания.'
         }),
         audit: Object.freeze({
             title: 'Технический аудит инженерных систем в Ташкенте',
-            description: 'Обследование инженерных систем коммерческого объекта, фотофиксация, реестр оборудования, технические замечания и план работ.',
+            description: 'Обследование инженерных систем коммерческого объекта, фотофиксация, сведения об осмотренном оборудовании, технические замечания и план работ.',
             eyebrow: 'ТЕХНИЧЕСКИЙ АУДИТ ОБЪЕКТА',
             heroTitle: 'Объективная основа для решений по эксплуатации',
             heroText: 'Обследуем инженерные системы, фиксируем фактическое состояние и передаём заказчику структурированный технический отчёт.',
@@ -613,7 +616,7 @@ const COMMON_PAGES = Object.freeze({
                 ['01', 'Определение границ', 'Согласовываем системы и зоны обследования, исходную документацию, условия доступа и состав итоговых материалов.'],
                 ['02', 'Обследование', 'Проводим осмотр оборудования, фиксируем доступные режимные параметры и выполняем предусмотренные программой проверки.'],
                 ['03', 'Анализ', 'Сопоставляем фактическое состояние с документацией и критериями оценки, формируем реестр технических замечаний.'],
-                ['04', 'Передача результата', 'Заказчик получает отчёт, реестр оборудования, приоритеты и последовательность дальнейших действий.']
+                ['04', 'Передача результата', 'Заказчик получает отчёт, сведения об обследованном оборудовании, приоритеты и последовательность действий. Полный реестр — при включении в программу.']
             ],
             scopeTitle: 'Что обследуется',
             scopeIntro: 'Фактический перечень определяется границами конкретного объекта.',
@@ -623,7 +626,7 @@ const COMMON_PAGES = Object.freeze({
             reportIntro: 'Структура результата позволяет использовать его как основу для планирования работ, подготовки регламентов и постановки задач подрядчикам.',
             report: [
                 ['01', 'Резюме для руководителя', 'Охват, ключевые выводы и приоритеты без перегрузки техническими деталями.'],
-                ['02', 'Реестр оборудования', 'Система, наименование, расположение, доступные паспортные данные и состояние.'],
+                ['02', 'Сведения об оборудовании', 'Обследованные узлы, расположение и состояние. Полная инвентаризация и подробный реестр включаются в расширенную программу отдельно.'],
                 ['03', 'Фотофиксация и замечания', 'Привязка наблюдений к оборудованию или зоне и техническое основание.'],
                 ['04', 'Приоритетный план', 'Последовательность действий: первоочередные, плановые и позиции, требующие наблюдения.']
             ],
@@ -634,7 +637,7 @@ const COMMON_PAGES = Object.freeze({
         }),
         service: Object.freeze({
             title: 'Комплексная эксплуатация инженерных систем | Ташкент',
-            description: 'Плановое обслуживание климатических, электрических, водопроводных и слаботочных систем коммерческих объектов в Ташкенте.',
+            description: 'Плановое обслуживание климатических, электрических систем, водоснабжения и канализации коммерческих объектов в Ташкенте.',
             eyebrow: 'КОМПЛЕКСНАЯ ТЕХНИЧЕСКАЯ ЭКСПЛУАТАЦИЯ',
             heroTitle: 'Инженерный контур с понятными правилами работы',
             heroText: 'Объединяем плановые операции, технические замечания и отчётность по системам объекта в согласованном регламенте.',
@@ -703,7 +706,7 @@ const COMMON_PAGES = Object.freeze({
                 'Xizmat boshlanishidan oldin uskunalar tarkibi, ish chegaralari, o‘zaro aloqa tartibi va hisobot formati aniqlanadi. Ushbu parametrlar obyektning texnik reglamentiga asos bo‘ladi.'
             ],
             photoCaption: 'Tijorat binosi tomidagi iqlim uskunalari',
-            facts: [['2012', 'faoliyat boshlangan yil'], ['7', 'muhandislik yo‘nalishi'], ['Yagona', 'boshqaruv tizimi']],
+            facts: [['2012', 'faoliyat boshlangan yil'], ['5', 'xizmat yo‘nalishi'], ['Yagona', 'boshqaruv tizimi']],
             principlesTitle: 'Ish tamoyillari',
             principles: [
                 ['01', 'Aniq javobgarlik chegaralari', 'Tizimlar, uskunalar va xizmat zonalari ish boshlanishidan oldin kelishiladi.'],
@@ -750,27 +753,27 @@ const COMMON_PAGES = Object.freeze({
             model: [['01', 'Inventarizatsiya', 'Tizimlar, uskunalar, zonalar va mavjud boshlang‘ich ma’lumotlarni qayd etamiz.'], ['02', 'Reglamentlash', 'Operatsiyalar, davriylik va kirish tartibini kelishamiz.'], ['03', 'Bajarish', 'Rejali ishlarni bajaramiz va texnik kamchiliklarni ko‘rib chiqamiz.'], ['04', 'Hisobot', 'Holat, bajarilgan ishlar va zarur harakatlar bo‘yicha ma’lumot beramiz.']],
             responsibilityTitle: 'Chegaralar va’dalardan muhimroq',
             responsibilityText: 'Xizmat tarkibi muayyan obyekt uchun belgilanadi. Bu muntazam ekspluatatsiyani ta’mirlash, modernizatsiya va uchinchi tomon pudratchilarining vazifalaridan ajratish imkonini beradi.',
-            facts: [['2012', 'Toshkentda ishlaymiz'], ['7', 'muhandislik yo‘nalishi'], ['B2B', 'tijorat obyektlari']],
+            facts: [['2012', 'Toshkentda ishlaymiz'], ['5', 'xizmat yo‘nalishi'], ['B2B', 'tijorat obyektlari']],
             ctaTitle: 'Birinchi ish hujjati — obyektning texnik holati',
             ctaText: 'Texnik audit tizimlarning haqiqiy holatini aniqlaydi hamda reglamentlar tayyorlash, ishlarni rejalashtirish va keyingi xizmat uchun asos yaratadi.'
         }),
         audit: Object.freeze({
             title: 'Toshkentda muhandislik tizimlarining texnik auditi',
-            description: 'Tijorat obyektining muhandislik tizimlarini tekshirish, fotofiksatsiya, uskunalar reyestri, texnik kamchiliklar va ishlar rejasi.',
+            description: 'Tijorat obyektining muhandislik tizimlarini tekshirish, fotofiksatsiya, ko‘zdan kechirilgan uskunalar haqida ma’lumot, texnik kamchiliklar va ishlar rejasi.',
             eyebrow: 'OBYEKTNING TEXNIK AUDITI',
             heroTitle: 'Ekspluatatsiya qarorlari uchun obyektiv asos',
             heroText: 'Muhandislik tizimlarini tekshiramiz, haqiqiy holatni qayd etamiz va buyurtmachiga tizimlashtirilgan texnik hisobotni taqdim etamiz.',
             introTitle: 'Taqdimot emas, amaliy muhandislik hujjati',
             introText: 'Audit tarkibi tashrifdan oldin kelishiladi va binoning vazifasi, maydoni, uskunalar ro‘yxati, kirish shartlari hamda mavjud hujjatlarga bog‘liq.',
             stagesTitle: 'O‘tkazish tartibi',
-            stages: [['01', 'Chegaralarni aniqlash', 'Tekshiriladigan tizim va zonalar, boshlang‘ich hujjatlar, kirish shartlari va yakuniy materiallar tarkibini kelishamiz.'], ['02', 'Tekshiruv', 'Uskunalarni ko‘zdan kechiramiz, mavjud ish parametrlarini qayd etamiz va dasturda ko‘zda tutilgan tekshiruvlarni bajaramiz.'], ['03', 'Tahlil', 'Haqiqiy holatni hujjatlar va baholash mezonlari bilan solishtiramiz, texnik kamchiliklar reyestrini tuzamiz.'], ['04', 'Natijani topshirish', 'Buyurtmachi hisobot, uskunalar reyestri, ustuvorliklar va keyingi harakatlar ketma-ketligini oladi.']],
+            stages: [['01', 'Chegaralarni aniqlash', 'Tekshiriladigan tizim va zonalar, boshlang‘ich hujjatlar, kirish shartlari va yakuniy materiallar tarkibini kelishamiz.'], ['02', 'Tekshiruv', 'Uskunalarni ko‘zdan kechiramiz, mavjud ish parametrlarini qayd etamiz va dasturda ko‘zda tutilgan tekshiruvlarni bajaramiz.'], ['03', 'Tahlil', 'Haqiqiy holatni hujjatlar va baholash mezonlari bilan solishtiramiz, texnik kamchiliklar reyestrini tuzamiz.'], ['04', 'Natijani topshirish', 'Buyurtmachi hisobot, tekshirilgan uskunalar haqida ma’lumot, ustuvorliklar va harakatlar ketma-ketligini oladi. To‘liq reyestr dasturga alohida kiritiladi.']],
             scopeTitle: 'Nimalar tekshiriladi',
             scopeIntro: 'Aniq ro‘yxat muayyan obyekt chegaralari bilan belgilanadi.',
             scopeImageAlt: 'Ta’minot va chiqarish ventilyatsiyasi uskunalari',
             scope: ['VRV/VRF, chillerlar va fankoyllar', 'Ta’minot va chiqarish ventilyatsiyasi', 'Isitish va issiqlik uzellari', 'Elektr ta’minoti va taqsimlash', 'Suv ta’minoti va kanalizatsiya', 'Past tok tizimlari va SKUD', 'Ekspluatatsiya hujjatlari'],
             reportTitle: 'Texnik hisobot tarkibi',
             reportIntro: 'Natija tuzilishi undan ishlarni rejalashtirish, reglamentlar tayyorlash va pudratchilarga vazifalar qo‘yish uchun asos sifatida foydalanish imkonini beradi.',
-            report: [['01', 'Rahbariyat uchun xulosa', 'Texnik tafsilotlar bilan ortiqcha yuklamasdan qamrov, asosiy xulosalar va ustuvorliklar.'], ['02', 'Uskunalar reyestri', 'Tizim, nomi, joylashuvi, mavjud pasport ma’lumotlari va holati.'], ['03', 'Fotofiksatsiya va kamchiliklar', 'Kuzatuvlarning uskuna yoki zonaga bog‘lanishi va texnik asosi.'], ['04', 'Ustuvor reja', 'Birinchi navbatdagi, rejali va kuzatuvdagi vazifalar ketma-ketligi.']],
+            report: [['01', 'Rahbariyat uchun xulosa', 'Texnik tafsilotlar bilan ortiqcha yuklamasdan qamrov, asosiy xulosalar va ustuvorliklar.'], ['02', 'Uskunalar haqida ma’lumot', 'Tekshirilgan uzellar, joylashuvi va holati. To‘liq inventarizatsiya va batafsil reyestr kengaytirilgan dasturga alohida kiritiladi.'], ['03', 'Fotofiksatsiya va kamchiliklar', 'Kuzatuvlarning uskuna yoki zonaga bog‘lanishi va texnik asosi.'], ['04', 'Ustuvor reja', 'Birinchi navbatdagi, rejali va kuzatuvdagi vazifalar ketma-ketligi.']],
             confidentialityTitle: 'Obyekt materiallari ish konturida qoladi',
             confidentialityText: 'Loyiha hujjatlari, fotosuratlar va tekshiruv natijalari hisobot tayyorlash uchun ishlatiladi va buyurtmachining alohida roziligisiz e’lon qilinmaydi.',
             calculatorTitle: 'Audit narxi bo‘yicha dastlabki hisob',
@@ -778,7 +781,7 @@ const COMMON_PAGES = Object.freeze({
         }),
         service: Object.freeze({
             title: 'Muhandislik tizimlarining kompleks ekspluatatsiyasi | Toshkent',
-            description: 'Toshkentdagi tijorat obyektlarining iqlim, elektr, suv va past tok tizimlariga rejali texnik xizmat.',
+            description: 'Toshkentdagi tijorat obyektlarining iqlim, elektr, suv ta’minoti va kanalizatsiya tizimlariga rejali texnik xizmat.',
             eyebrow: 'KOMPLEKS TEXNIK EKSPLUATATSIYA',
             heroTitle: 'Aniq ish qoidalariga ega muhandislik tizimlari qamrovi',
             heroText: 'Obyekt tizimlari bo‘yicha rejali operatsiyalar, texnik kamchiliklar va hisobotni kelishilgan reglamentda birlashtiramiz.',
@@ -839,7 +842,7 @@ const COMMON_PAGES = Object.freeze({
             aboutTitle: 'Engineering operations and maintenance as a managed system',
             aboutParagraphs: ['AsiaTechnoStroy organises engineering operations and maintenance for commercial facilities in Tashkent. Engineering systems, scheduled work, documentation and delivery control are brought into one operating framework.', 'Before maintenance begins, the equipment scope, work boundaries, communication process and reporting format are defined. These parameters become the basis of the facility’s technical operating plan.'],
             photoCaption: 'Climate equipment on the roof of a commercial building',
-            facts: [['2012', 'year established'], ['7', 'engineering disciplines'], ['Single', 'management framework']],
+            facts: [['2012', 'year established'], ['5', 'maintenance disciplines'], ['Single', 'management framework']],
             principlesTitle: 'Operating principles',
             principles: [['01', 'Defined responsibility boundaries', 'Systems, equipment and service areas are agreed before work begins.'], ['02', 'Operating plan', 'A planned maintenance calendar and control operations are established for the facility.'], ['03', 'Documented outcome', 'Reporting records equipment condition, priority and the next technical action.']],
             segmentsTitle: 'Facilities within our operating scope',
@@ -870,27 +873,27 @@ const COMMON_PAGES = Object.freeze({
             model: [['01', 'Inventory', 'We record systems, equipment, areas and available source information.'], ['02', 'Operating plan', 'We agree the operations, frequencies and access process.'], ['03', 'Delivery', 'We complete planned work and process technical observations.'], ['04', 'Reporting', 'We report condition, completed work and required next actions.']],
             responsibilityTitle: 'Boundaries are more useful than promises',
             responsibilityText: 'The service scope is defined for each facility. This distinguishes routine operation from repair work, upgrades and tasks assigned to third-party contractors.',
-            facts: [['2012', 'operating in Tashkent'], ['7', 'engineering disciplines'], ['B2B', 'commercial facilities']],
+            facts: [['2012', 'operating in Tashkent'], ['5', 'maintenance disciplines'], ['B2B', 'commercial facilities']],
             ctaTitle: 'The first working document is the facility’s technical picture',
             ctaText: 'A technical audit establishes the actual condition of the systems and provides a basis for work planning, operating procedures and ongoing maintenance.'
         }),
         audit: Object.freeze({
             title: 'Engineering systems technical audit in Tashkent',
-            description: 'Engineering survey of a commercial facility, photographic records, equipment register, technical observations and prioritised action plan.',
+            description: 'Engineering survey of a commercial facility, photographs, information on inspected equipment, technical observations and a prioritised action plan.',
             eyebrow: 'FACILITY TECHNICAL AUDIT',
             heroTitle: 'An objective basis for operating decisions',
             heroText: 'We survey the engineering systems, record their actual condition and provide the client with a structured technical report.',
             introTitle: 'A working engineering document, not a presentation',
             introText: 'The audit scope is agreed before the visit and depends on the building use, floor area, equipment, access conditions and available documentation.',
             stagesTitle: 'Audit process',
-            stages: [['01', 'Define the scope', 'We agree the systems and areas to be surveyed, source documentation, access conditions and final deliverables.'], ['02', 'Survey', 'We inspect equipment, record available operating parameters and complete the checks included in the agreed audit programme.'], ['03', 'Assessment', 'We compare the actual condition with the documentation and assessment criteria, then prepare the technical observations register.'], ['04', 'Deliver the findings', 'The client receives the report, equipment register, priorities and the sequence of further action.']],
+            stages: [['01', 'Define the scope', 'We agree the systems and areas to be surveyed, source documentation, access conditions and final deliverables.'], ['02', 'Survey', 'We inspect equipment, record available operating parameters and complete the checks included in the agreed audit programme.'], ['03', 'Assessment', 'We compare the actual condition with the documentation and assessment criteria, then prepare the technical observations register.'], ['04', 'Deliver the findings', 'The client receives a report, information on inspected equipment, priorities and next actions. A full register is included only when specified in the programme.']],
             scopeTitle: 'What is surveyed',
             scopeIntro: 'The final list is defined by the agreed boundaries of the facility.',
             scopeImageAlt: 'Supply and extract ventilation equipment',
             scope: ['VRV/VRF, chillers and fan-coil units', 'Supply and extract ventilation', 'Heating and heat interface units', 'Electrical supply and distribution', 'Water supply and drainage', 'Low-voltage and access-control systems', 'Operating documentation'],
             reportTitle: 'Technical report package',
             reportIntro: 'The deliverable is structured to support work planning, operating procedures and contractor work packages.',
-            report: [['01', 'Executive summary', 'Scope, principal findings and priorities without unnecessary technical detail.'], ['02', 'Equipment register', 'System, item, location, available nameplate information and condition.'], ['03', 'Photographic records and observations', 'Each observation is linked to an item or area with its technical basis.'], ['04', 'Prioritised action plan', 'A sequence of immediate, planned and monitored actions.']],
+            report: [['01', 'Executive summary', 'Scope, principal findings and priorities without unnecessary technical detail.'], ['02', 'Equipment information', 'Inspected items, their location and condition. A full inventory and detailed register are separately included in an extended programme.'], ['03', 'Photographic records and observations', 'Each observation is linked to an item or area with its technical basis.'], ['04', 'Prioritised action plan', 'A sequence of immediate, planned and monitored actions.']],
             confidentialityTitle: 'Facility information is handled confidentially',
             confidentialityText: 'Design documents, photographs and survey findings are used to prepare the report and are not published without the client’s separate approval.',
             calculatorTitle: 'Get a preliminary audit cost estimate',
@@ -898,7 +901,7 @@ const COMMON_PAGES = Object.freeze({
         }),
         service: Object.freeze({
             title: 'Integrated engineering maintenance in Tashkent',
-            description: 'Planned maintenance of HVAC, electrical, water and low-voltage systems for commercial facilities in Tashkent.',
+            description: 'Planned maintenance of HVAC, electrical, water supply and drainage systems for commercial facilities in Tashkent.',
             eyebrow: 'INTEGRATED ENGINEERING OPERATIONS AND MAINTENANCE',
             heroTitle: 'An engineering scope with clear operating rules',
             heroText: 'We bring planned tasks, technical observations and system reporting into one agreed operating plan.',
@@ -952,4 +955,6 @@ const COMMON_PAGES = Object.freeze({
     })
 });
 
-export const PAGES = COMMON_PAGES;
+export const PAGES = Object.freeze(Object.fromEntries(Object.entries(COMMON_PAGES).map(([localeKey, pages]) => [
+    localeKey, Object.freeze({ ...pages, ...directionPages(localeKey) })
+])));

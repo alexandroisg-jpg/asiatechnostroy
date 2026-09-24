@@ -221,6 +221,17 @@ test('shared CSS and browser modules keep asset references root-relative', async
     assert.ok(moduleImports.every((value) => value.startsWith('/')));
 });
 
+test('editorial content is visible without JavaScript and reveal motion is only an enhancement', async () => {
+    const css = await readFile(path.join(publicRoot, 'style.css'), 'utf8');
+    const defaultRule = css.match(/\.reveal\s*\{([^}]+)\}/u)?.[1];
+    assert.ok(defaultRule, 'the default reveal rule must exist');
+    assert.match(defaultRule, /opacity:\s*1\s*;/u);
+    assert.match(defaultRule, /transform:\s*none\s*;/u);
+    assert.doesNotMatch(defaultRule, /visibility:\s*hidden|display:\s*none/u);
+    assert.match(css, /\.reveal\.visible\s*\{[^}]*animation:\s*reveal-in/u);
+    assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/u);
+});
+
 test('five service disciplines have full localized content, working links and labelled illustrations', async () => {
     for (const localeKey of localeKeys) {
         for (const pageType of ['home', 'service']) {
